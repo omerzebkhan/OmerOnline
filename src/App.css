@@ -1,38 +1,119 @@
-.App {
-  text-align: center;
+ /* Including one css file into other */
+/* @import "style2.css";  */
+
+/* @import url("https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"); */
+@import 'font-awesome/css/font-awesome.min.css';
+
+.appBackground{
+	background-color : #d1d1f8;
+	width: '100%';
+	height: '100%';
+		
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.box1{
+	background-color : #ffffff;
+	border-radius : 10px 10px 10px 10px;
+	overflow : hidden;
+	height: 200px;
+	max-height: 35vh;
+	-webkit-box-shadow : 0px 12px 18px -6px rgba(0,0,0,0.3);
+	box-shadow : 0px 12px 18px -6px rgba(0,0,0,0.3);
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+.box{
+    margin: 20px;
+    cursor: pointer;
+}
+
+.grid{
+	min-height:100%;
+	display:flex;
+	flex-wrap: wrap;
+	flex-direction: row;
+}
+
+.grid > div{
+	flex-basis: calc(33.333% - 40px);
+}
+
+
+.profile-img-card {
+	width: 96px;
+	height: 96px;
+	margin: 0 auto 10px;
+	display: block;
+	-moz-border-radius: 50%;
+	-webkit-border-radius: 50%;
+	border-radius: 50%;
   }
+
+.card-img-top {
+    width: 100%;
+    height: 15vw;
+    object-fit: cover;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+
+
+.inputForm{
+	background-color : #df9797;
+    margin-top:-8px;
 }
 
-.App-link {
-  color: #61dafb;
+.inputFormHeader{
+	background-color : #df9797;
+	text-align: center;
+	border-radius : 50px 50px 0px 0px;
+	margin-left:100px;
+	margin-right:100px;
+
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
+.searchForm{
+	background-color : #d6f568;
+	margin-top:-8px;
   }
-  to {
-    transform: rotate(360deg);
-  }
+
+.searchFormHeader{
+	background-color : #d6f568;
+	text-align: center;
+	border-radius : 50px 50px 0px 0px;
+	margin-left:100px;
+	margin-right:100px;
+
 }
+
+
+
+.searchButton{
+  background-image : url('assets/button/search.ico');
+  background-size: cover;
+  display: inline-block;
+  height: 50px;
+  width: 50px;
+}
+
+.deleteButton{
+	background-image : url('assets/button/delete.ico');
+  background-size: cover;
+  display: inline-block;
+  height: 50px;
+  width: 50px;
+}
+
+table, th, td {
+	border: 1px solid rgb(150, 147, 147);
+  }
+th { background-color: #ffd78c; }
+
+tr:nth-child(even){
+  background-color: #c2c0c0;
+}
+tr:nth-child(odd){
+	background-color: #c49494;
+  }
+
+  .color-nav{
+	  background-color:rgb(6, 145, 187);
+  }

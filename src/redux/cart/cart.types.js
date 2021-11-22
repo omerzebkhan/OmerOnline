@@ -1,0 +1,9 @@
+const CartActionType = {
+    FETCH_CART_START: 'FETCH_CART_START',
+    FETCH_CART_SUCCESS: 'FETCH_CART_SUCCESS',
+    FETCH_CART_FAILURE: 'FETCH_CART_FAILURE',
+    SET_CURRENT_CART: 'SET_CURRENT_CART',
+
+}
+
+export default CartActionType;
