@@ -4,11 +4,12 @@ import Header from './header.component';
 import BootstrapCarousel from './BootstrapCarousel';  
 import CategoryCard from './CategoryCard.coponent';
 import ListItem from './item-list.component';
+import Footer from './footer.component';
 
 const LandingPage =() =>{
  
     return(
-        <div>
+        <div class="jumbotron">
           <Header /> 
         <div>
         <BootstrapCarousel></BootstrapCarousel>  
@@ -20,6 +21,7 @@ const LandingPage =() =>{
         </div>
         
         </div>
+        <Footer />
         </div>     
     )}
 

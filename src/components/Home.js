@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LandingPage from "../components/landingpage/landingpage.component";
+import 'bootstrap/dist/css/bootstrap.min.css'
 
 import UserService from "../services/user.service";
 
@@ -9,7 +10,8 @@ const Home = () => {
   useEffect(() => {
     UserService.getPublicContent().then(
       (response) => {
-        setContent(response.data);
+        //setContent(response.data);
+        console.log(response.data)
       },
       (error) => {
         if (error.response) {
@@ -35,11 +37,10 @@ const Home = () => {
   }, []);
 
   return (
-    <div className="container">
-      <header className="jumbotron">
-        <h3>{content}</h3>
+    <div >
+      
         <LandingPage />
-      </header>
+     
     </div>
   );
 };

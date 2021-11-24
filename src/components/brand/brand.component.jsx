@@ -37,26 +37,35 @@ const Brand = () => {
 
     const upload = (id) => {
         let currentFile = selectedFiles[0];
-        console.log(`image brandid = ${id}`)
+        //console.log(`image brandid = ${id}`)
         setProgress(0);
         setCurrentFile(currentFile);
         //    console.log(currentFile);
         const lastDot = currentFile.name.lastIndexOf('.');
 
         const ext = currentFile.name.substring(lastDot + 1);
-        var fn = `${id}.${ext}`;
-        console.log(`file name should be ${fn}`);
+        var fn = `brand${id}.${ext}`;
+        //console.log(`file name should be ${fn}`);
         // file.originalname = `${req.body.filename}.${ext}`;
 
         UploadService.upload(currentFile, (event) => {
             setProgress(Math.round((100 * event.loaded) / event.total));
-        }, fn, '\\App\\uploads\\brandsImages\\')
+                }, fn, '\\App\\uploads\\brandsImages\\')
             .then((response) => {
+               // console.log(process.env.REACT_APP_S3)
+                if (process.env.REACT_APP_S3 ==="True"){
                 setMessage(response.data.message);
-                console.log(response.data.message)
-                //return UploadService.getFiles();
-
-                //update the file name with extension to the brand url
+                //console.log(response)
+                fn = `${response.data.data.Location}`
+                //console.log(fn)
+                }
+                else
+                {
+                    setMessage(response.data.message);
+                  //  console.log(response.data.message)
+                }
+                
+               
                 var data = {
                     imageUrl: fn
                 };
@@ -110,13 +119,9 @@ const Brand = () => {
         brandService.create(data)
             .then(response => {
                setMessage(`Brand successfully Added Brand id = ${response.data.id}`);
-                console.log(response.data);
-
+                //console.log(response.data);
                 // upload image
                 upload(response.data.id);
-
-                // update the 
-
             })
             .catch(error => {
                 console.log(error.response.request.response.message);

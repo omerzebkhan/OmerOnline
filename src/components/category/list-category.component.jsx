@@ -37,7 +37,11 @@ const ListBrand =({
          onClick={() => setActiveCategory(item,index)}>
           <td>{item.name}</td>
           <td>{item.description}</td>
+          { process.env.REACT_APP_S3 ==="True" ?
+          <td><img src={item.imageUrl} alt="no data" width="100" height="100" /></td>
+          :
           <td><img src={`${process.env.REACT_APP_MIDDLEWARE}/categoriesImages/${item.imageUrl}`} alt="no data" width="100" height="100" /></td>
+          }
           {masterComp === 'AddItem'?
           <td>select button</td>
           :

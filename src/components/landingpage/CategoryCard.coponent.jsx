@@ -34,8 +34,11 @@ const CategoryCard = ({
                   <Card.Img 
                   variant="top" 
                   className="card-img-top"
-                  src={`${process.env.REACT_APP_MIDDLEWARE}/categoriesImages/${item.imageUrl}`} 
-                  
+                  { ...process.env.REACT_APP_S3 === "True" ?
+                        {src:`${item.imageUrl}`,alt:"no data",width:"100",height:"100"}
+                    :
+                        {src:`${process.env.REACT_APP_MIDDLEWARE}/categoriesImages/${item.imageUrl}`,alt:"no data",width:"100",height:"100"}
+	            }
                   />
                   <Card.Body>
                     <Card.Title>{item.name}</Card.Title>

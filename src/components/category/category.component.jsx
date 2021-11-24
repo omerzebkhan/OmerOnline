@@ -45,7 +45,7 @@ const Category = () => {
         const lastDot = currentFile.name.lastIndexOf('.');
 
         const ext = currentFile.name.substring(lastDot + 1);
-        var fn = `${id}.${ext}`;
+        var fn = `cat${id}.${ext}`;
         // console.log(`file name should be ${fn}`);
         // file.originalname = `${req.body.filename}.${ext}`;
 
@@ -53,11 +53,17 @@ const Category = () => {
             setProgress(Math.round((100 * event.loaded) / event.total));
         }, fn, '\\App\\uploads\\categoriesImages\\')
             .then((response) => {
-                setMessage(response.data.message);
-                console.log(response.data.message)
-                //return UploadService.getFiles();
-
-                //update the file name with extension to the category url
+                if (process.env.REACT_APP_S3 ==="True"){
+                    setMessage(response.data.message);
+                    //console.log(response)
+                    fn = `${response.data.data.Location}`
+                    //console.log(fn)
+                    }
+                    else
+                    {
+                        setMessage(response.data.message);
+                      //  console.log(response.data.message)
+                    }
                 var data = {
                     imageUrl: fn
                 };
@@ -144,7 +150,7 @@ const Category = () => {
 
     return (
         <div className="submit-form">
-            <h3>{access ?
+            {access ?
                 <div>
                     <div className="inputFormHeader"><h1>Add New Category</h1>
                         {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
@@ -208,7 +214,7 @@ const Category = () => {
                     </div>
                 </div>
                 :
-                "Access denied for the screen"}</h3>
+                <h3>"Access denied for the screen"</h3>}
         </div>
     );
 }

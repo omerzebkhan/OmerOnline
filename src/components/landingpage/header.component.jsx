@@ -1,29 +1,20 @@
-
-
 import header from './header.jpg';
-import {Image} from 'react-bootstrap';
+import { Image } from 'react-bootstrap';
 //import {fetchSiteStartAsync} from '../redux/siteManagement/siteManagement.actions';
-
-const HeaderComponent=()=>{
-    return(
-     <div>
-
-        <div>
-       
+import 'bootstrap/dist/css/bootstrap.min.css'
+const HeaderComponent = () => {
+    return (
+      
+        <div class="jumbotron">
         <Image
         src={header}
         alt=""
         fluid 
         width="1500" 
         style={{'height':"200px"}} />
-       
-        </div>  
-     </div>
+        </div>
+
     )
 }
-
-
-
-
 
 export default HeaderComponent;

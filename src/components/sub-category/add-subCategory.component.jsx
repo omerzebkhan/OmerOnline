@@ -50,7 +50,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
     console.log(currentFile);
     const lastDot = currentFile.name.lastIndexOf('.');
     const ext = currentFile.name.substring(lastDot + 1);
-    var fn = `${id}.${ext}`;
+    var fn = `subcat${id}.${ext}`;
     //console.log(`file name should be ${fn}`);
     // file.originalname = `${req.body.filename}.${ext}`;
 
@@ -58,11 +58,17 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
       setProgress(Math.round((100 * event.loaded) / event.total));
     }, fn, '\\App\\uploads\\subCategoriesImages\\')
       .then((response) => {
-        setMessage(response.data.message);
-        console.log(response.data.message)
-        //return UploadService.getFiles();
-
-        //update the file name with extension to the brand url
+        if (process.env.REACT_APP_S3 ==="True"){
+          setMessage(response.data.message);
+          //console.log(response)
+          fn = `${response.data.data.Location}`
+          //console.log(fn)
+          }
+          else
+          {
+              setMessage(response.data.message);
+            //  console.log(response.data.message)
+          }
         var data = {
           imageUrl: fn
         };
