@@ -50,7 +50,7 @@ const Navigation = (props) => {
                 <NavDropdown.Item href="/BalanceSheetReport">Balance Sheet</NavDropdown.Item>
                 </NavDropdown>    
             </Nav>
-            <Navbar.Brand href="/LandingPage">Landing Page</Navbar.Brand>
+          
           </Navbar.Collapse>
          
         </Navbar>

@@ -335,7 +335,7 @@ const AddItem = ({
 
 
     return (
-        <div className="submit-form">
+        <div className="submit-form container">
             {access ?
                 <div>
 

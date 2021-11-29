@@ -325,7 +325,7 @@ const SaleReturn = ({
     }
 
     return (
-        <div>
+        <div className="container">
         {access ?
         <div>
             <div >

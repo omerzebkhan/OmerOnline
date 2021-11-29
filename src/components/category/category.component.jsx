@@ -149,7 +149,7 @@ const Category = () => {
 
 
     return (
-        <div className="submit-form">
+        <div className="submit-form container">
             {access ?
                 <div>
                     <div className="inputFormHeader"><h1>Add New Category</h1>

@@ -153,7 +153,7 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
     return (
         <div>
             {access ?
-                <div className="submit-form">
+                <div className="submit-form container">
                     {loading ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
                     {isFetching ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
                     {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}

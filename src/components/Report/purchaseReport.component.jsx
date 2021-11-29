@@ -44,7 +44,7 @@ class PurchaseReport extends React.Component {
 
     render() {
         return (
-            <div className="submit-form">
+            <div className="submit-form container">
 
                 <h1>Purchase Report</h1>
                 <form onSubmit={this.handleSubmit}>

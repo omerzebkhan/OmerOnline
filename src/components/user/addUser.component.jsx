@@ -484,7 +484,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
             {content !== "Unauthorized!" ?
                 <div>
                     {access ?
-                        <div className="submit-form">
+                        <div className="submit-form container">
 
                             <div className="inputFormHeader"><h1>{selectedUser ? "Update User" : "Add New User"}</h1></div>
                             <div className="inputForm">

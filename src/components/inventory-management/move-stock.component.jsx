@@ -158,7 +158,7 @@ const MoveStock =({
     return(
         <div>
         {access ?
-        <div className="submit-form">
+        <div className="submit-form container">
              
             <h1>Move Items</h1>
             {loading ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}

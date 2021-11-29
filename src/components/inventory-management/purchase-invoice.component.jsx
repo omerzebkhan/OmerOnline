@@ -262,7 +262,7 @@ const PurchaseInvoice = ({ currentItem, currentUser,currentUser1 }) => {
     return (
         <div>
         {access ?
-        <div className="submit-form">
+        <div className="submit-form container">
                     <h1>Purchase Invoice</h1>
                     {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
                     {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}

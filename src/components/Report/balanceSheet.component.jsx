@@ -86,7 +86,7 @@ class BalanceSheet extends React.Component {
 
   render() {
     return (
-      <div className="submit-form">
+      <div className="submit-form container">
 
         <h1>Balance Sheet Report</h1>
         <form onSubmit={this.handleSubmit}>

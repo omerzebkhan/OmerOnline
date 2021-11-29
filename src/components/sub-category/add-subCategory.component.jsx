@@ -233,7 +233,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
   return (
     <div>
     {access ?
-    <div className="submit-form">
+    <div className="submit-form container">
        <h3>{content === "Admin Content." ?
                 <div>
 

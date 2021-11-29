@@ -26,7 +26,7 @@ class StockReport extends React.Component {
 
     render() {
         return (
-            <div className="submit-form">
+            <div className="submit-form container">
 
                 <h1>Stock Report</h1>
                 <form onSubmit={this.handleSubmit}>

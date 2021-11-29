@@ -615,7 +615,7 @@ const SaleInvoice = ({
     return (
         <div>
             {access ?
-                <div className="submit-form divMargin" >
+                <div className="submit-form container" >
 
                     <h1>Sale Invoice</h1>
                     {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}

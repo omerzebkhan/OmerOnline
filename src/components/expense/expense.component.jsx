@@ -97,7 +97,7 @@ const Expense = () => {
 
 
     return (
-        <div className="submit-form">
+        <div className="submit-form container">
             {content !== "Unauthorized!" ?
                 <h3>{access ?
                     <div>

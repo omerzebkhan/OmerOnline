@@ -111,7 +111,7 @@ const Pricing =({
     return(
         <div>
         {access ?
-        <div className="submit-form">
+        <div className="submit-form container">
            
             <h1>Pricing</h1>
             <form onSubmit={handleSubmit}>
