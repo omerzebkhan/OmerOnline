@@ -94,7 +94,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
 
 
   const saveSubCategory = () => {
-
+    //console.log(`selected category = ${selCat}`)
     var data = {
       name: name,
       description: description,
@@ -166,6 +166,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
     setShowOptions(false);
     setUserInput(e.currentTarget.innerText);
     setSelCat(e.currentTarget.dataset.id);
+   // console.log(e.currentTarget.dataset.id)
 
   };
 
@@ -234,7 +235,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
     <div>
     {access ?
     <div className="submit-form container">
-       <h3>{content === "Admin Content." ?
+       {content === "Admin Content." ?
                 <div>
 
       <div className="inputFormHeader"><h1>Add New Sub Category</h1></div>
@@ -314,7 +315,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
       </div>
       </div>
                 :
-                content}</h3>
+                content}
     </div>
       :
       "Access denied for the screen"}

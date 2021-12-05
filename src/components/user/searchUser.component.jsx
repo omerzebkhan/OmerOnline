@@ -158,7 +158,7 @@ const SearchUser = ({
 
                                             {userData ?
                                                 userData.user
-                                                    .filter(function (item) { return item.roles === "Customer" })
+                                                    .filter(function (item) { return item.roles.toUpperCase() === "CUSTOMER" })
                                                     .map((user, index) => (
                                                         //   console.log(item);
 
@@ -206,7 +206,7 @@ const SearchUser = ({
                                         <tbody>
                                             {userData ?
                                                 userData.user
-                                                    .filter(function (item) { return item.roles === "Supplier" })
+                                                    .filter(function (item) { return item.roles.toUpperCase() === "SUPPLIER" })
                                                     .map((user, index) => (
                                                         //   console.log(item);    
                                                         <tr key={index}

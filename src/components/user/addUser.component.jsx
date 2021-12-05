@@ -136,7 +136,9 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                 // console.log(response.data.id);
 
                 /////////////////////////////// Associate role with the id//////////////
-                console.log(`user id = ${response.data.id}
+
+                console.log(`creating role for the user 
+                            user id = ${response.data.id}
                             role id = ${cRole[0].id}`)
                 const data = {
                     roleId: cRole[0].id,
