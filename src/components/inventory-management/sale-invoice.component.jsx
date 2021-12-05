@@ -139,7 +139,7 @@ const SaleInvoice = ({
             setFilteredOptionsCustomer(userData.user.filter(
                 // console.log(userData[0].name)
                 (option) =>
-                    option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles === "Customer"
+                    option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
             ));
             setActiveOptionCustomer(0);
             setShowOptionsCustomer(true);
@@ -150,7 +150,7 @@ const SaleInvoice = ({
         else if (event.target.id === "agentSearch") {
             setFilteredOptionsAgent(userData.user.filter(
                 (option) => option.name.toLowerCase().indexOf(agentInput.toLowerCase()) > -1
-                    && option.roles === "SaleAgent"
+                    && option.roles.toUpperCase() === "SALEAGENT"
             ));
             setActiveOptionAgent(0);
             setShowOptionsAgent(true);
