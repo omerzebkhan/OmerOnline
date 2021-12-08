@@ -180,7 +180,9 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
                                 <tbody>
                                     {sInvoice.map((item, index) => {
                                         //console.log(index)
-                                        return (<tr key={index}>
+                                       
+                                        return (
+                                        <tr key={index}>
                                             <td>{item.createdAt}</td>
                                             <td>{item.customerId}</td>
                                             <td>{item.id}</td>

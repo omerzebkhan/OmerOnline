@@ -158,7 +158,7 @@ const SearchUser = ({
 
                                             {userData ?
                                                 userData.user
-                                                    .filter(function (item) { return item.roles.toUpperCase() === "CUSTOMER" })
+                                                    .filter(function (item) { return item.roles.toUpperCase() === "CUSTOMER" && item.outstanding>0 })
                                                     .map((user, index) => (
                                                         //   console.log(item);
 

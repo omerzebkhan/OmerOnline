@@ -57,35 +57,12 @@ const SaleInvoice = ({
         fetchItemStartAsync();
     }, [fetchItemStartAsync])
 
-    // useEffect(() => {
-    //     setFilteredOptionsItem(itemData);
-    // }, [itemData])
-
-
+   
     useEffect(() => {
         fetchUserStartAsync();
-
-
     }, [fetchUserStartAsync])
 
-
-
-
-
-    useEffect(() => {
-        //  console.log(`user Data =${userData[0].name}`);
-        //  console.log(qty.id);
-
-    }, [userData]);
-
-    useEffect(() => {
-        // console.log(`user Data =${itemData[0].name}`);
-        //  console.log(qty.id);
-
-    }, [itemData]);
-
-
-    useLayoutEffect(() => {
+   useLayoutEffect(() => {
        // setMessage("");
         //checkAdmin().then((r) => { setContent(r); });
         setAccess(checkAccess("SALE INVOICE", currentUser.rights));
@@ -127,7 +104,6 @@ const SaleInvoice = ({
             //console.log(`itemdate =${itemData}`);            
             setFilteredOptionsItem(itemData.filter(
                 (option) => option.name.toLowerCase().indexOf(itemInput.toLowerCase()) > -1
-
             ));
             setActiveOptionItem(0);
             setShowOptionsItem(true);
@@ -135,11 +111,13 @@ const SaleInvoice = ({
             setItemInput(event.target.value);
         }
         else if (event.target.id === "customerSearch") {
+           console.log(`customer input=${customerInput} ${event.target.value}`)
            if(userData.user){
             setFilteredOptionsCustomer(userData.user.filter(
                 // console.log(userData[0].name)
                 (option) =>
                     option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
+                   //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
             ));
             setActiveOptionCustomer(0);
             setShowOptionsCustomer(true);
@@ -409,14 +387,18 @@ const SaleInvoice = ({
                                 <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                            <th className="th-sm">Name</th>
-                                            <th>Addresss</th>
+                                       
+                                            <th style={{width: "50%"}}>Name</th>
+                                            <th>Quantity</th>
+                                            <th>Cost</th>
+                                        
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                            <td>{optionName.name}</td>
-                                            <td>{optionName.address}</td>
+                                        <td>{optionName.name}</td>
+                                        <td>{optionName.quantity}</td>
+                                        <td>{optionName.averageprice}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -584,7 +566,7 @@ const SaleInvoice = ({
                                     <thead>
                                         <tr>
                                             <th className="th-sm">Name</th>
-                                            <th>Addresss</th>
+                                            <th>Address</th>
                                         </tr>
                                     </thead>
                                     <tbody>

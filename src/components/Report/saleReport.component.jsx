@@ -33,11 +33,6 @@ class SaleReport extends React.Component {
     
     handleSubmit = event => {
         event.preventDefault();
-        // console.log("submit handler of searchBrand ");
-        console.log(
-            `start date = ${this.state.startDate.toDateString()}
-            end date = ${this.state.endDate.toDateString()}
-        `);
         const { fetchSaleByDate } = this.props;
         fetchSaleByDate(this.state.startDate.toDateString(),this.state.endDate.toDateString());
     }
@@ -45,18 +40,15 @@ class SaleReport extends React.Component {
     selectInvoice = (item) => {
         console.log("Select Invoice clicked");
         console.log(item.id);
-
         console.log(`customer id = ${item.customerId}`)
         // const { fetchUserByInputAsync } = this.props;
         this.props.fetchUserByInputAsync(item.customerId);
-
         this.props.fetchSaleInvoiceDetailAsync(item.id);
     }
 
     render() {
         return (
             <div className="submit-form container">
-
                 <h1>Sale Report</h1>
                 <form onSubmit={this.handleSubmit}>
                   
@@ -92,7 +84,6 @@ class SaleReport extends React.Component {
                     <div>
                         <h3>Sale View</h3>
                         <table border='1'>
-
                             <thead>
                                 <tr>
                                     <th>Reff Invoice</th>
@@ -111,7 +102,7 @@ class SaleReport extends React.Component {
                                             <td>{item.id}</td>
                                             <td>{item.totalitems}</td>
                                             <td>{item.invoicevalue}</td>
-                                            <td>{item.dt}</td>
+                                            <td>{item.createdAt}</td>
                                         </tr>
                                     ))
                                 }
@@ -121,11 +112,10 @@ class SaleReport extends React.Component {
            :
            ""
            }
-            {this.props.saleInvoiceDetailData ?
+        {this.props.saleInvoiceDetailData ?
                     <div>
                         <h3>Sale Invoice Detail View</h3>
                         <table id='returnTBL' border='1'>
-
                             <thead>
                                 <tr>
                                     <th>Id</th>
@@ -133,8 +123,7 @@ class SaleReport extends React.Component {
                                     <th>Sale Id</th>
                                     <th>Item Name</th>
                                     <th>Price</th>
-                                    <th>Qyantity</th>
-                                  
+                                    <th>Quantity</th> 
                                 </tr>
                             </thead>
                             <tbody>

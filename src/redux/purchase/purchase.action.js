@@ -6,6 +6,11 @@ export const fetchPurchaseStart = () =>({
     type:PurchaseActionType.FETCH_PURCHASE_START
 });
 
+export const fetchPurchaseInvoiceDetail = purchaseMap => ({
+    type: PurchaseActionType.FETCH_PURCHASEINVOICEDETAIL_SUCCESS,
+    payload: purchaseMap
+});
+
 export const fetchPurchaseSuccess = purchaseMap =>({
     type:PurchaseActionType.FETCH_PURCHASE_SUCCESS,
     payload:purchaseMap
@@ -55,7 +60,7 @@ export const fetchPurInvPayDetial = (invoiceId) =>{
           } 
 
 
-    export const fetchPurchaseByDate = (sDate, eDate) => {
+export const fetchPurchaseByDate = (sDate, eDate) => {
         return dispatch =>{
             if (sDate !== "" && eDate !== "") {
                 var dateFormat = require('dateformat');
@@ -82,12 +87,8 @@ export const fetchPurInvPayDetial = (invoiceId) =>{
             .catch(error=>dispatch(fetchPurchaseFailure(error.response.request.response.message)));
        }}
             }
-            
-    
-           
 
-
-    export const fetchPurchaseByInputStartAsync = (userId) => {
+export const fetchPurchaseByInputStartAsync = (userId) => {
         return dispatch =>{
         //const collectionRef = firestore.collection('PurchaseInvoice').where("supplierId", "==", userId);
         dispatch (fetchPurchaseStart());
@@ -98,5 +99,20 @@ export const fetchPurInvPayDetial = (invoiceId) =>{
           })
           .catch(error=>dispatch(fetchPurchaseFailure(error.response.request.response.message)));
         }}
+
+export const fetchPurchaseInvoiceDetailAsync = (PurchaseInvoiceId) => {
+            //console.log(`Sale Invoce ID = ${SaleInvoiceId}`);
+            return dispatch => {
+                //const collectionRef = firestore.collection('SaleInvoiceDetail').where("SaleInvoiceId", "==", SaleInvoiceId);
+                dispatch(fetchPurchaseStart());
+                inventoryService.getAllPurchaseDetailByInvoice(PurchaseInvoiceId)
+                    .then(response => {
+                        const purchaseMap = response.data;
+                        // console.log(saleMap);
+                        dispatch(fetchPurchaseInvoiceDetail(purchaseMap));
+                    })
+                    .catch(error=> dispatch(fetchPurchaseFailure((error.response.request.response.message))))
+            }
+        }
      
 

@@ -43,6 +43,10 @@ class inventoryDataService {
     return http.get("/purchaseDetail/");
   }
 
+  getAllPurchaseDetailByInvoice(id) {
+    return http.get(`/purchaseDetailById/${id}`);
+  }
+
   createPurchaseDetail(data) {
     // console.log(data);
     return http.post("/purchaseDetail/",data,{headers: authHeader() });

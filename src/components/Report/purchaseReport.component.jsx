@@ -1,7 +1,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 
-import { fetchPurchaseByDate } from '../../redux/purchase/purchase.action';
+import { fetchPurchaseByDate,fetchPurchaseInvoiceDetailAsync } from '../../redux/purchase/purchase.action';
+import { fetchUserByInputAsync } from '../../redux/user/user.action';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
@@ -32,15 +33,24 @@ class PurchaseReport extends React.Component {
     handleSubmit = event => {
         event.preventDefault();
         // console.log("submit handler of searchBrand ");
-        console.log(
-            `start date = ${this.state.startDate.toDateString()}
-            end date = ${this.state.endDate.toDateString()}
-        `);
+        // console.log(
+        //     `start date = ${this.state.startDate.toDateString()}
+        //     end date = ${this.state.endDate.toDateString()}
+        // `);
         const { fetchPurchaseByDate } = this.props;
         fetchPurchaseByDate(this.state.startDate.toDateString(),this.state.endDate.toDateString());
     }
 
-   
+    selectInvoice = (item) => {
+      console.log("Select Invoice clicked");
+      console.log(item.id);
+
+      console.log(`customer id = ${item.supplierId}`)
+      // const { fetchUserByInputAsync } = this.props;
+      this.props.fetchUserByInputAsync(item.supplierId);
+
+      this.props.fetchPurchaseInvoiceDetailAsync(item.id);
+  }
 
     render() {
         return (
@@ -95,12 +105,12 @@ class PurchaseReport extends React.Component {
                                 this.props.purchaseData.map((item, index) => (
                                         //   console.log(item);
                                         <tr key={index}
-                                           //onClick={() => setActiveBrand(item, index)}
+                                        onClick={() => this.selectInvoice(item)}
                                         >
                                             <td>{item.reffInvoice}</td>
                                             <td>{item.totalitems}</td>
                                             <td>{item.invoicevalue}</td>
-                                            <td>{item.dt}</td>
+                                            <td>{item.createdAt}</td>
                                         </tr>
                                     ))
                                 }
@@ -110,16 +120,61 @@ class PurchaseReport extends React.Component {
            :
            ""
            }
+           {this.props.purchaseInvoiceDetailData ?
+                    <div>
+                        <h3>Sale Invoice Detail View</h3>
+                        <table id='returnTBL' border='1'>
+
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Date</th>
+                                    <th>Sale Id</th>
+                                    <th>Item Name</th>
+                                    <th>Price</th>
+                                    <th>Qyantity</th>
+                                  
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {
+                                    this.props.purchaseInvoiceDetailData.map((item, index) => (
+                                        //   console.log(item);
+                                        <tr key={index}
+                                        // onClick={() => this.selectInvoice(item)}
+                                        >
+                                            <td>{item.id}</td>
+                                            <td>{item.createdAt}</td>
+                                            <td>{item.SaleInvoiceId}</td>
+                                            <td>{item.items.name}</td>
+                                            <td>{item.price}</td>
+                                            <td>{item.quantity}</td>
+                                            <td>{item.costPrice}</td>
+                                            
+                                        </tr>
+                                    ))
+                                }
+                            </tbody>
+                        </table>
+                        {/* <PdfInvoice invoice={this.props.saleInvoiceDetailData} customer={this.props.user} /> */}
+        </div>
+          
+          :
+          ""
+      }
         </div>
         )}
 }
 
 const mapStateToProps = state => ({
-                    purchaseData: state.purchase.purchase
+                    purchaseData: state.purchase.purchase,
+                    purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail
 })
 
 const mapDispatchToProps = dispatch =>({
-  fetchPurchaseByDate: (sDate,eDate) => dispatch(fetchPurchaseByDate(sDate,eDate))  
+  fetchPurchaseByDate: (sDate,eDate) => dispatch(fetchPurchaseByDate(sDate,eDate)),
+  fetchPurchaseInvoiceDetailAsync: (invoiceId) => dispatch(fetchPurchaseInvoiceDetailAsync(invoiceId)),
+  fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),  
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(PurchaseReport);

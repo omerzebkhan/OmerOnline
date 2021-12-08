@@ -1,6 +1,7 @@
 import PurchaseActionType from './purchase.type';
 const INITIAL_STATE ={
     purchase:null,
+    purchaseInvoiceDetail: null,
     purInvPayDetail:null,
     currentPurchase:null,
     isFetching:false,
@@ -19,6 +20,12 @@ const purchaseReducer = (state = INITIAL_STATE,action) =>{
                 ...state,
                 isFetching:true
             }
+        case PurchaseActionType.FETCH_PURCHASEINVOICEDETAIL_SUCCESS:
+                return {
+                    ...state,
+                    isFetching: false,
+                    purchaseInvoiceDetail: action.payload
+                }    
 
         case PurchaseActionType.FETCH_PURCHASE_SUCCESS:
             return{

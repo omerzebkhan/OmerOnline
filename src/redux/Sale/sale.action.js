@@ -107,7 +107,7 @@ export const fetchSaleByDate = (sDate, eDate) => {
    }}
         }
 
-        export const fetchSalInvPayDetial = (invoiceId) =>{
+export const fetchSalInvPayDetial = (invoiceId) =>{
             //console.log(`redux method is called ${invoiceId }`)
             return dispatch =>{
                 //const collectionRef = firestore.collection('PurchaseInvoice').where("supplierId", "==", userId);
@@ -125,6 +125,21 @@ export const fetchSaleByDate = (sDate, eDate) => {
 
 
 
+
+
+export const fetchSaleByInputStartAsync = (userId) => {
+    return dispatch => {
+
+        dispatch(fetchSaleStart());
+        inventoryService.getAllSaleByCustId(userId)
+            .then(response => {
+                const saleMap = response.data;
+                dispatch(fetchSaleSuccess(saleMap));
+            })
+            .catch(error=> dispatch(fetchSaleFailure((error.response.request.response.message))))
+    }
+}
+
 export const fetchSaleInvoiceDetailAsync = (SaleInvoiceId) => {
     //console.log(`Sale Invoce ID = ${SaleInvoiceId}`);
     return dispatch => {
@@ -135,19 +150,6 @@ export const fetchSaleInvoiceDetailAsync = (SaleInvoiceId) => {
                 const saleMap = response.data;
                 // console.log(saleMap);
                 dispatch(fetchSaleInvoiceDetail(saleMap));
-            })
-            .catch(error=> dispatch(fetchSaleFailure((error.response.request.response.message))))
-    }
-}
-
-export const fetchSaleByInputStartAsync = (userId) => {
-    return dispatch => {
-
-        dispatch(fetchSaleStart());
-        inventoryService.getAllSaleByCustId(userId)
-            .then(response => {
-                const saleMap = response.data;
-                dispatch(fetchSaleSuccess(saleMap));
             })
             .catch(error=> dispatch(fetchSaleFailure((error.response.request.response.message))))
     }
