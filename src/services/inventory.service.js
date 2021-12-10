@@ -79,9 +79,9 @@ class inventoryDataService {
     return http.get(`/sale/${id}`);
   }
 
-  getAllSaleByDate(sDate,eDate) {
-    console.log(`dates are ${sDate} ${eDate}`)
-    return http.get(`/saleByDate/${sDate}/${eDate}`);
+  getAllSaleByDate(sDate,eDate,customerId) {
+   // console.log(`dates are ${sDate} ${eDate}`)
+    return http.get(`/saleByDate/${sDate}/${eDate}/${customerId}`);
   }
 
   getAllSaleByCustId(id) {

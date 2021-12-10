@@ -82,7 +82,7 @@ export const fetchSaleByIdAsync = (invoiceId) => {
 }
 
 
-export const fetchSaleByDate = (sDate, eDate) => {
+export const fetchSaleByDate = (sDate, eDate,customerId) => {
     return dispatch =>{
         if (sDate !== "" && eDate !== "") {
             var dateFormat = require('dateformat');
@@ -94,10 +94,11 @@ export const fetchSaleByDate = (sDate, eDate) => {
             eDate = myDate;
         
             console.log(`sDate=${sDate} 
-            edate=${eDate}`);
+            edate=${eDate}
+            customerid =${customerId}`);
         
        dispatch (fetchSaleStart());
-       inventoryService.getAllSaleByDate(sDate, eDate)
+       inventoryService.getAllSaleByDate(sDate, eDate,customerId)
        .then (response => {
                const saleMap = response.data;
                dispatch(fetchSaleSuccess(saleMap));          

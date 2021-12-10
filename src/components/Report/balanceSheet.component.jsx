@@ -42,10 +42,10 @@ class BalanceSheet extends React.Component {
       .then(response => {
 
         var isDescending = true; //set to false for ascending
-        console.log(["8/2/2020", "8/1/2020", "8/13/2020", "8/2/2020"].sort((a, b) => isDescending ? new Date(b).getTime() - new Date(a).getTime() : new Date(a).getTime() - new Date(b).getTime()));
+       // console.log(["8/2/2020", "8/1/2020", "8/13/2020", "8/2/2020"].sort((a, b) => isDescending ? new Date(b).getTime() - new Date(a).getTime() : new Date(a).getTime() - new Date(b).getTime()));
         //console.log(response.data.sort((a, b) => isDescending ? new Date(b.date).getTime() - new Date(a.date).getTime() : new Date(a.date).getTime() - new Date(b.date).getTime()));
-        var arr1 = [{ id: 1, date: '30/10/2021' }, { id: 1, date: '25/10/2021' }, { id: 1, date: '29/09/2021' }]
-        const sorted1 = arr1.sort(sortByDate);
+        //var arr1 = [{ id: 1, date: '30/10/2021' }, { id: 1, date: '25/10/2021' }, { id: 1, date: '29/09/2021' }]
+        //const sorted1 = arr1.sort(sortByDate);
         //console.log(sorted1);
         var arr = response.data;
         //console.log(arr) 
@@ -128,6 +128,7 @@ class BalanceSheet extends React.Component {
                 <tr>
                   <th>Date</th>
                   <th>Sale</th>
+                  <th>Profit</th>
                   <th>Purchase</th>
                   <th>Expense</th>
                   <th>Cash Receieved</th>
@@ -143,6 +144,7 @@ class BalanceSheet extends React.Component {
                     <tr key={index} >
                       <td>{item.date}</td>
                       <td>{item.totalSale}</td>
+                      <td>{item.totalProfit}</td>
                       <td>{item.totalPurchase}</td>
                       <td>{item.totalExpense}</td>
                       <td>{item.totalCashReceived}</td>

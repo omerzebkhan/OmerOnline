@@ -270,10 +270,11 @@ const SaleInvoice = ({
                                 .then(response2 => {
                                     console.log("get specific Item detail")
                                     console.log(response2.data);
-                                    const { id, quantity, showroom } = response2.data;
+                                    const { id, quantity, showroom,averagePrice } = response2.data;
                                     console.log(`item id = ${id}
                                     item Quantity = ${quantity}
                                     Item showroom = ${showroom}
+                                    Item averagePrice = ${averagePrice}
                                     `);
                                     console.log(`invoice quantity = ${parseInt(item[2])} `)
                                     // update quantity and showroom  of item
@@ -611,6 +612,8 @@ const SaleInvoice = ({
                         <div className="form-group row">
                             <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Customer Name</label>
+                            </div>
+                            <div className="col-sm-2">
                                 <input
                                     type="text"
                                     name="customerSearch"
@@ -623,32 +626,21 @@ const SaleInvoice = ({
                                 {optionListCustomer}
                             </div>
                             <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Customer Id</label>
                                 <input
                                     type="text"
                                     name="Customer"
                                     id="Customer"
-                                    placeholder="Select Customer"
-                                    value={cCustomer[0] ?
-                                        cCustomer[0].id
-                                        :
-                                        ""
-                                    }
+                                    placeholder="Customer Id"
+                                    value={cCustomer[0] ? cCustomer[0].id : ""}
                                     disabled />
                             </div>
-
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Address</label>
-                                <input
+                            <div className="col-sm-4">
+                            <input
                                     type="text"
                                     name="Customer Address"
                                     id="customerAddress"
                                     placeholder="Address"
-                                    value={cCustomer[0] ?
-                                        cCustomer[0].address
-                                        :
-                                        ""
-                                    }
+                                    value={cCustomer[0] ? cCustomer[0].address : ""}
                                     disabled />
                             </div>
 
@@ -656,6 +648,8 @@ const SaleInvoice = ({
                         <div className="form-group row">
                             <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Agent Name</label>
+                            </div>
+                            <div className="col-sm-2">   
                                 <input
                                     type="text"
                                     name="agentSearch"
@@ -669,39 +663,32 @@ const SaleInvoice = ({
                                 {optionListAgent}
                             </div>
                             <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Agent Id</label>
+                                
                                 <input
                                     type="text"
                                     name="Agent"
                                     id="Agnet"
                                     placeholder="Select Agent"
-                                    value={cAgent[0] ?
-                                        cAgent[0].id
-                                        :
-                                        ""
-                                    }
+                                    value={cAgent[0] ? cAgent[0].id : "" }
                                     disabled />
                             </div>
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Address</label>
+                            <div className="col-sm-4">
+                                
                                 <input
                                     type="text"
                                     name="Agent Address"
                                     id="agentAddress"
                                     placeholder="Address"
-                                    value={cAgent[0] ?
-                                        cAgent[0].address
-                                        :
-                                        ""
-                                    }
+                                    value={cAgent[0] ? cAgent[0].address : ""}
                                     disabled />
                             </div>
 
                         </div>
 
                         <div className="form-group row">
-                            <div>
+                            <div className="col-sm-2">
                                 <label className="col-sm-2 col-form-label" htmlFor="Item" >Item </label>
+                            </div>
                                 <div className="col-sm-2">
                                     <input
                                         type="text"
@@ -712,39 +699,34 @@ const SaleInvoice = ({
                                         onChange={handleChange}
                                         onKeyDown={onKeyDownItem}
                                     />
-                                </div>
+                                
                                 {optionListItem}
                             </div>
 
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="ShowRoom Qty">ShowRoom Qty</label>
+                            <div className="col-sm-4">
+                                
                                 <input
                                     type="text"
                                     name="Item"
                                     id="Item"
                                     placeholder="ShowRoom Quantity"
-                                    value={cItem[0] ?
-                                        cItem[0].showroom
-                                        :
-                                        ""
-                                    }
+                                    value={cItem[0] ? cItem[0].showroom : ""}
                                     disabled />
                             </div>
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Quanity" >Quantity</label>
-                                <div >
-                                    <input
+                            </div>
+                            <div className="form-group row">
+                            <div className="col-sm-4">
+                             <input
                                         type="text"
                                         name="Quantity"
                                         id="Quantity"
                                         placeholder="Quantity"
                                         value={quantity}
                                         onChange={handleChange} />
-                                </div>
+                                
                             </div>
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Price" >price</label>
-                                <div >
+                            <div className="col-sm-4">
+                                
                                     <input
                                         type="text"
                                         name="Price"
@@ -752,7 +734,7 @@ const SaleInvoice = ({
                                         placeholder="Price"
                                         value={price}
                                         onChange={handleChange} />
-                                </div>
+                                
                             </div>
 
 
