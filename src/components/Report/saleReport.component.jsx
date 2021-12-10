@@ -95,7 +95,7 @@ const SaleReport = ({
         if (event.target.id === "Quantity") {
             setSDQuantity(event.target.value);
         }
-        elseif (event.target.id === "customerSearch") {
+        else if (event.target.id === "customerSearch") {
            console.log(`customer input=${customerInput} ${event.target.value}`)
            if(userData.user){
             setFilteredOptionsCustomer(userData.user.filter(
