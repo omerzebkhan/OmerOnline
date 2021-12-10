@@ -56,6 +56,15 @@ row: {
     height: 24,
     fontStyle: 'bold',
 },
+R_BillTo: {
+  width: '60%',
+  textAlign: 'left',
+  borderRightColor: borderColor,
+  borderRightWidth: 1,
+  paddingLeft: 8,
+  fontSize: 15,
+  fontStyle: 'bold',
+},
 R_description: {
         width: '60%',
         textAlign: 'left',
@@ -200,7 +209,9 @@ const InvoiceTitle = ({title}) => (
       
       const rows = <View style={styles.headerContainer} key={1}>
           <Text style={styles.billTo}>Bill To:</Text>  
-          <Text style={styles.R_description}>{customer.name}</Text>
+          <Text style={styles.R_BillTo}>{customer.name}</Text>
+          <Text style={styles.R_BillTo}>{customer.address}</Text>
+         
     </View>;  
       
   
@@ -250,6 +261,7 @@ const MyDoc = ({data,invoiceNo,date,customer}) => (
     <View>
     <Image style={styles.logo} src={logo} />
     <InvoiceTitle title='Sale Invoice'/>
+    <InvoiceTitle title='N & M Traders'/>
     <InvoiceNo 
     invoiceNo={invoiceNo}
     date = {date} />

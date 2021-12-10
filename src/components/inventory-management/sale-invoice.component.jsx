@@ -142,9 +142,13 @@ const SaleInvoice = ({
     const handleSubmit = event => {
         event.preventDefault();
         //To check entered value should be less than showroom quantity
+        if (cItem.length ===0  || quantity==="" || price ==="")
+        {setMessage('Select Item and Enter Quantity & Price')}
+
+        else{
         if (cItem[0].showroom < parseInt(quantity)) {
             setMessage('Quantity is greated than Stock');
-        }
+        } 
         else {
             setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
             var total = parseInt(price);
@@ -170,7 +174,7 @@ const SaleInvoice = ({
             }
         }
 
-
+    }
     }
 
     const removeItem = (item, index) => {
@@ -389,8 +393,8 @@ const SaleInvoice = ({
                                     <thead>
                                         <tr>
                                        
-                                            <th style={{width: "50%"}}>Name</th>
-                                            <th>Quantity</th>
+                                            <th style={{width: "80%"}}>Name</th>
+                                            <th>ShowRoom</th>
                                             <th>Cost</th>
                                         
                                         </tr>
@@ -398,7 +402,7 @@ const SaleInvoice = ({
                                     <tbody>
                                         <tr>
                                         <td>{optionName.name}</td>
-                                        <td>{optionName.quantity}</td>
+                                        <td>{optionName.showroom}</td>
                                         <td>{optionName.averageprice}</td>
                                         </tr>
                                     </tbody>
@@ -428,9 +432,10 @@ const SaleInvoice = ({
         //console.log("On change is fired")
         // const { activeOption, filteredOptions } = this.props;
         if (e.keyCode === 13) {
-            setActiveOptionCustomer(0);
-            setShowOptionsCustomer(false);
-            setCustomerInput(filteredOptionsCustomer[activeOptionCustomer]);
+           // setActiveOptionCustomer(0);
+           // setShowOptionsCustomer(false);
+           // setCustomerInput(filteredOptionsCustomer[activeOptionCustomer]);
+            return;
         } else if (e.keyCode === 38) {
             if (activeOptionCustomer === 0) {
                 //setcCustomer([]);
@@ -623,7 +628,7 @@ const SaleInvoice = ({
                                     onChange={handleChange}
                                     onKeyDown={onKeyDownCustomer}
                                 />
-                                {optionListCustomer}
+                                
                             </div>
                             <div className="col-sm-2">
                                 <input
@@ -643,6 +648,9 @@ const SaleInvoice = ({
                                     value={cCustomer[0] ? cCustomer[0].address : ""}
                                     disabled />
                             </div>
+                            <div>
+                                {optionListCustomer}
+                            </div>
 
                         </div>
                         <div className="form-group row">
@@ -659,11 +667,9 @@ const SaleInvoice = ({
                                     onChange={handleChange}
                                     onKeyDown={onKeyDownAgent}
                                 />
-
-                                {optionListAgent}
                             </div>
-                            <div className="col-sm-2">
-                                
+                            
+                            <div className="col-sm-2">    
                                 <input
                                     type="text"
                                     name="Agent"
@@ -673,7 +679,6 @@ const SaleInvoice = ({
                                     disabled />
                             </div>
                             <div className="col-sm-4">
-                                
                                 <input
                                     type="text"
                                     name="Agent Address"
@@ -681,6 +686,9 @@ const SaleInvoice = ({
                                     placeholder="Address"
                                     value={cAgent[0] ? cAgent[0].address : ""}
                                     disabled />
+                            </div>
+                            <div>
+                                {optionListAgent}
                             </div>
 
                         </div>
@@ -699,12 +707,8 @@ const SaleInvoice = ({
                                         onChange={handleChange}
                                         onKeyDown={onKeyDownItem}
                                     />
-                                
-                                {optionListItem}
                             </div>
-
                             <div className="col-sm-4">
-                                
                                 <input
                                     type="text"
                                     name="Item"
@@ -713,6 +717,10 @@ const SaleInvoice = ({
                                     value={cItem[0] ? cItem[0].showroom : ""}
                                     disabled />
                             </div>
+                            <div>
+                                {optionListItem}
+                            </div>
+
                             </div>
                             <div className="form-group row">
                             <div className="col-sm-4">
