@@ -79,6 +79,10 @@ class inventoryDataService {
     return http.get(`/sale/${id}`);
   }
 
+  getSaleRecalculate(id) {
+    return http.put(`/getSaleRecalculate/${id}`);
+  }
+
   getAllSaleByDate(sDate,eDate,customerId) {
    // console.log(`dates are ${sDate} ${eDate}`)
     return http.get(`/saleByDate/${sDate}/${eDate}/${customerId}`);
@@ -127,6 +131,11 @@ class inventoryDataService {
   updateSaleDetailQ(id, data) {
     //console.log(`update triggred from react .....`)
     return http.put(`/UpdateSaleDetailQ/${id}`, data);
+  }
+
+  updateSaleDetail(id, data) {
+    //console.log(`update triggred from react .....`)
+    return http.put(`/UpdateSaleDetail/${id}`, data);
   }
 
   ///////////////////////////////////////////

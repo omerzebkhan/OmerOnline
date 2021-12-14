@@ -1,8 +1,11 @@
-import React,{useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchSaleByDate,fetchSaleInvoiceDetailAsync } from '../../redux/Sale/sale.action';
-import { fetchUserByInputAsync,fetchUserStartAsync } from '../../redux/user/user.action';
+import inventoryService from "../../services/inventory.service";
+import userService from "../../services/user.service";
+import itemService from "../../services/item.services";
+import { fetchSaleByDate, fetchSaleInvoiceDetailAsync } from '../../redux/Sale/sale.action';
+import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import PdfInvoice from "./printInvoice"
@@ -10,74 +13,80 @@ import PdfInvoice from "./printInvoice"
 const SaleReport = ({
     fetchUserStartAsync, userData,
     fetchSaleByDate,
-    fetchSaleInvoiceDetailAsync,fetchUserByInputAsync,
+    fetchSaleInvoiceDetailAsync, fetchUserByInputAsync,
     currentUser,
-    saleData,saleInvoiceDetailData,user
+    saleData, saleInvoiceDetailData, user
 }) => {
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [invoice,setInvoice] = useState("");
-    const [edit,setEdit] = useState("");
+    const [invoice, setInvoice] = useState("");
+    const [edit, setEdit] = useState("");
 
-    const [sdId,setSDId] = useState("");
-    const [sdItemName,setSDItemName]= useState("");
-    const [sdPrice,setSDPrice] = useState("");
-    const [sdQuantity,setSDQuantity] = useState("");
+    const [sdId, setSDId] = useState("");
+    const [sdItemName, setSDItemName] = useState("");
+    const [sdPrice, setSDPrice] = useState("");
+    const [sdQuantity, setSDQuantity] = useState("");
 
-    const [sdOldId,setSDOldId] = useState("");
-    const [sdOldItemName,setSDOldItemName]= useState("");
-    const [sdOldPrice,setSDOldPrice] = useState("");
-    const [sdOldQuantity,setSDOldQuantity] = useState("");
+    const [sdOldId, setSDOldId] = useState("");
+    const [sdOldItemName, setSDOldItemName] = useState("");
+    const [sdOldPrice, setSDOldPrice] = useState("");
+    const [sdOldQuantity, setSDOldQuantity] = useState("");
+    const [sdCustomerId, setSDCustomerId] = useState("");
+    const [sdItemId, setSDItemId] = useState("");
+    const [sInvoiceId, setSInvoiceId] = useState("");
 
     const [cCustomer, setcCustomer] = useState([]);
     const [customerInput, setCustomerInput] = useState("");
     const [activeOptionCustomer, setActiveOptionCustomer] = useState("");
     const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
     const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
-   
+
     useEffect(() => {
         fetchUserStartAsync();
     }, [fetchUserStartAsync])
 
-    
-    const handleStartDTPicker=(date) => {
-      setStartDate(date);
-      }
 
-    const handleEndDTPicker=(date)=> {
+    const handleStartDTPicker = (date) => {
+        setStartDate(date);
+    }
+
+    const handleEndDTPicker = (date) => {
         setEndDate(date);
-      }
-    
+    }
+
     const handleSubmit = event => {
         event.preventDefault();
         console.log(cCustomer.length)
-        if (cCustomer.length>0)
-        {
-            fetchSaleByDate(startDate.toDateString(),endDate.toDateString(),cCustomer[0].id);    
+        if (cCustomer.length > 0) {
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
         }
-        else
-        {
-            fetchSaleByDate(startDate.toDateString(),endDate.toDateString(),"0");
+        else {
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0");
         }
-        
+
     }
 
     const selectInvoice = (item) => {
         console.log("Select Invoice clicked");
         console.log(item.id);
         console.log(`customer id = ${item.customerId}`)
+        setSDCustomerId(item.customerId);
         // const { fetchUserByInputAsync } = this.props;
         fetchUserByInputAsync(item.customerId);
         fetchSaleInvoiceDetailAsync(item.id);
     }
 
     const editInvoceHandler = (item) => {
-       console.log('edit sale invoice.....')
-       console.log(`invoice id =${item.id}`)
+        console.log('edit sale invoice.....')
+        console.log(`invoice id =${item.id}`)
         setEdit("True");
+
+        setSDItemId(item.items.id);
+        setSInvoiceId(item.saleInvoiceId)
+
         setSDOldId(item.id);
         setSDOldItemName(item.items.name);
         setSDOldPrice(item.price);
@@ -90,27 +99,188 @@ const SaleReport = ({
 
     }
 
+    const updateInvoceHandler = () => {
+        console.log('edit sale invoice.....')
+        
+        ////////////////////////////////// update invoce detail
+        var idData = { price: sdPrice,quantity: sdQuantity };
+
+        inventoryService.updateSaleDetail(sdId, idData)
+            .then(resUpdateBalance => {
+                setMessage("Sale Details updated .......");
+                console.log("Sale Details updated .......");
+
+                ////////////////////////////////////////////////////////////
+
+                ////////////////////////////////// update invoce outstanding amount
+                // call new service to recalculate the invoice value of given invoice no
+                inventoryService.getSaleRecalculate(sInvoiceId)
+                    .then(res => {
+                        setMessage("Sale Recalculated .......");
+                        console.log(`Sale Recalculated .......`);
+                    })
+                    .catch(error => {
+                        setMessage(`catch of Recalculated ${error.response.request.response.message}`)
+                        console.log(`catch of Recalculated ${error.response.request.response.message}`);
+                    })
+              
+                //update customer outstanding amount
+//                console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
+                if (sdOldPrice > sdPrice) {
+
+                    //get current customer values 
+                    var customerData = { outstanding: sdOldPrice - sdPrice,
+                        totalAmount: sdOldPrice - sdPrice };
+
+                    userService.get(sdCustomerId)
+                        .then(res => {
+                            var cData = {
+                                outstanding: res.data.outstanding - customerData.outstanding,
+                                totalAmount: res.data.totalAmount - customerData.totalAmount
+                            }
+
+                            console.log(`Customer totalAmount & outstanding are ${res.data.totalAmout} ${res.data.outstanding} .......`);
+                            userService.update(sdCustomerId, cData)
+                                .then(res => {
+                                    console.log(`customer data has been updated with ${cData.outstanding} ${cData.totalAmount}`)
+                                })
+                                .catch(error => {
+                                    setMessage(`catch of customer ${error.response.request.response.message}`)
+                                    console.log(`catch of customer ${error.response.request.response.message}`);
+                                })
+                        })
+                        .catch(error => {
+                            setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
+                            console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
+                        })
+
+                    console.log(`update customer outstading & totalAmount with current outstanding - ${sdOldPrice - sdPrice} `)
+                }
+                else if (sdOldPrice < sdPrice) {
+                    //get current customer values 
+                    var customerData1 = {outstanding: sdPrice - sdOldPrice,
+                        totalAmount: sdPrice - sdOldPrice};
+
+                    userService.get(sdCustomerId)
+                        .then(res => {
+                            var cData = {outstanding: res.data.outstanding + customerData1.outstanding,
+                                totalAmount: res.data.totalAmount + customerData1.totalAmount
+                            }
+                            console.log(`Customer totalAmount & outstanding are ${res.data.totalAmout} ${res.data.outstanding} .......`);
+                            userService.update(sdCustomerId, cData)
+                                .then(res => {
+                                    console.log(`customer data has been updated with ${cData.outstanding} ${cData.totalAmount}`)
+                                })
+                                .catch(error => {
+                                    setMessage(`catch of update user ${error.response.request.response.message}`)
+                                    console.log(`catch of update user ${error.response.request.response.message}`);
+                                })
+                        })
+                        .catch(error => {
+                            setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
+                            console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
+                        })
+
+                }
+
+                ///////////////////////////update item value for the stock management
+//                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
+
+                if (sdOldQuantity > sdQuantity) {
+
+                    //get current customer values 
+                    var itemData = {quantity: sdOldQuantity - sdQuantity,
+                        showroom: sdOldQuantity - sdQuantity};
+                    itemService.get(sdItemId)
+                        .then(res => {
+                            var iData = {quantity: res.data.quantity - itemData.quantity,
+                                showroom: res.data.showroom - itemData.showroom}
+                            console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
+                            userService.update(sdItemId, iData)
+                                .then(res => {
+                                    console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
+                                })
+                                .catch(error => {
+                                    setMessage(`catch of Item update ${error.response.request.response.message}`)
+                                    console.log(`catch of Item update ${error.response.request.response.message}`);
+                                })
+                        })
+                        .catch(error => {
+                            setMessage(`catch of Item ${error.response.request.response.message}`)
+                            console.log(`catch of Item ${error.response.request.response.message}`);
+                        })
+
+                    // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
+                }
+                else if (sdQuantity > sdOldQuantity) {
+
+                    //get current item values 
+                    var itemData1 = {quantity: sdQuantity - sdOldQuantity,
+                        showroom: sdQuantity - sdOldQuantity};
+                    itemService.get(sdItemId)
+                        .then(res => {
+                            var iData = {quantity: res.data.quantity + itemData1.quantity,
+                                showroom: res.data.showroom + itemData1.showroom}
+                            console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
+                            userService.update(sdItemId, iData)
+                                .then(res => {
+                                    console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
+                                })
+                                .catch(error => {
+                                    setMessage(`catch of user update ${error.response.request.response.message}`)
+                                    console.log(`catch of user update ${error.response.request.response.message}`);
+                                })
+                        })
+                        .catch(error => {
+                            setMessage(`catch of Item ${error.response.request.response.message}`)
+                            console.log(`catch of Item ${error.response.request.response.message}`);
+                        })
+
+                    console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
+                }
+
+
+
+                ////////////////////////////////////////////////////////////
+
+
+
+            })
+            .catch(error => {
+                setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
+                console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
+            })
+
+
+
+    }
+
+
     const handleChange = event => {
         //console.log(event);
         if (event.target.id === "Quantity") {
             setSDQuantity(event.target.value);
         }
-        else if (event.target.id === "customerSearch") {
-           console.log(`customer input=${customerInput} ${event.target.value}`)
-           if(userData.user){
-            setFilteredOptionsCustomer(userData.user.filter(
-                // console.log(userData[0].name)
-                (option) =>
-                    option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
-                   //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
-            ));
-            setActiveOptionCustomer(0);
-            setShowOptionsCustomer(true);
-            //setCustomerInput(customerInput);
-            setCustomerInput(event.target.value);}
-            else{setMessage(`No data for customer search...`)}
+        else if (event.target.id === "Price") {
+            setSDPrice(event.target.value);
         }
-     
+        else if (event.target.id === "customerSearch") {
+            console.log(`customer input=${customerInput} ${event.target.value}`)
+            if (userData.user) {
+                setFilteredOptionsCustomer(userData.user.filter(
+                    // console.log(userData[0].name)
+                    (option) =>
+                        option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
+                    //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
+                ));
+                setActiveOptionCustomer(0);
+                setShowOptionsCustomer(true);
+                //setCustomerInput(customerInput);
+                setCustomerInput(event.target.value);
+            }
+            else { setMessage(`No data for customer search...`) }
+        }
+
     }
 
 
@@ -147,11 +317,7 @@ const SaleReport = ({
         const selectedCustomer = userData.user.filter(
             (option) => option.id == e.currentTarget.dataset.id
         );
-        // const selectedCustomer = userData.filter(function (el) {
-        //     console.log(el.id)
-        //     return el.id == e.currentTarget.dataset.id ;
-        //   });
-        // console.log(`selected customer ${selectedCustomer.name}`);
+
         setCustomerInput(selectedCustomer[0].name);
         setcCustomer(selectedCustomer);
 
@@ -175,7 +341,7 @@ const SaleReport = ({
                                     <thead>
                                         <tr>
                                             <th className="th-sm">Name</th>
-                                            <th>Addresss</th>
+                                            <th>Address</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -204,244 +370,245 @@ const SaleReport = ({
     //////////////////////////////////////////////////////////////////////
 
 
-  
-        return (
-            <div className="submit-form container">
-                <h1>Sale Report</h1>
-                <form onSubmit={handleSubmit}>
+
+    return (
+        <div className="submit-form container">
+            <h1>Sale Report</h1>
+            <form onSubmit={handleSubmit}>
                 <div className="form-group row">
                     <div className="col-sm-3">
-                    Start Date    
+                        Start Date
                     {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                    <DatePicker
-                      id = "datePicker" 
-                      selected={startDate }
-                      onChange={handleStartDTPicker }
-                      name="startDate"
-                      dateFormat="MM/dd/yyyy"
-                    />
+                        <DatePicker
+                            id="datePicker"
+                            selected={startDate}
+                            onChange={handleStartDTPicker}
+                            name="startDate"
+                            dateFormat="MM/dd/yyyy"
+                        />
                     </div>
                     <div className="col-sm-3">
-                    End Date    
+                        End Date
                     {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                    <DatePicker
-                      id = "datePicker" 
-                      selected={ endDate }
-                      onChange={ handleEndDTPicker }
-                      name="startDate"
-                      dateFormat="MM/dd/yyyy"
-                    />
+                        <DatePicker
+                            id="datePicker"
+                            selected={endDate}
+                            onChange={handleEndDTPicker}
+                            name="startDate"
+                            dateFormat="MM/dd/yyyy"
+                        />
                     </div>
-                    </div>
+                </div>
 
-                    <div className="form-group row">
-                   
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Customer Name</label>
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="customerSearch"
-                                    id="customerSearch"
-                                    placeholder="Select Customer"
-                                    value={customerInput}
-                                    onChange={handleChange}
-                                    onKeyDown={onKeyDownCustomer}
-                                />
-                               
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="Customer"
-                                    id="Customer"
-                                    placeholder="Customer Id"
-                                    value={cCustomer[0] ? cCustomer[0].id : ""}
-                                    disabled />
-                            </div>
-                            <div className="col-sm-2">
-                            <input
-                                    type="text"
-                                    name="Customer Address"
-                                    id="customerAddress"
-                                    placeholder="Address"
-                                    value={cCustomer[0] ? cCustomer[0].address : ""}
-                                    disabled />
-                            </div>
-                            {optionListCustomer}
+                <div className="form-group row">
 
-                      
+                    <div className="col-sm-2">
+                        <label className="col-form-label" htmlFor="Item">Customer Name</label>
                     </div>
-                    <div >
-                        <button className="btn btn-success" type="submit" >Search</button>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="customerSearch"
+                            id="customerSearch"
+                            placeholder="Select Customer"
+                            value={customerInput}
+                            onChange={handleChange}
+                            onKeyDown={onKeyDownCustomer}
+                        />
 
                     </div>
-                </form>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="Customer"
+                            id="Customer"
+                            placeholder="Customer Id"
+                            value={cCustomer[0] ? cCustomer[0].id : ""}
+                            disabled />
+                    </div>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="Customer Address"
+                            id="customerAddress"
+                            placeholder="Address"
+                            value={cCustomer[0] ? cCustomer[0].address : ""}
+                            disabled />
+                    </div>
+                    {optionListCustomer}
 
-                { saleData ?
-                    <div>
-                        <h3>Sale View</h3>
-                        <table border='1'>
-                            <thead>
-                                <tr>
-                                    <th>Reff Invoice</th>
-                                    <th>Total Items</th>
-                                    <th>Invoice Value</th>
-                                    <th>Date Time</th>
-                                </tr>
-                            </thead>
-                            <tbody>
+
+                </div>
+                <div >
+                    <button className="btn btn-success" type="submit" >Search</button>
+
+                </div>
+            </form>
+
+            { saleData ?
+                <div>
+                    <h3>Sale View</h3>
+                    <table border='1'>
+                        <thead>
+                            <tr>
+                                <th>Reff Invoice</th>
+                                <th>Total Items</th>
+                                <th>Invoice Value</th>
+                                <th>Date Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
                             {
                                 saleData.map((item, index) => (
-                                        //   console.log(item);
-                                        <tr key={index}
+                                    //   console.log(item);
+                                    <tr key={index}
                                         onClick={() => selectInvoice(item)}
-                                        >
-                                            <td>{item.id}</td>
-                                            <td>{item.totalitems}</td>
-                                            <td>{item.invoicevalue}</td>
-                                            <td>{item.createdAt}</td>
-                                        </tr>
-                                    ))
-                                }
-                            </tbody>
-                        </table>
-                        </div>
-           :
-           ""
-           }
-        {saleInvoiceDetailData ?
-                    <div>
-                        <h3>Sale Invoice Detail View</h3>
-                        <table id='returnTBL' border='1'>
-                            <thead>
-                                <tr>
-                                    <th>Id</th>
-                                    <th>Date</th>
-                                    <th>Sale Id</th>
-                                    <th>Item Name</th>
-                                    <th>Price</th>
-                                    <th>Quantity</th> 
-                                    <th>Cost</th> 
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {
-                                    saleInvoiceDetailData.map((item, index) => (
-                                        //   console.log(item);
-                                        <tr key={index}
+                                    >
+                                        <td>{item.id}</td>
+                                        <td>{item.totalitems}</td>
+                                        <td>{item.invoicevalue}</td>
+                                        <td>{item.createdAt}</td>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                :
+                ""
+            }
+            {saleInvoiceDetailData ?
+                <div>
+                    <h3>Sale Invoice Detail View</h3>
+                    <table id='returnTBL' border='1'>
+                        <thead>
+                            <tr>
+                                <th>Id</th>
+                                <th>Date</th>
+                                <th>Sale Id</th>
+                                <th>Item Name</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Cost</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                saleInvoiceDetailData.map((item, index) => (
+                                    //   console.log(item);
+                                    <tr key={index}
                                         onClick={() => editInvoceHandler(item)}
-                                        >
-                                            <td>{item.id}</td>
-                                            <td>{item.createdAt}</td>
-                                            <td>{item.saleInvoiceId}</td>
-                                            <td>{item.items.name}</td>
-                                            <td>{item.price}</td>
-                                            <td>{item.quantity}</td>
-                                            <td>{item.cost}</td>
-                                            
-                                        </tr>
-                                    ))
-                                }
-                            </tbody>
-                        </table>
-                        <PdfInvoice invoice={saleInvoiceDetailData} customer={user} />
-        </div>
-          
-          :
-          ""
-      }
-      {edit ==="True" ?
-      <div className="form-group row">
-      <div>    
-      Sale Detail Id = {sdId} 
-      </div>
-      <div className="col-sm-2">
-          <label className="col-sm-2 col-form-label" htmlFor="Item" >Item </label>
-      </div>
-          <div className="col-sm-2">
-              <input
-                  type="text"
-                  name="itemSearch"
-                  id="itemSearch"
-                  placeholder="Select Item"
-                  value={sdItemName}
-                  onChange={handleChange}
-                //   onKeyDown={onKeyDownItem}
-              />
-          
-          {/* {optionListItem} */}
-      </div>
+                                    >
+                                        <td>{item.id}</td>
+                                        <td>{item.createdAt}</td>
+                                        <td>{item.saleInvoiceId}</td>
+                                        <td>{item.items.name}</td>
+                                        <td>{item.price}</td>
+                                        <td>{item.quantity}</td>
+                                        <td>{item.cost}</td>
 
-      <div className="col-sm-4">
-          
-          <input
-              type="text"
-              name="Item"
-              id="Item"
-              placeholder="ShowRoom Quantity"
-            //   value={cItem[0] ? cItem[0].showroom : ""}
-              disabled />
-      </div>
-      <div className="form-group row">
-      <div className="col-sm-2">
-          <label className="col-sm-2 col-form-label" htmlFor="Item" >Quantity </label>
-      </div>
-      <div className="col-sm-4">
-       <input
-                  type="text"
-                  name="Quantity"
-                  id="Quantity"
-                  placeholder="Quantity"
-                  value={sdQuantity}
-                  onChange={handleChange} />
-          
-      </div>
-      </div>
-      <div className="form-group row">
-      <div className="col-sm-2">
-          <label className="col-sm-2 col-form-label" htmlFor="Item" >Price </label>
-      </div>
-      <div className="col-sm-4">
-          
-              <input
-                  type="text"
-                  name="Price"
-                  id="Price"
-                  placeholder="Price"
-                  value={sdPrice}
-                  onChange={handleChange} />
-          
-      </div>
-      <div>
-                            <button className="btn btn-primary" type="button" onClick={editInvoceHandler}>Edit Invoice</button>
+                                    </tr>
+                                ))
+                            }
+                        </tbody>
+                    </table>
+                    <PdfInvoice invoice={saleInvoiceDetailData} customer={user} />
+                </div>
+
+                :
+                ""
+            }
+            {edit === "True" ?
+                <div className="form-group row">
+                    <div>
+                        Sale Detail Id = {sdId}
+                    </div>
+                    <div className="col-sm-2">
+                        <label className="col-sm-2 col-form-label" htmlFor="Item" >Item </label>
+                    </div>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="itemSearch"
+                            id="itemSearch"
+                            placeholder="Select Item"
+                            value={sdItemName}
+                            onChange={handleChange}
+                        //   onKeyDown={onKeyDownItem}
+                        />
+
+                        {/* {optionListItem} */}
+                    </div>
+
+                    <div className="col-sm-4">
+
+                        <input
+                            type="text"
+                            name="Item"
+                            id="Item"
+                            placeholder="ShowRoom Quantity"
+                            //   value={cItem[0] ? cItem[0].showroom : ""}
+                            disabled />
+                    </div>
+                    <div className="form-group row">
+                        <div className="col-sm-2">
+                            <label className="col-sm-2 col-form-label" htmlFor="Item" >Quantity </label>
                         </div>
-  
+                        <div className="col-sm-4">
+                            <input
+                                type="text"
+                                name="Quantity"
+                                id="Quantity"
+                                placeholder="Quantity"
+                                value={sdQuantity}
+                                onChange={handleChange} />
 
-  </div>
+                        </div>
+                    </div>
+                    <div className="form-group row">
+                        <div className="col-sm-2">
+                            <label className="col-sm-2 col-form-label" htmlFor="Item" >Price </label>
+                        </div>
+                        <div className="col-sm-4">
 
-  </div>
+                            <input
+                                type="text"
+                                name="Price"
+                                id="Price"
+                                placeholder="Price"
+                                value={sdPrice}
+                                onChange={handleChange} />
 
-      :
-      ""
-      }
-      </div>  
-)}
+                        </div>
+                        <div>
+                            <button className="btn btn-primary" type="button" onClick={updateInvoceHandler}>Update Invoice</button>
+                        </div>
+
+
+                    </div>
+
+                </div>
+
+                :
+                ""
+            }
+        </div>
+    )
+}
 
 const mapStateToProps = state => ({
-                    user: state.user.users,
-                    saleData: state.sale.sale,
-                    saleInvoiceDetailData: state.sale.saleInvoiceDetail,
-                    userData: state.user.users
+    user: state.user.users,
+    saleData: state.sale.sale,
+    saleInvoiceDetailData: state.sale.saleInvoiceDetail,
+    userData: state.user.users
 })
 
-const mapDispatchToProps = dispatch =>({
-  fetchSaleByDate: (sDate,eDate,id) => dispatch(fetchSaleByDate(sDate,eDate,id)),
-  fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),  
-  fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
-  fetchUserStartAsync: () => dispatch(fetchUserStartAsync())
-  
+const mapDispatchToProps = dispatch => ({
+    fetchSaleByDate: (sDate, eDate, id) => dispatch(fetchSaleByDate(sDate, eDate, id)),
+    fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
+    fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
+    fetchUserStartAsync: () => dispatch(fetchUserStartAsync())
+
 });
 
-export default connect(mapStateToProps,mapDispatchToProps)(SaleReport);
+export default connect(mapStateToProps, mapDispatchToProps)(SaleReport);
