@@ -16,6 +16,10 @@ class inventoryDataService {
     return http.get("/purchase/");
   }
 
+  getPurchaseAP() {
+    return http.get(`/purchaseAP/`);
+  }
+
   getAllPurchaseByDate(sDate,eDate) {
     console.log(`dates are ${sDate} ${eDate}`)
     return http.get(`/purchaseByDate/${sDate}/${eDate}`);
@@ -77,6 +81,10 @@ class inventoryDataService {
 
   getSale(id) {
     return http.get(`/sale/${id}`);
+  }
+
+  getSaleAR() {
+    return http.get(`/saleAR/`);
   }
 
   getSaleRecalculate(id) {

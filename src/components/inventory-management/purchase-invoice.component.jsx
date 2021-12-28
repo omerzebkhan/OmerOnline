@@ -172,26 +172,26 @@ const PurchaseInvoice = ({
                 //////////////////////Update Vendor////////////////////////
                 // 1- get total purchase & outstanding value of current vendor.
                 // 2- update the purchase & outstanding with curenct invoice values.
-                userService.get(cSupplier[0].id)
-                    .then(resUser => {
-                        // console.log(`supplier outstanding value = ${resUser.data.outstanding}
-                        //              supplier total purchase value = ${resUser.data.totalamount}
-                        // `);
-                        var usrData = {
-                            totalamount: parseInt(resUser.data.totalamount) + parseInt(totalInvoiceValue),
-                            outstanding: parseInt(resUser.data.outstanding) + parseInt(totalInvoiceValue),
+                // userService.get(cSupplier[0].id)
+                //     .then(resUser => {
+                //         // console.log(`supplier outstanding value = ${resUser.data.outstanding}
+                //         //              supplier total purchase value = ${resUser.data.totalamount}
+                //         // `);
+                //         var usrData = {
+                //             totalamount: parseInt(resUser.data.totalamount) + parseInt(totalInvoiceValue),
+                //             outstanding: parseInt(resUser.data.outstanding) + parseInt(totalInvoiceValue),
 
-                        };
-                        userService.update(cSupplier[0].id, usrData)
-                            .then(resUpdateBalance => {
-                                setMessage("User Balance updated");
-                            })
-                            .catch(e => { setMessage(`catch of User Balance ${e} error from server  ${e.message}`)
-                                          console.log(`catch of User Balance ${e} error from server  ${e.message}`);
-                            })
+                //         };
+                //         userService.update(cSupplier[0].id, usrData)
+                //             .then(resUpdateBalance => {
+                //                 setMessage("User Balance updated");
+                //             })
+                //             .catch(e => { setMessage(`catch of User Balance ${e} error from server  ${e.message}`)
+                //                           console.log(`catch of User Balance ${e} error from server  ${e.message}`);
+                //             })
 
-                    })
-                    .catch()
+                //     })
+                //     .catch()
 
 
                 ///////////////////////////////////////////////////////
@@ -225,7 +225,7 @@ const PurchaseInvoice = ({
                                 .then(response2 => {
                                     console.log("get specific Item detail")
                                     console.log(response2.data);
-                                    const { id, quantity, averageprice } = response2.data;
+                                    const { id, quantity,showroom, averageprice } = response2.data;
                                     console.log(`item id = ${id}
                                     item Quantity = ${quantity}
                                     Item averagePrice = ${averageprice}
@@ -243,6 +243,7 @@ const PurchaseInvoice = ({
                                     // update quantity and average price of item
                                     var itemUpdated = {
                                         quantity: parseInt(quantity) + parseInt(item[1]),
+                                        showroom :parseInt(showroom) + parseInt(item[1]),
                                         averageprice: ap
                                     }
                                     itemService.update(item[3], itemUpdated)
@@ -366,8 +367,6 @@ const PurchaseInvoice = ({
             );
         }
     }
-
-
     //////////////////////////////////////////////////////////////////////
 
      //////////////////////////////////////////////////////////////////////
@@ -448,13 +447,7 @@ const PurchaseInvoice = ({
             );
         }
     }
-
-
     //////////////////////////////////////////////////////////////////////
-
-
-
-
 
     return (
         <div>

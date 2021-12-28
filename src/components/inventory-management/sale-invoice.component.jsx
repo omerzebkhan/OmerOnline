@@ -68,26 +68,7 @@ const SaleInvoice = ({
         setAccess(checkAccess("SALE INVOICE", currentUser.rights));
     }, []);
 
-    const btnItemHandler = (event) => {
-        event.preventDefault();
-        //console.log("btnBrandHandler is clicked");
-        if (event.target.attributes[0].nodeValue === "btnItem") {
-            if (btnItem === "Show") {
-                setBtnItem("Hide")
-            } else {
-                setBtnItem("Show")
-            }
-        }
-        else if (event.target.attributes[0].nodeValue === "btnUser") {
-            if (btnUser === "Show") {
-                setBtnUser("Hide")
-            } else {
-                setBtnUser("Show")
-            }
-
-
-        }
-    }
+    
 
     const handleChange = event => {
         //console.log(event);
@@ -213,29 +194,29 @@ const SaleInvoice = ({
                 //////////////////////Update Vendor////////////////////////
                 // 1- get total purchase & outstanding value of current vendor.
                 // 2- update the purchase & outstanding with curenct invoice values.
-                userService.get(cCustomer[0].id)
-                    .then(resUser => {
-                        // console.log(`supplier outstanding value = ${resUser.data.outstanding}
-                        //              supplier total purchase value = ${resUser.data.totalamount}
-                        // `);
-                        var usrData = {
-                            totalamount: parseInt(resUser.data.totalamount) + parseInt(totalInvoiceValue),
-                            outstanding: parseInt(resUser.data.outstanding) + parseInt(totalInvoiceValue)
-                        };
-                        userService.update(cCustomer[0].id, usrData)
-                            .then(resUpdateBalance => {
-                                setMessage("User Balance updated");
-                            })
-                            .catch(e => {
-                                setMessage(`catch of User Balance ${e} error from server  ${e.message}`)
-                                console.log(`catch of User Balance ${e} error from server  ${e.message}`);
-                            })
+                // userService.get(cCustomer[0].id)
+                //     .then(resUser => {
+                //         // console.log(`supplier outstanding value = ${resUser.data.outstanding}
+                //         //              supplier total purchase value = ${resUser.data.totalamount}
+                //         // `);
+                //         var usrData = {
+                //             totalamount: parseInt(resUser.data.totalamount) + parseInt(totalInvoiceValue),
+                //             outstanding: parseInt(resUser.data.outstanding) + parseInt(totalInvoiceValue)
+                //         };
+                //         userService.update(cCustomer[0].id, usrData)
+                //             .then(resUpdateBalance => {
+                //                 setMessage("User Balance updated");
+                //             })
+                //             .catch(e => {
+                //                 setMessage(`catch of User Balance ${e} error from server  ${e.message}`)
+                //                 console.log(`catch of User Balance ${e} error from server  ${e.message}`);
+                //             })
 
-                    })
-                    .catch(e => {
-                        setMessage(`catch of Create Sale Invoice ${e} error from server  ${e.message}`)
-                        console.log(`catch of Create Sale Invoice ${e} error from server  ${e.message}`);
-                    })
+                //     })
+                //     .catch(e => {
+                //         setMessage(`catch of Create Sale Invoice ${e} error from server  ${e.message}`)
+                //         console.log(`catch of Create Sale Invoice ${e} error from server  ${e.message}`);
+                //     })
 
 
                 ///////////////////////////////////////////////////////
@@ -421,8 +402,6 @@ const SaleInvoice = ({
             );
         }
     }
-
-
     //////////////////////////////////////////////////////////////////////
 
 
@@ -512,8 +491,6 @@ const SaleInvoice = ({
             );
         }
     }
-
-
     //////////////////////////////////////////////////////////////////////
 
     //////////////////////////////////////////////////////////////////////
@@ -596,8 +573,6 @@ const SaleInvoice = ({
             );
         }
     }
-
-
     //////////////////////////////////////////////////////////////////////
 
     return (
@@ -608,9 +583,7 @@ const SaleInvoice = ({
                     <h1>Sale Invoice</h1>
                     {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
                     {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-                    <div>
-                        <button className="btn btn-primary" type="button" onClick={btnItemHandler}>Clear All</button>
-                    </div>
+                   
 
 
                     <form onSubmit={handleSubmit}>

@@ -18,6 +18,7 @@ import PurchaseInvoice from './components/inventory-management/purchase-invoice.
 import MoveStock from './components/inventory-management/move-stock.component';
 import SaleInvoice from './components/inventory-management/sale-invoice.component';
 import SaleReturn from './components/inventory-management/SaleReturn.component'
+import EditSale from './components/inventory-management/editSale.component';
 import Pricing from './components/inventory-management/pricing.component';
 import AccountReceivable from './components/inventory-management/accountReceivable.component';
 import AccountPayable from './components/inventory-management/accountPayable.component';
@@ -172,6 +173,7 @@ const App = () => {
                     <Route path="/MoveStock" render={() => <MoveStock  />} />
                     <Route path="/SaleInvoice" render={() => <SaleInvoice  />} />
                     <Route path="/SaleReturn" render={() => <SaleReturn  />} />
+                    <Route path="/EditSale" render={() => <EditSale  />} />
                     <Route path="/Pricing" render={() => <Pricing  />} />
                     <Route path="/AccountReceivable" render={()=><AccountReceivable/>}/>
                     <Route path="/AccountPayable" render={()=><AccountPayable/>}/>

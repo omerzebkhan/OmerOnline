@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import inventoryService from "../../services/inventory.service";
 import userService from "../../services/user.service";
 import itemService from "../../services/item.services";
+import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { fetchSaleByDate, fetchSaleInvoiceDetailAsync } from '../../redux/Sale/sale.action';
 import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
 import "react-datepicker/dist/react-datepicker.css";
@@ -12,6 +13,7 @@ import PdfInvoice from "./printInvoice"
 
 const SaleReport = ({
     fetchUserStartAsync, userData,
+    fetchItemStartAsync, itemData,
     fetchSaleByDate,
     fetchSaleInvoiceDetailAsync, fetchUserByInputAsync,
     currentUser,
@@ -22,21 +24,8 @@ const SaleReport = ({
     const [endDate, setEndDate] = useState(new Date());
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [invoice, setInvoice] = useState("");
-    const [edit, setEdit] = useState("");
 
-    const [sdId, setSDId] = useState("");
-    const [sdItemName, setSDItemName] = useState("");
-    const [sdPrice, setSDPrice] = useState("");
-    const [sdQuantity, setSDQuantity] = useState("");
 
-    const [sdOldId, setSDOldId] = useState("");
-    const [sdOldItemName, setSDOldItemName] = useState("");
-    const [sdOldPrice, setSDOldPrice] = useState("");
-    const [sdOldQuantity, setSDOldQuantity] = useState("");
-    const [sdCustomerId, setSDCustomerId] = useState("");
-    const [sdItemId, setSDItemId] = useState("");
-    const [sInvoiceId, setSInvoiceId] = useState("");
 
     const [cCustomer, setcCustomer] = useState([]);
     const [customerInput, setCustomerInput] = useState("");
@@ -44,9 +33,13 @@ const SaleReport = ({
     const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
     const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
 
+
     useEffect(() => {
         fetchUserStartAsync();
     }, [fetchUserStartAsync])
+
+ 
+
 
 
     const handleStartDTPicker = (date) => {
@@ -71,200 +64,22 @@ const SaleReport = ({
 
     const selectInvoice = (item) => {
         console.log("Select Invoice clicked");
-        console.log(item.id);
-        console.log(`customer id = ${item.customerId}`)
-        setSDCustomerId(item.customerId);
+       // console.log(item.id);
+       // console.log(`customer id = ${item.customerId}`)
+       
         // const { fetchUserByInputAsync } = this.props;
         fetchUserByInputAsync(item.customerId);
         fetchSaleInvoiceDetailAsync(item.id);
-    }
 
-    const editInvoceHandler = (item) => {
-        console.log('edit sale invoice.....')
-        console.log(`invoice id =${item.id}`)
-        setEdit("True");
 
-        setSDItemId(item.items.id);
-        setSInvoiceId(item.saleInvoiceId)
-
-        setSDOldId(item.id);
-        setSDOldItemName(item.items.name);
-        setSDOldPrice(item.price);
-        setSDOldQuantity(item.quantity);
-
-        setSDId(item.id);
-        setSDItemName(item.items.name);
-        setSDPrice(item.price);
-        setSDQuantity(item.quantity);
-
-    }
-
-    const updateInvoceHandler = () => {
-        console.log('edit sale invoice.....')
         
-        ////////////////////////////////// update invoce detail
-        var idData = { price: sdPrice,quantity: sdQuantity };
-
-        inventoryService.updateSaleDetail(sdId, idData)
-            .then(resUpdateBalance => {
-                setMessage("Sale Details updated .......");
-                console.log("Sale Details updated .......");
-
-                ////////////////////////////////////////////////////////////
-
-                ////////////////////////////////// update invoce outstanding amount
-                // call new service to recalculate the invoice value of given invoice no
-                inventoryService.getSaleRecalculate(sInvoiceId)
-                    .then(res => {
-                        setMessage("Sale Recalculated .......");
-                        console.log(`Sale Recalculated .......`);
-                    })
-                    .catch(error => {
-                        setMessage(`catch of Recalculated ${error.response.request.response.message}`)
-                        console.log(`catch of Recalculated ${error.response.request.response.message}`);
-                    })
-              
-                //update customer outstanding amount
-//                console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
-                if (sdOldPrice > sdPrice) {
-
-                    //get current customer values 
-                    var customerData = { outstanding: sdOldPrice - sdPrice,
-                        totalAmount: sdOldPrice - sdPrice };
-
-                    userService.get(sdCustomerId)
-                        .then(res => {
-                            var cData = {
-                                outstanding: res.data.outstanding - customerData.outstanding,
-                                totalAmount: res.data.totalAmount - customerData.totalAmount
-                            }
-
-                            console.log(`Customer totalAmount & outstanding are ${res.data.totalAmout} ${res.data.outstanding} .......`);
-                            userService.update(sdCustomerId, cData)
-                                .then(res => {
-                                    console.log(`customer data has been updated with ${cData.outstanding} ${cData.totalAmount}`)
-                                })
-                                .catch(error => {
-                                    setMessage(`catch of customer ${error.response.request.response.message}`)
-                                    console.log(`catch of customer ${error.response.request.response.message}`);
-                                })
-                        })
-                        .catch(error => {
-                            setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
-                            console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
-                        })
-
-                    console.log(`update customer outstading & totalAmount with current outstanding - ${sdOldPrice - sdPrice} `)
-                }
-                else if (sdOldPrice < sdPrice) {
-                    //get current customer values 
-                    var customerData1 = {outstanding: sdPrice - sdOldPrice,
-                        totalAmount: sdPrice - sdOldPrice};
-
-                    userService.get(sdCustomerId)
-                        .then(res => {
-                            var cData = {outstanding: res.data.outstanding + customerData1.outstanding,
-                                totalAmount: res.data.totalAmount + customerData1.totalAmount
-                            }
-                            console.log(`Customer totalAmount & outstanding are ${res.data.totalAmout} ${res.data.outstanding} .......`);
-                            userService.update(sdCustomerId, cData)
-                                .then(res => {
-                                    console.log(`customer data has been updated with ${cData.outstanding} ${cData.totalAmount}`)
-                                })
-                                .catch(error => {
-                                    setMessage(`catch of update user ${error.response.request.response.message}`)
-                                    console.log(`catch of update user ${error.response.request.response.message}`);
-                                })
-                        })
-                        .catch(error => {
-                            setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
-                            console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
-                        })
-
-                }
-
-                ///////////////////////////update item value for the stock management
-//                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
-
-                if (sdOldQuantity > sdQuantity) {
-
-                    //get current customer values 
-                    var itemData = {quantity: sdOldQuantity - sdQuantity,
-                        showroom: sdOldQuantity - sdQuantity};
-                    itemService.get(sdItemId)
-                        .then(res => {
-                            var iData = {quantity: res.data.quantity - itemData.quantity,
-                                showroom: res.data.showroom - itemData.showroom}
-                            console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
-                            userService.update(sdItemId, iData)
-                                .then(res => {
-                                    console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
-                                })
-                                .catch(error => {
-                                    setMessage(`catch of Item update ${error.response.request.response.message}`)
-                                    console.log(`catch of Item update ${error.response.request.response.message}`);
-                                })
-                        })
-                        .catch(error => {
-                            setMessage(`catch of Item ${error.response.request.response.message}`)
-                            console.log(`catch of Item ${error.response.request.response.message}`);
-                        })
-
-                    // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
-                }
-                else if (sdQuantity > sdOldQuantity) {
-
-                    //get current item values 
-                    var itemData1 = {quantity: sdQuantity - sdOldQuantity,
-                        showroom: sdQuantity - sdOldQuantity};
-                    itemService.get(sdItemId)
-                        .then(res => {
-                            var iData = {quantity: res.data.quantity + itemData1.quantity,
-                                showroom: res.data.showroom + itemData1.showroom}
-                            console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
-                            userService.update(sdItemId, iData)
-                                .then(res => {
-                                    console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
-                                })
-                                .catch(error => {
-                                    setMessage(`catch of user update ${error.response.request.response.message}`)
-                                    console.log(`catch of user update ${error.response.request.response.message}`);
-                                })
-                        })
-                        .catch(error => {
-                            setMessage(`catch of Item ${error.response.request.response.message}`)
-                            console.log(`catch of Item ${error.response.request.response.message}`);
-                        })
-
-                    console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
-                }
-
-
-
-                ////////////////////////////////////////////////////////////
-
-
-
-            })
-            .catch(error => {
-                setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
-                console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
-            })
-
-
-
     }
+
 
 
     const handleChange = event => {
         //console.log(event);
-        if (event.target.id === "Quantity") {
-            setSDQuantity(event.target.value);
-        }
-        else if (event.target.id === "Price") {
-            setSDPrice(event.target.value);
-        }
-        else if (event.target.id === "customerSearch") {
+       if (event.target.id === "customerSearch") {
             console.log(`customer input=${customerInput} ${event.target.value}`)
             if (userData.user) {
                 setFilteredOptionsCustomer(userData.user.filter(
@@ -280,8 +95,11 @@ const SaleReport = ({
             }
             else { setMessage(`No data for customer search...`) }
         }
+       
 
     }
+
+    
 
 
     //////////////////////////////////////////////////////////////////////
@@ -378,25 +196,13 @@ const SaleReport = ({
                 <div className="form-group row">
                     <div className="col-sm-3">
                         Start Date
-                    {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                        <DatePicker
-                            id="datePicker"
-                            selected={startDate}
-                            onChange={handleStartDTPicker}
-                            name="startDate"
-                            dateFormat="MM/dd/yyyy"
-                        />
+                        <DatePicker id="datePicker" selected={startDate} onChange={handleStartDTPicker}
+                        name="startDate" dateFormat="MM/dd/yyyy" />
                     </div>
                     <div className="col-sm-3">
                         End Date
-                    {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                        <DatePicker
-                            id="datePicker"
-                            selected={endDate}
-                            onChange={handleEndDTPicker}
-                            name="startDate"
-                            dateFormat="MM/dd/yyyy"
-                        />
+                        <DatePicker id="datePicker" selected={endDate} onChange={handleEndDTPicker}
+                            name="startDate" dateFormat="MM/dd/yyyy" />
                     </div>
                 </div>
 
@@ -493,11 +299,10 @@ const SaleReport = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {
-                                saleInvoiceDetailData.map((item, index) => (
-                                    //   console.log(item);
+                            { saleInvoiceDetailData.map((item, index) => (
+                                    // console.log(item),
                                     <tr key={index}
-                                        onClick={() => editInvoceHandler(item)}
+                                       // onClick={() => editInvoceHandler(item)}
                                     >
                                         <td>{item.id}</td>
                                         <td>{item.createdAt}</td>
@@ -513,90 +318,19 @@ const SaleReport = ({
                         </tbody>
                     </table>
                     <PdfInvoice invoice={saleInvoiceDetailData} customer={user} />
+         
                 </div>
 
                 :
                 ""
             }
-            {edit === "True" ?
-                <div className="form-group row">
-                    <div>
-                        Sale Detail Id = {sdId}
-                    </div>
-                    <div className="col-sm-2">
-                        <label className="col-sm-2 col-form-label" htmlFor="Item" >Item </label>
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="itemSearch"
-                            id="itemSearch"
-                            placeholder="Select Item"
-                            value={sdItemName}
-                            onChange={handleChange}
-                        //   onKeyDown={onKeyDownItem}
-                        />
-
-                        {/* {optionListItem} */}
-                    </div>
-
-                    <div className="col-sm-4">
-
-                        <input
-                            type="text"
-                            name="Item"
-                            id="Item"
-                            placeholder="ShowRoom Quantity"
-                            //   value={cItem[0] ? cItem[0].showroom : ""}
-                            disabled />
-                    </div>
-                    <div className="form-group row">
-                        <div className="col-sm-2">
-                            <label className="col-sm-2 col-form-label" htmlFor="Item" >Quantity </label>
-                        </div>
-                        <div className="col-sm-4">
-                            <input
-                                type="text"
-                                name="Quantity"
-                                id="Quantity"
-                                placeholder="Quantity"
-                                value={sdQuantity}
-                                onChange={handleChange} />
-
-                        </div>
-                    </div>
-                    <div className="form-group row">
-                        <div className="col-sm-2">
-                            <label className="col-sm-2 col-form-label" htmlFor="Item" >Price </label>
-                        </div>
-                        <div className="col-sm-4">
-
-                            <input
-                                type="text"
-                                name="Price"
-                                id="Price"
-                                placeholder="Price"
-                                value={sdPrice}
-                                onChange={handleChange} />
-
-                        </div>
-                        <div>
-                            <button className="btn btn-primary" type="button" onClick={updateInvoceHandler}>Update Invoice</button>
-                        </div>
-
-
-                    </div>
-
-                </div>
-
-                :
-                ""
-            }
+         
         </div>
     )
 }
 
 const mapStateToProps = state => ({
+    itemData: state.item.items,
     user: state.user.users,
     saleData: state.sale.sale,
     saleInvoiceDetailData: state.sale.saleInvoiceDetail,
@@ -607,7 +341,8 @@ const mapDispatchToProps = dispatch => ({
     fetchSaleByDate: (sDate, eDate, id) => dispatch(fetchSaleByDate(sDate, eDate, id)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
-    fetchUserStartAsync: () => dispatch(fetchUserStartAsync())
+    fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
+    fetchItemStartAsync: () => dispatch(fetchItemStartAsync())
 
 });
 

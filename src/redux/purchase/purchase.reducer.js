@@ -1,49 +1,56 @@
 import PurchaseActionType from './purchase.type';
-const INITIAL_STATE ={
-    purchase:null,
+const INITIAL_STATE = {
+    purchase: null,
     purchaseInvoiceDetail: null,
-    purInvPayDetail:null,
-    currentPurchase:null,
-    isFetching:false,
+    purchaseAR: null,
+    purInvPayDetail: null,
+    currentPurchase: null,
+    isFetching: false,
     errorMessage: undefined
 }
 
-const purchaseReducer = (state = INITIAL_STATE,action) =>{
-    switch(action.type){
+const purchaseReducer = (state = INITIAL_STATE, action) => {
+    switch (action.type) {
         case PurchaseActionType.SET_CURRENT_PURCHASE:
-            return{
+            return {
                 ...state,
-                currentPurchase:action.payload
+                currentPurchase: action.payload
             }
         case PurchaseActionType.FETCH_PURCHASE_START:
-            return{
+            return {
                 ...state,
-                isFetching:true
+                isFetching: true
             }
         case PurchaseActionType.FETCH_PURCHASEINVOICEDETAIL_SUCCESS:
-                return {
-                    ...state,
-                    isFetching: false,
-                    purchaseInvoiceDetail: action.payload
-                }    
+            return {
+                ...state,
+                isFetching: false,
+                purchaseInvoiceDetail: action.payload
+            }
 
         case PurchaseActionType.FETCH_PURCHASE_SUCCESS:
-            return{
+            return {
                 ...state,
-                isFetching:false,
-                purchase:action.payload
+                isFetching: false,
+                purchase: action.payload
+            }
+        case PurchaseActionType.FETCH_PURCHASEAP_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                purchaseAP: action.payload
             }
         case PurchaseActionType.FETCH_PURINVPAYDETIAL_SUCCESS:
-                return{
-                    ...state,
-                    isFetching:false,
-                    purInvPayDetail:action.payload
-            }    
-        case PurchaseActionType.FETCH_PURCHASE_FAILURE:
-            return{
+            return {
                 ...state,
-                errorMessage:action.payload
-            }    
+                isFetching: false,
+                purInvPayDetail: action.payload
+            }
+        case PurchaseActionType.FETCH_PURCHASE_FAILURE:
+            return {
+                ...state,
+                errorMessage: action.payload
+            }
         default:
             return state;
     }

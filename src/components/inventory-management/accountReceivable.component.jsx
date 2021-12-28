@@ -6,14 +6,15 @@ import SearchUser from "../user/searchUser.component";
 
 //import { fetchItemStartAsync, setCurrentItem } from '../../redux/item/item.action';
 
-import { fetchSaleByInputStartAsync, fetchSalInvPayDetial } from '../../redux/Sale/sale.action';
+import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR } from '../../redux/Sale/sale.action';
 import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
-const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
+const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     fetchSaleByInputStartAsync,
+    fetchSaleAR, saleArData,
     currentUser,
     saleInvoice,
     isFetching, currentUser1 }) => {
@@ -33,12 +34,11 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
     }
         , []);
 
-    useEffect(() => {
-        if (currentUser != null) {
-            console.log("fetching invoice of the customer...");
-            fetchSaleByInputStartAsync(currentUser.id);
-        }
-    }, [fetchSaleByInputStartAsync, currentUser])
+   useEffect(() => {
+        fetchSaleAR();
+
+    }, [fetchSaleAR])
+
 
     useEffect(() => {
         setSInvoice(saleInvoice);
@@ -47,6 +47,10 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
     useEffect(() => {
         setSInvPayDetail(salInvDetail)
     }, [salInvDetail])
+
+    const selectSaleInvoice = (item) =>{
+        fetchSaleByInputStartAsync(item.customerId);
+    }
 
     const handleChange = event => {
         if (event.target.id === "cashPayment") {
@@ -137,16 +141,14 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
                 error from server  ${e.message}`);
                 })
 
-
-
-
         }
+        setLoading(false)
     }
 
     const getPaymentDetail = (invoiceId) => {
         console.log(`Sale payment Details is called ${invoiceId}`)
         fetchSalInvPayDetial(invoiceId);
-        
+
 
     }
 
@@ -158,15 +160,54 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
                     {isFetching ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
                     {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
 
-                    <SearchUser show="AccRec" />
+                    {/* <SearchUser show="AccRec" /> */}
                     {/* get all invoices of the current user            */}
+
                     {currentUser ?
                         currentUser.id
                         // fetchPurchaseByInputStartAsync(currentUser.id)
 
                         : ""}
+
+                    {saleArData ?
+                        <div>
+                            <h1>Outstanding Customers</h1>
+                            <table border="1">
+                                <thead>
+                                    <tr>
+                                        
+                                        <th>Customer id</th>
+                                        <th>Name</th>
+                                        <th>Address</th>
+                                        <th>Invoice Value</th>
+                                        <th>OutStanding</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {saleArData.map((item, index) => {
+                                        //console.log(index)
+                                        return (
+                                            <tr key={index}  onClick={() => selectSaleInvoice(item)}>
+                                                <td>{item.customerId}</td>
+                                                <td>{item.name}</td>
+                                                <td>{item.address}</td>
+                                                <td>{item.saleInvoiceValue}</td>
+                                                <td>{item.salesOutstanding}</td>
+                                                
+                                            </tr>)
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        :
+                        ""
+                    }
+
+
                     {sInvoice ?
                         <div>
+                            <h1>Outstaning Invoices</h1>
                             <table border="1">
                                 <thead>
                                     <tr>
@@ -180,25 +221,25 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
                                 <tbody>
                                     {sInvoice.map((item, index) => {
                                         //console.log(index)
-                                       
+
                                         return (
-                                        <tr key={index}>
-                                            <td>{item.createdAt}</td>
-                                            <td>{item.customerId}</td>
-                                            <td>{item.id}</td>
-                                            <td>{item.invoicevalue}</td>
-                                            <td>{item.Outstanding}</td>
-                                            {/* <td><button type="button" onClick={() => setCurrentInvoice(item)}>Make Payment</button></td> */}
-                                            <td><button type="button" onClick={() => {
-                                                setSInvPayDetail([]);
-                                                setCurrentInvoice(item)
-                                            }
-                                            }>Make Payment</button></td>
-                                            <td><button type="button" onClick={() => {
-                                                setCurrentInvoice([]);
-                                                getPaymentDetail(item.id)
-                                            }}>Payment Details</button></td>
-                                        </tr>)
+                                            <tr key={index}>
+                                                <td>{item.createdAt}</td>
+                                                <td>{item.customerId}</td>
+                                                <td>{item.id}</td>
+                                                <td>{item.invoicevalue}</td>
+                                                <td>{item.Outstanding}</td>
+                                                {/* <td><button type="button" onClick={() => setCurrentInvoice(item)}>Make Payment</button></td> */}
+                                                <td><button type="button" onClick={() => {
+                                                    setSInvPayDetail([]);
+                                                    setCurrentInvoice(item)
+                                                }
+                                                }>Make Payment</button></td>
+                                                <td><button type="button" onClick={() => {
+                                                    setCurrentInvoice([]);
+                                                    getPaymentDetail(item.id)
+                                                }}>Payment Details</button></td>
+                                            </tr>)
                                     })}
                                 </tbody>
                             </table>
@@ -301,7 +342,7 @@ const AccountReceivable = ({fetchSalInvPayDetial,salInvDetail,
                                 </tbody>
                             </table>
                         </div> :
-                        "No data for the Invoice "}
+                        ""}
                 </div>
                 :
                 "Access denied for the screen"}
@@ -314,11 +355,13 @@ const mapStateToProps = state => ({
     currentUser: state.user.currentUser,
     currentUser1: state.user.user.user,
     saleInvoice: state.sale.sale,
-    salInvDetail: state.sale.salInvPayDetail
+    salInvDetail: state.sale.salInvPayDetail,
+    saleArData: state.sale.saleAR,
 })
 const mapDispatchToProps = dispatch => ({
     fetchSaleByInputStartAsync: (userId) => dispatch(fetchSaleByInputStartAsync(userId)),
     fetchSalInvPayDetial: (invoiceId) => dispatch(fetchSalInvPayDetial(invoiceId)),
+    fetchSaleAR: () => dispatch(fetchSaleAR())
 });
 
 

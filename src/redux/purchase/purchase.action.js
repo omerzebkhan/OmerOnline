@@ -16,6 +16,11 @@ export const fetchPurchaseSuccess = purchaseMap =>({
     payload:purchaseMap
 });
 
+export const fetchPurchaseAPSuccess = purchaseMap =>({
+    type:PurchaseActionType.FETCH_PURCHASEAP_SUCCESS,
+    payload:purchaseMap
+});
+
 export const fetchPurInvPayDeatilSuccess = purchaseMap =>({
     type:PurchaseActionType.FETCH_PURINVPAYDETIAL_SUCCESS,
     payload:purchaseMap
@@ -115,4 +120,17 @@ export const fetchPurchaseInvoiceDetailAsync = (PurchaseInvoiceId) => {
             }
         }
      
+export const fetchPurchaseAP = () => {
+            return dispatch => {
+                //const collectionRef = firestore.collection('PurchaseInvoice').where("supplierId", "==", userId);
+                dispatch(fetchPurchaseStart());
+                inventoryService.getPurchaseAP()
+                    .then(response => {
+                        const purchaseMap = response.data;
+                        //console.log(purchaseMap)
+                        dispatch(fetchPurchaseAPSuccess(purchaseMap));
+                    })
+                    .catch(error => dispatch(fetchPurchaseFailure((error.response.request.response.message))))
+            }
+        }
 

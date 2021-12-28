@@ -1,12 +1,11 @@
 import React, { useState, useEffect,useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
-import SearchUser from "../user/searchUser.component";
 //import {fetchStockStartAsync,setCurrentStock} from '../../redux/stock/stock.action';
 
 //import { fetchItemStartAsync, setCurrentItem } from '../../redux/item/item.action';
 
-import { fetchPurchaseByInputStartAsync,fetchPurInvPayDetial } from '../../redux/purchase/purchase.action';
+import { fetchPurchaseByInputStartAsync,fetchPurInvPayDetial,fetchPurchaseAP } from '../../redux/purchase/purchase.action';
 import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
@@ -14,6 +13,7 @@ import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
 
 const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
     fetchPurchaseByInputStartAsync,
+    fetchPurchaseAP, purchaseApData,
     currentUser,
     purchaseInvoice,
     isFetching,currentUser1 }) => {
@@ -33,13 +33,12 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
      }
          , []);
 
-    useEffect(() => {
-        if (currentUser != null) {
-            console.log("fetching invoice of the customer...");
-            fetchPurchaseByInputStartAsync(currentUser.id);
-        }
-    }, [fetchPurchaseByInputStartAsync, currentUser])
-
+    
+         useEffect(() => {
+            fetchPurchaseAP();
+    
+        }, [fetchPurchaseAP])
+    
     useEffect(() => {
        setPInvoice(purchaseInvoice);
     }, [purchaseInvoice])
@@ -48,7 +47,11 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
         setPInvPayDetail(purInvDetail)
      }, [purInvDetail])
 
-     
+     const selectPurchaseInvoice = (item) =>{
+        fetchPurchaseByInputStartAsync(item.supplierId);
+    }
+
+
     const handleChange = event => {
       if(event.target.id === "cashPayment") {
           setCashPayment(event.target.value);}
@@ -153,6 +156,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
 
         
     }
+    setLoading(true);
         
     }
 
@@ -166,7 +170,40 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
             {isFetching ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
             {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
 
-            <SearchUser show="AccPay" />
+            {purchaseApData ?
+                        <div>
+                            <h1>Outstanding Suppliers</h1>
+                            <table border="1">
+                                <thead>
+                                    <tr>
+                                        
+                                        <th>Customer id</th>
+                                        <th>Name</th>
+                                        <th>Address</th>
+                                        <th>Invoice Value</th>
+                                        <th>OutStanding</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {purchaseApData.map((item, index) => {
+                                        //console.log(index)
+                                        return (
+                                            <tr key={index}  onClick={() => selectPurchaseInvoice(item)}>
+                                                <td>{item.supplierId}</td>
+                                                <td>{item.name}</td>
+                                                <td>{item.address}</td>
+                                                <td>{item.purchaseInvoiceValue}</td>
+                                                <td>{item.purchaseOutstanding}</td>
+                                                
+                                            </tr>)
+                                    })}
+                                </tbody>
+                            </table>
+                        </div>
+
+                        :
+                        "No Suppliers having OutStanding amount"
+                    }
             {/* get all invoices of the current user            */}
             {currentUser ?
                 currentUser.id
@@ -187,7 +224,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                         </thead>
                         <tbody>
                             {pInvoice.map((item, index) => {
-                                //console.log(index)
+                               if(item.Outstanding>0){
                                 return (<tr key={index}>
                                     <td>{item.createdAt}</td>
                                     <td>{item.supplierId}</td>
@@ -202,7 +239,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                                         setCurrentInvoice([]);
                                         getPaymentDetail(item.id)
                                         }}>Payment Details</button></td>
-                                </tr>)})}
+                                </tr>)}})}
                         </tbody>
                     </table>
                 </div>
@@ -303,7 +340,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                         </tbody>
                     </table>
             </div>    :
-            "No data for the Invoice "}
+            ""}
         </div>
          :
          "Access denied for the screen"}
@@ -316,11 +353,13 @@ const mapStateToProps = state => ({
     currentUser: state.user.currentUser,
     currentUser1: state.user.user.user,
     purchaseInvoice: state.purchase.purchase,
-    purInvDetail :state.purchase.purInvPayDetail
+    purInvDetail :state.purchase.purInvPayDetail,
+    purchaseApData: state.purchase.purchaseAP
 })
 const mapDispatchToProps = dispatch => ({
     fetchPurchaseByInputStartAsync: (userId) => dispatch(fetchPurchaseByInputStartAsync(userId)),
     fetchPurInvPayDetial : (invoiceId) => dispatch(fetchPurInvPayDetial(invoiceId)),
+    fetchPurchaseAP:() => dispatch(fetchPurchaseAP())
 
 });
 
