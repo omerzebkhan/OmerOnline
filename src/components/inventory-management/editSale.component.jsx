@@ -396,10 +396,23 @@ const deleteInvoiceHandler = () =>{
                     })
         
         })
-    // delete sale Detail and sale invoices.
+    // delete sale Detail.
     
+inventoryService.deleteSaleInvoiceBySaleId(saleInvoice)
+.then(response2 => {
+    console.log(`sale details has been removed of ${saleInvoice}`)})
+    .catch(e => {
+        console.log(`catch of update Stock ${e}`);
+    })
 
+    // delete sale invoices.
 
+    inventoryService.deleteSale(saleInvoice)
+.then(response2 => {
+    console.log(`sale has been deleted of ${saleInvoice}`)})
+    .catch(e => {
+        console.log(`catch of update Stock ${e}`);
+    })
     
 }
 

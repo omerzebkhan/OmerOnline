@@ -105,6 +105,10 @@ class inventoryDataService {
     return http.post("/sale/",data,{headers: authHeader() });
   }
 
+  deleteSale(id) {
+    return http.delete(`/sale/${id}`);
+  }
+
   //Update sale Returned, Invoce value, Outstanding ,Total Item
   updateSaleRIvOTi(id, data) {
     //console.log(`update triggred from react .....`)
@@ -136,6 +140,11 @@ class inventoryDataService {
     return http.post("/saleDetail/",data,{headers: authHeader() });
   }
 
+  deleteSaleInvoiceBySaleId(id) {
+    return http.delete(`/SaleDetailBySaleId/${id}`);
+  }
+
+
   updateSaleDetailQ(id, data) {
     //console.log(`update triggred from react .....`)
     return http.put(`/UpdateSaleDetailQ/${id}`, data);
@@ -145,6 +154,8 @@ class inventoryDataService {
     //console.log(`update triggred from react .....`)
     return http.put(`/UpdateSaleDetail/${id}`, data);
   }
+
+
 
   ///////////////////////////////////////////
   //////Sale Invoice Payment////////////////

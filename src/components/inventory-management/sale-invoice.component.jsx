@@ -353,6 +353,7 @@ const SaleInvoice = ({
         );
         setItemInput(selectedItem[0].name);
         setcItem(selectedItem);
+        setPrice(selectedItem[0].showroomprice)
 
         // console.log(cItem[0].name)
     };
@@ -377,6 +378,7 @@ const SaleInvoice = ({
                                             <th style={{width: "80%"}}>Name</th>
                                             <th>ShowRoom</th>
                                             <th>Cost</th>
+                                            <th>ShowRoom Price</th>
                                         
                                         </tr>
                                     </thead>
@@ -385,6 +387,7 @@ const SaleInvoice = ({
                                         <td>{optionName.name}</td>
                                         <td>{optionName.showroom}</td>
                                         <td>{optionName.averageprice}</td>
+                                        <td>{optionName.showroomprice}</td>
                                         </tr>
                                     </tbody>
                                 </table>
