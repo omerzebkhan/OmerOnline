@@ -158,6 +158,7 @@ const AddItem = ({
     };
 
     const saveItem = () => {
+        console.log(`Saving item .........`)
         console.log(currentBrand);
         var data = {
 
