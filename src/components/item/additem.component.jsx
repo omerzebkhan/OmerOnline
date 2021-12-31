@@ -196,8 +196,8 @@ const AddItem = ({
                 // update the 
 
             })
-            .catch(e => {
-                console.log(e);
+            .catch(error => {
+                console.log(error.response.request.response.message);
             });
     }
 
