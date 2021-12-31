@@ -188,7 +188,8 @@ const AddItem = ({
                 // console.log(response.status);
                 // console.log(response.data.id);
                 setMessage(`Item successfully Added Item id = ${response.data.id}`);
-                // console.log(response.data);
+                console.log(`item added data....`);
+                console.log(response.data);
 
                 // upload image
                 upload(response.data.id);
