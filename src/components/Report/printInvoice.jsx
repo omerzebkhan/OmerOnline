@@ -116,7 +116,7 @@ R_description: {
     //Ttitle of the Invoice 
     titleContainer:{
         flexDirection: 'row',
-        marginTop: 24,
+        marginTop: 5,
     },
     reportTitle:{
         color: '#61dafb',
