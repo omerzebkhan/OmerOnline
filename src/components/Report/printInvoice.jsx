@@ -116,7 +116,7 @@ R_description: {
     //Ttitle of the Invoice 
     titleContainer:{
         flexDirection: 'row',
-        marginTop: 5,
+        marginTop: 2,
     },
     reportTitle:{
         color: '#61dafb',
@@ -259,7 +259,7 @@ const MyDoc = ({data,invoiceNo,date,customer}) => (
   <Document>
     <Page size="A4" style={styles.page}>
     <View>
-    <Image style={styles.logo} src={logo} />
+    {/* <Image style={styles.logo} src={logo} /> */}
     <InvoiceTitle title='Sale Invoice'/>
     <InvoiceTitle title='N & M Traders'/>
     <InvoiceNo 
