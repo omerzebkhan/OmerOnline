@@ -27,8 +27,8 @@ const EditSale = ({
     const [invoice, setInvoice] = useState("");
     const [edit, setEdit] = useState("");
     const [invoiceItem, setInvoiceItem] = useState([]);
-    const [addItemBtn,setAddItemBtn]=useState(false);
-    const [saleInvoice,setSaleInvoice]=useState("");
+    const [addItemBtn, setAddItemBtn] = useState(false);
+    const [saleInvoice, setSaleInvoice] = useState("");
 
     const [sdId, setSDId] = useState("");
     const [sdItemName, setSDItemName] = useState("");
@@ -62,20 +62,20 @@ const EditSale = ({
     useEffect(() => {
         ////// load current invoice detail in Invoice Item from saleInvoiceDetailData
         //setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
-       if (saleInvoiceDetailData){
-       var arr = [];
-        console.log(saleInvoiceDetailData)
-        saleInvoiceDetailData.map((i) => {
-            console.log(i)
-            //setInvoiceItem([...invoiceItem,[i.items.name,i.items.description,i.quantity,i.price,i.cost,i.cost *i.price,i.id]])
-            arr.push([i.items.name,i.items.description,i.quantity,i.price,i.cost,(i.price * i.quantity) - (i.cost * i.quantity),i.itemId,i.id,i.saleInvoiceId]);
-            //console.log(invoiceItem)
-            //console.log(invoiceItem.length)
-        })
-        setInvoiceItem(arr); 
+        if (saleInvoiceDetailData) {
+            var arr = [];
+            console.log(saleInvoiceDetailData)
+            saleInvoiceDetailData.map((i) => {
+                console.log(i)
+                //setInvoiceItem([...invoiceItem,[i.items.name,i.items.description,i.quantity,i.price,i.cost,i.cost *i.price,i.id]])
+                arr.push([i.items.name, i.items.description, i.quantity, i.price, i.cost, (i.price * i.quantity) - (i.cost * i.quantity), i.itemId, i.id, i.saleInvoiceId]);
+                //console.log(invoiceItem)
+                //console.log(invoiceItem.length)
+            })
+            setInvoiceItem(arr);
 
-   
-    }   
+
+        }
     }, [saleInvoiceDetailData])
 
     const handleStartDTPicker = (date) => {
@@ -101,31 +101,28 @@ const EditSale = ({
     const selectInvoice = (item) => {
         console.log("Select Invoice clicked");
         setSaleInvoice(item.id);
-       // console.log(item.id);
-       // console.log(`customer id = ${item.customerId}`)
+
         setSDCustomerId(item.customerId);
-        // const { fetchUserByInputAsync } = this.props;
         fetchUserByInputAsync(item.customerId);
         fetchSaleInvoiceDetailAsync(item.id);
 
-
-        
     }
 
     const editInvoceHandler = (item) => {
         console.log('edit sale invoice.....')
         //console.log(`invoice id =${item.id}`)
         setEdit("True");
+        console.log(item)
 
-        setSDItemId(item[7]);
+        setSDItemId(item[6]);
         setSInvoiceId(item[8])
 
-        setSDOldId(item[6]);
+        setSDOldId(item[7]);
         setSDOldItemName(item[0]);
         setSDOldPrice(item[3]);
         setSDOldQuantity(item[2]);
 
-        setSDId(item[6]);
+        setSDId(item[7]);
         setSDItemName(item[0]);
         setItemInput(item[0])
         setSDPrice(item[3]);
@@ -135,136 +132,155 @@ const EditSale = ({
 
     const updateInvoceHandler = () => {
         console.log('edit sale invoice.....')
-       if(sdId==="")
-       {
-        console.log(`new sale details should be added....${saleInvoice}`)
-        setInvoiceItem([...invoiceItem,[cItem[0].name, cItem[0].description, sdQuantity, sdPrice, cItem[0].averageprice, (sdPrice * sdQuantity) - (cItem[0].averageprice * sdQuantity),cItem[0].id,'',saleInvoice]]);
-       }
-       else{
-        ////////////////////////////////// update invoce detail
-        var idData = { price: sdPrice, quantity: sdQuantity };
+        if (sdId === "") {
+            console.log(`new sale details should be added....${saleInvoice}`)
+            setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, sdQuantity, sdPrice, cItem[0].averageprice, (sdPrice * sdQuantity) - (cItem[0].averageprice * sdQuantity), cItem[0].id, '', saleInvoice]]);
+        }
+        else {
+            ////////////////////////////////// update invoce detail
+            var idData = { price: sdPrice, quantity: sdQuantity };
 
-        inventoryService.updateSaleDetail(sdId, idData)
-            .then(resUpdateBalance => {
-                setMessage("Sale Details updated .......");
-                console.log("Sale Details updated .......");
+            inventoryService.updateSaleDetail(sdId, idData)
+                .then(resUpdateBalance => {
+                    setMessage("Sale Details updated .......");
+                    console.log("Sale Details updated .......");
 
-                ////////////////////////////////////////////////////////////
+                    ////////////////////////////////////////////////////////////
 
-                ////////////////////////////////// update invoce Detail outstanding amount 
-                // call new service to recalculate the invoice value of given invoice no
-                inventoryService.getSaleRecalculate(sInvoiceId)
-                    .then(res => {
-                        setMessage("Sale Recalculated .......");
-                        console.log(`Sale Recalculated .......`);
-                    })
-                    .catch(error => {
-                        setMessage(`catch of Recalculated ${error.response.request.response.message}`)
-                        console.log(`catch of Recalculated ${error.response.request.response.message}`);
-                    })
+                    ////////////////////////////////// update invoce Detail outstanding amount 
+                    // call new service to recalculate the invoice value of given invoice no
+                    inventoryService.getSaleRecalculate(sInvoiceId)
+                        .then(res => {
+                            setMessage("Sale Recalculated .......");
+                            console.log(`Sale Recalculated .......`);
+                        })
+                        .catch(error => {
+                            setMessage(`catch of Recalculated ${error.response.request.response.message}`)
+                            console.log(`catch of Recalculated ${error.response.request.response.message}`);
+                        })
 
-                //////////////////////update customer outstanding amount
-                //console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
-                var priceDiff = 0;
-                var quantityDiff = 0;
-                var amountDiff = 0;
-                
+                    //////////////////////update customer outstanding amount
+                    //console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
+                    var priceDiff = 0;
+                    var quantityDiff = 0;
+                    var amountDiff = 0;
+
                     priceDiff = sdOldPrice - sdPrice;
-                 
+
                     quantityDiff = sdOldQuantity - sdQuantity;
-                
-                
-                if (priceDiff !== 0 && quantityDiff!==0)
-                {
-                    amountDiff = priceDiff*amountDiff;
-                }
-                else if (priceDiff ===0 && quantityDiff!==0)
-                {
-                    amountDiff = sdOldPrice*quantityDiff;
-                }
-                else if (priceDiff !==0 && quantityDiff ===0)
-                {
-                    amountDiff = priceDiff * sdOldQuantity;
-                }
-                console.log(`
+
+
+                    if (priceDiff !== 0 && quantityDiff !== 0) {
+                        amountDiff = priceDiff * amountDiff;
+                    }
+                    else if (priceDiff === 0 && quantityDiff !== 0) {
+                        amountDiff = sdOldPrice * quantityDiff;
+                    }
+                    else if (priceDiff !== 0 && quantityDiff === 0) {
+                        amountDiff = priceDiff * sdOldQuantity;
+                    }
+                    console.log(`
                 Price Diff = ${sdOldPrice} - ${sdPrice} =  ${priceDiff}
-                Quanity Diff = ${sdOldQuantity} - ${sdQuantity} = ${quantityDiff} = ${quantityDiff*-1}
+                Quanity Diff = ${sdOldQuantity} - ${sdQuantity} = ${quantityDiff} = ${quantityDiff * -1}
                 Amount Diff = ${amountDiff * -1}
                 `)
 
-                // if (priceDiff !== 0 || quantityDiff !== 0) {
-                //     //get current customer values 
-                   
-                //     userService.get(sdCustomerId)
-                //         .then(res => {
-                //             var cData = {};                       
-                //              cData = {
-                //                 outstanding: res.data.outstanding + (amountDiff),
-                //                 totalamount: res.data.totalamount + (amountDiff)
-                //                 }                        
+                    ///////////////////////////update item value for the stock management
+                    //                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
+                    if (quantityDiff > 0) {
+                        //get current customer values 
+                        itemService.get(sdItemId)
+                            .then(res => {
+                                var iData = {
+                                    quantity: res.data.quantity + (quantityDiff),
+                                    showroom: res.data.showroom + (quantityDiff)
+                                }
+                                console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
+                                userService.update(sdItemId, iData)
+                                    .then(res => {
+                                        console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
+                                    })
+                                    .catch(error => {
+                                        setMessage(`catch of Item update ${error.response.request.response.message}`)
+                                        console.log(`catch of Item update ${error.response.request.response.message}`);
+                                    })
+                            })
+                            .catch(error => {
+                                setMessage(`catch of Item ${error.response.request.response.message}`)
+                                console.log(`catch of Item ${error.response.request.response.message}`);
+                            })
 
-                //             console.log(`Customer totalAmount & outstanding are ${res.data.totalamout} ${res.data.outstanding} .......`);
-                //             userService.update(sdCustomerId, cData)
-                //                 .then(res => {
-                //                     console.log(`customer data has been updated with ${cData.outstanding} ${cData.totalamount}`)
-                //                 })
-                //                 .catch(error => {
-                //                     setMessage(`catch of customer ${error.response.request.response.message}`)
-                //                     console.log(`catch of customer ${error.response.request.response.message}`);
-                //                 })
-                //         })
-                //         .catch(error => {
-                //             setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
-                //             console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
-                //         })
+                        // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
+                    }
 
-                //     console.log(`update customer outstading & totalAmount with current outstanding - ${sdOldPrice - sdPrice} `)
+                    ////////////////////////////////////////////////////////////
 
+                })
+                .catch(error => {
+                    setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
+                    console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
+                })
 
-                //     }
-
-                ///////////////////////////update item value for the stock management
-                //                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
-                if (quantityDiff>0){
-                //get current customer values 
-                    itemService.get(sdItemId)
-                        .then(res => {
-                            var iData = {
-                                quantity: res.data.quantity + (quantityDiff),
-                                showroom: res.data.showroom + (quantityDiff)
-                            }
-                            console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
-                            userService.update(sdItemId, iData)
-                                .then(res => {
-                                    console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
-                                })
-                                .catch(error => {
-                                    setMessage(`catch of Item update ${error.response.request.response.message}`)
-                                    console.log(`catch of Item update ${error.response.request.response.message}`);
-                                })
-                        })
-                        .catch(error => {
-                            setMessage(`catch of Item ${error.response.request.response.message}`)
-                            console.log(`catch of Item ${error.response.request.response.message}`);
-                        })
-
-                    // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
-                }
-
-                ////////////////////////////////////////////////////////////
-
-             })
-            .catch(error => {
-                setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
-                console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
-            })
-
-       }
+        }
     }
 
-const addItemHandler = () =>{
+    const deleteRecordHandler = () => {
+        console.log(`item to remove ${sdItemId} quantity = ${sdOldQuantity}
+        saleDetail invoice id = ${sdId}
+        sale invoice = ${sInvoiceId}`);
+        //search the item and update the quantity in the items table
+        // get quantity and showroom of an item
+        itemService.get(sdItemId)
+            .then(response2 => {
+                console.log("get specific Item detail")
+                console.log(response2.data);
+                const { id, quantity, showroom } = response2.data;
+                // update quantity and showroom  of item
+                console.log(`before qauntity = ${quantity} showroom=${showroom}`)
+                var itemUpdated = {
+                    quantity: parseInt(quantity) + parseInt(sdOldQuantity),
+                    showroom: parseInt(showroom) + parseInt(sdOldQuantity)
+                }
+                console.log(`after qauntity = ${itemUpdated.quantity} showroom=${itemUpdated.showroom}`)
+                itemService.update(id, itemUpdated)
+                    .then(response4 => {
+                        setMessage(`Updated Stock value successfully`);
 
-    /////clear all text boxes
+
+                        //Delete the saleDetail Invoice
+                        inventoryService.deleteSaleDetail(sdId)
+                            .then(response2 => {
+                                console.log(`sale details has been removed of ${sdId}`)
+
+                                ////////////////////////////////// update invoce Detail outstanding,tatalitem,invoice value 
+                                // call new service to recalculate the invoice value of given invoice no
+                                inventoryService.getSaleRecalculate(sInvoiceId)
+                                    .then(res => {
+                                        setMessage("Sale Recalculated .......");
+                                        console.log(`Sale Recalculated .......${sInvoiceId}`);
+                                    })
+                                    .catch(error => {
+                                        setMessage(`catch of Recalculated ${error.response.request.response.message}`)
+                                        console.log(`catch of Recalculated ${error.response.request.response.message}`);
+                                    })
+                                ////////////////////////////////////////////////////////////////
+
+
+
+                            })
+                            .catch(e => {
+                                console.log(`catch of update Stock ${e}`);
+                            })
+                    })
+                    .catch(e => {
+                        console.log(`catch of update Stock ${e}`);
+                    })
+            })
+    }
+
+    const addItemHandler = () => {
+
+        /////clear all text boxes
         setSDId("");
         setSDItemName("");
         setSDPrice("");
@@ -275,154 +291,156 @@ const addItemHandler = () =>{
 
         fetchItemStartAsync();
         setAddItemBtn(true);
-}
+    }
 
-const submitInvoiceHandler = () =>{
-    //add logic of submit sale invoice for new values only
-    console.log(`Submit Invoice Handler is called ......`)
-    invoiceItem.map((item) => {
-        //console.log(item[7])
-        if(!item[7]){
-        var sDetailData = ({
-            saleInvoiceId:item[8],
-            // itemName: item[0],
-            itemName: item[6],
-            quantity: item[2],
-            price: item[3],
-            cost: item[4]
-            // profit should be calculated on run time
-        });
+    const submitInvoiceHandler = () => {
+        //add logic of submit sale invoice for new values only
+        console.log(`Submit Invoice Handler is called ......`)
+        invoiceItem.map((item) => {
+            //console.log(item[7])
+            if (!item[7]) {
+                var sDetailData = ({
+                    saleInvoiceId: item[8],
+                    // itemName: item[0],
+                    itemName: item[6],
+                    quantity: item[2],
+                    price: item[3],
+                    cost: item[4]
+                    // profit should be calculated on run time
+                });
 
-        console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
+                console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
 
-        inventoryService.createSaleDetail(sDetailData)
-            .then(response1 => {
-                setMessage("Sale Detail Entered");
-                console.log("Sale Detail Entered")
-                console.log(response1.data);
+                inventoryService.createSaleDetail(sDetailData)
+                    .then(response1 => {
+                        setMessage("Sale Detail Entered");
+                        console.log("Sale Detail Entered")
+                        console.log(response1.data);
 
-                ////////////////////////////////// update invoce Detail outstanding amount 
-                // call new service to recalculate the invoice value of given invoice no
-                inventoryService.getSaleRecalculate(sDetailData.saleInvoiceId)
-                    .then(res => {
-                        setMessage("Sale Recalculated .......");
-                        console.log(`Sale Recalculated .......`);
-                    })
-                    .catch(error => {
-                        setMessage(`catch of Recalculated ${error.response.request.response.message}`)
-                        console.log(`catch of Recalculated ${error.response.request.response.message}`);
-                    })
+                        ////////////////////////////////// update invoce Detail outstanding,tatalitem,invoice value 
+                        // call new service to recalculate the invoice value of given invoice no
+                        inventoryService.getSaleRecalculate(sDetailData.saleInvoiceId)
+                            .then(res => {
+                                setMessage("Sale Recalculated .......");
+                                console.log(`Sale Recalculated .......`);
+                            })
+                            .catch(error => {
+                                setMessage(`catch of Recalculated ${error.response.request.response.message}`)
+                                console.log(`catch of Recalculated ${error.response.request.response.message}`);
+                            })
+                        ////////////////////////////////////////////////////////////////
 
 
+                        //Updating Item Stock
+                        // get quantity and averageprice of an item
+                        itemService.get(item[6])
+                            .then(response2 => {
+                                console.log("get specific Item detail")
+                                console.log(response2.data);
+                                const { id, quantity, showroom, averagePrice } = response2.data;
+                                // console.log(`item id = ${id}
+                                // item Quantity = ${quantity}
+                                // Item showroom = ${showroom}
+                                // Item averagePrice = ${averagePrice}
+                                // `);
+                                console.log(`invoice quantity = ${parseInt(item[2])} `)
+                                // update quantity and showroom  of item
+                                var itemUpdated = {
+                                    quantity: parseInt(quantity) - parseInt(item[2]),
+                                    showroom: parseInt(showroom) - parseInt(item[2])
+                                }
+                                itemService.update(id, itemUpdated)
+                                    .then(response4 => {
+                                        // console.log(`response qty =${response4.data.quantity}
+                                        //     response showroom = ${response4.data.showroom}`)
+                                        setMessage(`Updated Stock value successfully`);
 
-                //Updating Item Stock
-                // get quantity and averageprice of an item
-                itemService.get(item[6])
-                    .then(response2 => {
-                        console.log("get specific Item detail")
-                        console.log(response2.data);
-                        const { id, quantity, showroom,averagePrice } = response2.data;
-                        // console.log(`item id = ${id}
-                        // item Quantity = ${quantity}
-                        // Item showroom = ${showroom}
-                        // Item averagePrice = ${averagePrice}
-                        // `);
-                        console.log(`invoice quantity = ${parseInt(item[2])} `)
-                        // update quantity and showroom  of item
-                        var itemUpdated = {
-                            quantity: parseInt(quantity) - parseInt(item[2]),
-                            showroom: parseInt(showroom) - parseInt(item[2])
-                        }
-                        itemService.update(id, itemUpdated)
-                            .then(response4 => {
-                                // console.log(`response qty =${response4.data.quantity}
-                                //     response showroom = ${response4.data.showroom}`)
-                                setMessage(`Updated Stock value successfully`);
-                               
-                               
+
+                                    })
+                                    .catch(e => {
+                                        console.log(`catch of update Stock ${e}
+                            error from server  ${e.message}`);
+                                    })
                             })
                             .catch(e => {
-                                console.log(`catch of update Stock ${e}
-                            error from server  ${e.message}`);
-                            })
-                    })
-                    .catch(e => {
-                        console.log(`catch of specific item detail ${e}
+                                console.log(`catch of specific item detail ${e}
                             error from server  ${e.message}
                             `);
+                            })
+
+
+                    })
+                    .catch(e => {
+                        setMessage(`catch of sale detail ${e} `)
+                        console.log(`catch of sale detail ${e} `);
                     })
 
 
+            }
+        })
+
+
+        // recalculate sale invoice
+
+
+    }
+
+    const deleteInvoiceHandler = () => {
+        //add logic of submit sale invoice for new values only
+        console.log(`Deleting the Sale Invoice.......`);
+        ////////////////////////check each item of the sale invoice and return back to the stock.
+        invoiceItem.map((item) => {
+            //Updating Item Stock
+            // get quantity and showroom of an item
+            itemService.get(item[6])
+                .then(response2 => {
+                    console.log("get specific Item detail")
+                    console.log(response2.data);
+                    const { id, quantity, showroom } = response2.data;
+                    // update quantity and showroom  of item
+                    var itemUpdated = {
+                        quantity: parseInt(quantity) + parseInt(item[2]),
+                        showroom: parseInt(showroom) + parseInt(item[2])
+                    }
+                    itemService.update(id, itemUpdated)
+                        .then(response4 => {
+                            setMessage(`Updated Stock value successfully`);
+                        })
+                        .catch(e => {
+                            console.log(`catch of update Stock ${e}`);
+                        })
+                })
+
+        })
+        // delete sale Detail.
+
+        inventoryService.deleteSaleInvoiceBySaleId(saleInvoice)
+            .then(response2 => {
+                console.log(`sale details has been removed of ${saleInvoice}`)
             })
             .catch(e => {
-                setMessage(`catch of sale detail ${e} `)
-                console.log(`catch of sale detail ${e} `);
+                console.log(`catch of update Stock ${e}`);
             })
 
+        // delete sale invoices.
 
-        }
-        })
+        inventoryService.deleteSale(saleInvoice)
+            .then(response2 => {
+                console.log(`sale has been deleted of ${saleInvoice}`)
+            })
+            .catch(e => {
+                console.log(`catch of update Stock ${e}`);
+            })
 
+    }
 
-    // recalculate sale invoice
-   
+    const removeItem = (item, index) => {
+        //event.preventDefault();
+        const temp = [...invoiceItem];
+        temp.splice(index, 1);
+        setInvoiceItem(temp);
 
-}
-
-const deleteInvoiceHandler = () =>{
-     //add logic of submit sale invoice for new values only
-    console.log(`Deleting the Sale Invoice.......`);
-    ////////////////////////check each item of the sale invoice and return back to the stock.
-    invoiceItem.map((item) => {
-                //Updating Item Stock
-                // get quantity and averageprice of an item
-                itemService.get(item[6])
-                    .then(response2 => {
-                        console.log("get specific Item detail")
-                        console.log(response2.data);
-                        const { id, quantity, showroom } = response2.data;
-                        // update quantity and showroom  of item
-                        var itemUpdated = {
-                            quantity: parseInt(quantity) + parseInt(item[2]),
-                            showroom: parseInt(showroom) + parseInt(item[2])
-                        }
-                        itemService.update(id, itemUpdated)
-                            .then(response4 => {
-                                setMessage(`Updated Stock value successfully`);
-                            })
-                            .catch(e => {
-                                console.log(`catch of update Stock ${e}`);
-                            })
-                    })
-        
-        })
-    // delete sale Detail.
-    
-inventoryService.deleteSaleInvoiceBySaleId(saleInvoice)
-.then(response2 => {
-    console.log(`sale details has been removed of ${saleInvoice}`)})
-    .catch(e => {
-        console.log(`catch of update Stock ${e}`);
-    })
-
-    // delete sale invoices.
-
-    inventoryService.deleteSale(saleInvoice)
-.then(response2 => {
-    console.log(`sale has been deleted of ${saleInvoice}`)})
-    .catch(e => {
-        console.log(`catch of update Stock ${e}`);
-    })
-    
-}
-
-const removeItem = (item, index) => {
-    //event.preventDefault();
-    const temp = [...invoiceItem];
-    temp.splice(index, 1);
-    setInvoiceItem(temp);
- 
-}
+    }
 
     const handleChange = event => {
         //console.log(event);
@@ -516,18 +534,18 @@ const removeItem = (item, index) => {
                                 <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
                                     <thead>
                                         <tr>
-                                       
-                                            <th style={{width: "80%"}}>Name</th>
+
+                                            <th style={{ width: "80%" }}>Name</th>
                                             <th>ShowRoom</th>
                                             <th>Cost</th>
-                                        
+
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
-                                        <td>{optionName.name}</td>
-                                        <td>{optionName.showroom}</td>
-                                        <td>{optionName.averageprice}</td>
+                                            <td>{optionName.name}</td>
+                                            <td>{optionName.showroom}</td>
+                                            <td>{optionName.averageprice}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -639,13 +657,13 @@ const removeItem = (item, index) => {
             <h1>Edit Sale Invoice</h1>
             {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
             {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-                   
+
             <form onSubmit={handleSubmit}>
                 <div className="form-group row">
                     <div className="col-sm-3">
                         Start Date
                         <DatePicker id="datePicker" selected={startDate} onChange={handleStartDTPicker}
-                        name="startDate" dateFormat="MM/dd/yyyy" />
+                            name="startDate" dateFormat="MM/dd/yyyy" />
                     </div>
                     <div className="col-sm-3">
                         End Date
@@ -699,7 +717,7 @@ const removeItem = (item, index) => {
                 </div>
             </form>
 
-            { saleData ?
+            {saleData ?
                 <div>
                     <h3>Sale View</h3>
                     <table border='1'>
@@ -737,17 +755,17 @@ const removeItem = (item, index) => {
                     <table id='returnTBL' border='1'>
                         <thead>
                             <tr>
-                                        <th>Sr. No.</th>
-                                        <th>Item Code</th>
-                                        <th>Description</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Total Price</th>
-                                        <th>Cost</th>
-                                        <th>Profit</th>
-                                        <th>Item Id</th>
-                                        <th>Sale Detail ID</th>
-                                        <th>Sale Invoice Id</th>
+                                <th>Sr. No.</th>
+                                <th>Item Code</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Total Price</th>
+                                <th>Cost</th>
+                                <th>Profit</th>
+                                <th>Item Id</th>
+                                <th>Sale Detail ID</th>
+                                <th>Sale Invoice Id</th>
 
                             </tr>
                         </thead>
@@ -756,43 +774,43 @@ const removeItem = (item, index) => {
                                 invoiceItem.map((item, index) => (
                                     // console.log(item),
                                     <tr key={index} onClick={() => editInvoceHandler(item)}>
-                                                <td>{index + 1}</td>
-                                                <td>{item[0]}</td>
-                                                <td>{item[1]}</td>
-                                                <td>{item[2]}</td>
-                                                <td>{item[3]}</td>
-                                                <td>{(parseFloat(item[3]) * parseFloat(item[2])).toFixed(3)}</td>
-                                                <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
-                                                <td>{item[5]}</td>
-                                                <td>{item[6]}</td>
-                                                <td>{item[7]}</td>
-                                                <td>{item[8]}</td>
-                                                {item[7] ? <td>Old Invoice</td> :  <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>}
+                                        <td>{index + 1}</td>
+                                        <td>{item[0]}</td>
+                                        <td>{item[1]}</td>
+                                        <td>{item[2]}</td>
+                                        <td>{item[3]}</td>
+                                        <td>{(parseFloat(item[3]) * parseFloat(item[2])).toFixed(3)}</td>
+                                        <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
+                                        <td>{item[5]}</td>
+                                        <td>{item[6]}</td>
+                                        <td>{item[7]}</td>
+                                        <td>{item[8]}</td>
+                                        {item[7] ? <td>Old Invoice</td> : <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>}
                                     </tr>
                                 ))
                             }
                         </tbody>
                     </table>
                     <div>
-                        {addItemBtn ?  
+                        {addItemBtn ?
                             <button className="btn btn-primary" type="button" onClick={submitInvoiceHandler}>Submit Invoice</button>
                             :
                             <button className="btn btn-primary" type="button" onClick={addItemHandler}>Add Item</button>
                         }
                         <button className="btn btn-primary" type="button" onClick={
-                            () => { 
+                            () => {
                                 if (window.confirm('Are you sure you want to Delet Sale Invoice?')) {
                                     // Save it!
                                     // console.log('Thing was saved to the database.');
                                     deleteInvoiceHandler();
-                                  } else {
+                                } else {
                                     // Do nothing!
                                     setMessage('User Cancelled the Invoice Deletion.....');
-                                  }
-                            } }
-                                >Delete Invoice</button>
-                    
-                        </div>
+                                }
+                            }}
+                        >Delete Invoice</button>
+
+                    </div>
                 </div>
 
                 :
@@ -846,7 +864,8 @@ const removeItem = (item, index) => {
 
                         </div>
                         <div>
-                            <button className="btn btn-primary" type="button" onClick={updateInvoceHandler}>Update Invoice</button>
+                            <button className="btn btn-primary" type="button" onClick={updateInvoceHandler}>Update Record</button>
+                            <button className="btn btn-primary" type="button" onClick={deleteRecordHandler}>Delete Record</button>
                         </div>
                     </div>
                 </div>

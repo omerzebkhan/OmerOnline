@@ -258,19 +258,21 @@ const SaleReport = ({
                         <thead>
                             <tr>
                                 <th>Reff Invoice</th>
+                                <th>Customer Name</th>
                                 <th>Total Items</th>
                                 <th>Invoice Value</th>
                                 <th>Date Time</th>
                             </tr>
                         </thead>
                         <tbody>
-                            {
+                            {   
                                 saleData.map((item, index) => (
-                                    //   console.log(item);
+                                    console.log(item),
                                     <tr key={index}
                                         onClick={() => selectInvoice(item)}
                                     >
                                         <td>{item.id}</td>
+                                        <td>{item.customers.name}</td>
                                         <td>{item.totalitems}</td>
                                         <td>{item.invoicevalue}</td>
                                         <td>{item.createdAt}</td>

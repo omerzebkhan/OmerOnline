@@ -416,7 +416,7 @@ const SaleReturn = ({
                                                 type="text"
                                                 name="Returned"
                                                 id={index}
-                                                placeholder="Invoice"
+                                                placeholder="Return Qty"
                                                 onChange={handleChange} /></td>
                                         </tr>
                                     ))

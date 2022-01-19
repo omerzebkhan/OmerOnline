@@ -140,6 +140,10 @@ class inventoryDataService {
     return http.post("/saleDetail/",data,{headers: authHeader() });
   }
 
+  deleteSaleDetail(id) {
+    return http.delete(`/saleDetail/${id}`);
+  }
+
   deleteSaleInvoiceBySaleId(id) {
     return http.delete(`/SaleDetailBySaleId/${id}`);
   }

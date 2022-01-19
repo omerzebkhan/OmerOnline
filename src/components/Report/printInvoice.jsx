@@ -116,28 +116,28 @@ R_description: {
     //Ttitle of the Invoice 
     titleContainer:{
         flexDirection: 'row',
-        marginTop: 2,
+        marginTop: 1,
     },
     reportTitle:{
         color: '#61dafb',
         letterSpacing: 4,
-        fontSize: 25,
+        fontSize: 20,
         textAlign: 'center',
         textTransform: 'uppercase',
     },
     // Bill To Info
     headerContainer: {
-      marginTop: 36
+      marginTop: 2
   },
   billTo: {
-      marginTop: 20,
+      marginTop: 2,
       paddingBottom: 3,
       fontFamily: 'Helvetica-Oblique'
   },
   //Invoice No & Date
   invoiceNoContainer: {
     flexDirection: 'row',
-    marginTop: 36,
+    marginTop: 2,
     justifyContent: 'flex-end'
 },
 invoiceDateContainer: {

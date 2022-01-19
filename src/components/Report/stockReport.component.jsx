@@ -1,35 +1,50 @@
-import React from 'react';
+import React,{useState,useEffect} from 'react';
 import { connect } from 'react-redux';
 
 //import { fetchStockStartAsync } from '../../redux/stock/stock.action';
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 
-class StockReport extends React.Component {
+const StockReport =({
+    fetchItemStartAsync,itemData,
+    isFetching})=> {
+    const [itemInput, setItemInput] = useState("");    
+    const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
 
-    handleSubmit = event => {
-        event.preventDefault();
-        // console.log("submit handler of searchBrand ");
-        const { fetchItemStartAsync } = this.props;
+    useEffect(() => {
         fetchItemStartAsync();
-    }
+    }, [fetchItemStartAsync])
 
-    handleChange = event => {
+
+    useEffect(() => {
+        setFilteredOptionsItem(itemData);
+    }, [itemData])
+
+  
+
+    const handleChange = event => {
         //console.log(event);
         if (event.target.id === "Name") {
-            // setName(event.target.value);
-            //    setFileName(event.target.value);
+            setItemInput(event.target.value);
+            if (event.target.value === ""){
+                setFilteredOptionsItem(itemData);
+            }
+            else{
+                         
+              setFilteredOptionsItem(itemData.filter(
+                (option) => option.name.toLowerCase().indexOf(itemInput.toLowerCase()) > -1
+            ));}
         }
         else if (event.target.id === "Description") {
             //setDescription(event.target.value);
         }
     }
 
-    render() {
+    
         return (
             <div className="submit-form container">
 
                 <h1>Stock Report</h1>
-                <form onSubmit={this.handleSubmit}>
+                <form >
                     <div className="form-group">
                         <label htmlFor="Name">Name</label>
                         <input
@@ -37,24 +52,22 @@ class StockReport extends React.Component {
                             name="Name"
                             id="Name"
                             placeholder="Name"
-                            onChange={this.handleChange} />
+                            value = {itemInput}
+                            onChange={handleChange} />
             Description
             <input
                             type="text"
                             name="Description"
                             id="Description"
                             placeholder="Description"
-                            onChange={this.handleChange} />
+                            onChange={handleChange} />
                     </div>
-                    <div >
-                        <button className="btn btn-success" type="submit" >Search</button>
-
-                    </div>
+                    
                 </form>
-                {this.props.isFetching ?
+                {isFetching ?
                     <div>"Loading data ....."</div> :
                     ""}
-                { this.props.itemData ?
+                {filteredOptionsItem ?
                     <div>
                         <h3>Stock View</h3>
                         <table border='1'>
@@ -77,7 +90,7 @@ class StockReport extends React.Component {
 
 
                                 {
-                                    this.props.itemData.map((item, index) => (
+                                    filteredOptionsItem.map((item, index) => (
                                         //   console.log(item);
 
                                         <tr key={index}
@@ -106,7 +119,7 @@ class StockReport extends React.Component {
             </div>
         )
     }
-}
+
 
 const mapStateToProps = state => ({
     itemData: state.item.items,

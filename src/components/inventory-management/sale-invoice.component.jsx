@@ -27,6 +27,8 @@ const SaleInvoice = ({
     const [totalInvoiceProfit, setTotalInvoiceProfit] = useState(0);
     const [totalInvoiceQuantity, setTotalInvoiceQuantity] = useState(0);
     const [qty, setQty] = useState([]);
+    const [editRow,setEditRow]= useState([]);
+    const [reload,setReload] = useState("False");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
@@ -73,6 +75,7 @@ const SaleInvoice = ({
     const handleChange = event => {
         //console.log(event);
         if (event.target.id === "Quantity") {
+            console.log(event)
             setQuantity(event.target.value);
         }
         else if (event.target.id === "Price") {
@@ -116,9 +119,46 @@ const SaleInvoice = ({
             //setCustomerInput(customerInput);
             setAgentInput(event.target.value);
         }
+        else{
+            //find the specific array value of invoice Item array and update it contents
+           // setReload('False')
+           // console.log(event.target.value)
+       //  editRow[2]=(event.target.value)
+         invoiceItem.forEach((item,index)=>{
+            if(item[0] === editRow[0] ){
+                var total = parseInt(item[3]);  // price 
+                var qty = event.target.value - item[2];
+                var cost = parseFloat(item[4]) ;
+                console.log(`Change in quantity = ${qty}
+                cost = ${item[5]} / ${item[2]}`);
+                
+                setTotalInvoiceValue(parseInt(totalInvoiceValue) + (total * qty));
+                setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
+                setTotalInvoiceCost(parseFloat(totalInvoiceCost) + (cost * qty));
+                setTotalInvoiceProfit(parseFloat(totalInvoiceProfit) + (total * qty) - (cost * qty));
+
+
+
+
+
+               invoiceItem[index][2] = event.target.value;
+              // console.log(invoiceItem[index])
+               console.log(`value is changed ${event.target.value}`) 
+               setReload(event.target.value)
+            }
+         })
+         
+
+
+        }
     }
 
-
+    const selectRow = (item) => {
+        //console.log("Select Invoice clicked");
+        setEditRow([]);
+        setEditRow(item);
+        
+    }
 
     const handleSubmit = event => {
         event.preventDefault();
@@ -142,14 +182,14 @@ const SaleInvoice = ({
                 console.log("no value in the invoice item")
                 setTotalInvoiceValue(total * qty);
                 setTotalInvoiceQuantity(parseInt(qty));
-                setTotalInvoiceCost(parseInt(cost) * parseInt(qty));
+                setTotalInvoiceCost(parseFloat(cost) * parseInt(qty));
                 setTotalInvoiceProfit((price * quantity) - (cItem[0].averageprice * quantity));
 
             } else {
 
                 setTotalInvoiceValue(parseInt(totalInvoiceValue) + (total * qty));
                 setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
-                setTotalInvoiceCost(parseInt(totalInvoiceCost) + (cost * qty));
+                setTotalInvoiceCost(parseFloat(totalInvoiceCost) + (cost * qty));
                 setTotalInvoiceProfit(parseInt(totalInvoiceProfit) + (price * quantity) - (cItem[0].averageprice * quantity));
 
             //}
@@ -165,7 +205,7 @@ const SaleInvoice = ({
         setInvoiceItem(temp);
         setTotalInvoiceValue(parseInt(totalInvoiceValue) - (parseInt(item[2] * parseInt(item[3]))));
         setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) - parseInt(item[2]));
-        setTotalInvoiceCost(parseInt(totalInvoiceCost) - parseInt(item[2] * parseInt(item[4])));
+        setTotalInvoiceCost(parseFloat(totalInvoiceCost) - parseFloat(item[2] * parseFloat(item[4])));
         setTotalInvoiceProfit(parseInt(totalInvoiceProfit) - (parseInt(item[5])));
         setQuantity("");
         setPrice("");
@@ -173,7 +213,7 @@ const SaleInvoice = ({
     }
 
     const saveSale = () => {
-
+        setLoading(true);
         var data = {
             reffInvoice: invoice,
             customerId: cCustomer[0].id,
@@ -188,43 +228,7 @@ const SaleInvoice = ({
             .then(response => {
 
                 console.log(`Sale successfully Added Invoice id = ${response.data.id}`);
-                // if invoice is added get the invoceid and store in invoice detail
-                // update vendor with the total sale and outstanding
-
-                //////////////////////Update Vendor////////////////////////
-                // 1- get total purchase & outstanding value of current vendor.
-                // 2- update the purchase & outstanding with curenct invoice values.
-                // userService.get(cCustomer[0].id)
-                //     .then(resUser => {
-                //         // console.log(`supplier outstanding value = ${resUser.data.outstanding}
-                //         //              supplier total purchase value = ${resUser.data.totalamount}
-                //         // `);
-                //         var usrData = {
-                //             totalamount: parseInt(resUser.data.totalamount) + parseInt(totalInvoiceValue),
-                //             outstanding: parseInt(resUser.data.outstanding) + parseInt(totalInvoiceValue)
-                //         };
-                //         userService.update(cCustomer[0].id, usrData)
-                //             .then(resUpdateBalance => {
-                //                 setMessage("User Balance updated");
-                //             })
-                //             .catch(e => {
-                //                 setMessage(`catch of User Balance ${e} error from server  ${e.message}`)
-                //                 console.log(`catch of User Balance ${e} error from server  ${e.message}`);
-                //             })
-
-                //     })
-                //     .catch(e => {
-                //         setMessage(`catch of Create Sale Invoice ${e} error from server  ${e.message}`)
-                //         console.log(`catch of Create Sale Invoice ${e} error from server  ${e.message}`);
-                //     })
-
-
-                ///////////////////////////////////////////////////////
-
-                //quantity: item[1],
-                //saleprice: item[2],
-
-
+               
                 // loop throuhg invoice item 
                 //1-create new sale detail 
                 //2- get each item stock value and update stock value in the item table 
@@ -299,6 +303,7 @@ const SaleInvoice = ({
 
                         })
                         .catch(e => {
+                            setLoading(false);
                             setMessage(`catch of purchase detail ${e} error from server  ${e.message}`)
                             console.log(`catch of purchase detail ${e} error from server  ${e.message}`);
                         })
@@ -306,13 +311,15 @@ const SaleInvoice = ({
                 })
             })
             .catch(e => {
+                setLoading(false);
+                setMessage(`catch of purchase detail ${e} error from server  ${e.message}`)
                 console.log(`catch of create purchase${e}`);
             });
     }
 
 
     const submitInvoceHandler = async () => {
-        setLoading(true);
+       
         saveSale();
 
 
@@ -764,14 +771,15 @@ const SaleInvoice = ({
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {invoiceItem.length > 0 ? (
+                                    {invoiceItem.length > 0 || reload !== 'False' ? (
                                         invoiceItem.map((item, index) => {
-                                            //console.log(index)
-                                            return (<tr key={index}>
+                                            console.log(editRow)
+                                            return (<tr key={index}  onClick={() => selectRow(item)}
+                                                >
                                                 <td>{index + 1}</td>
                                                 <td>{item[0]}</td>
                                                 <td>{item[1]}</td>
-                                                <td>{item[2]}</td>
+                                                <td>{editRow[0] === item[0] ?  <input type="text" name="tblQty" id={index + 1} size="3" value={editRow[2]} onChange={handleChange} /> : item[2] }</td>  
                                                 <td>{item[3]}</td>
                                                 <td>{(parseFloat(item[3]) * parseFloat(item[2])).toFixed(3)}</td>
                                                 <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
