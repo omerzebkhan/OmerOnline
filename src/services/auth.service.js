@@ -30,8 +30,10 @@ const logout = () => {
   localStorage.removeItem("user");
 };
 
-export default {
+const auth = {
   register,
   login,
-  logout,
-};
+  logout
+}
+
+export default auth;

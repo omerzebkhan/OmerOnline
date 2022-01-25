@@ -29,6 +29,7 @@ const Navigation = (props) => {
               </NavDropdown>
               <NavDropdown title="Inventory Management" id="basic-nav-dropdown">
                 <NavDropdown.Item href="/PurchaseInvoice">Purchase Invoice</NavDropdown.Item>
+                <NavDropdown.Item href="/PurchaseEdit">Edit Purchase</NavDropdown.Item>
                 <NavDropdown.Item href="/MoveStock">Move Stock</NavDropdown.Item>
                 <NavDropdown.Item href="/SaleInvoice">Sale Invoice</NavDropdown.Item>
                 <NavDropdown.Item href="/SaleReturn">Sale Return</NavDropdown.Item>

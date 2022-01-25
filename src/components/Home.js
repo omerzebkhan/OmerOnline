@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
 import LandingPage from "../components/landingpage/landingpage.component";
 import 'bootstrap/dist/css/bootstrap.min.css'
 
 import UserService from "../services/user.service";
 
 const Home = () => {
-  const [content, setContent] = useState("");
+  // const [content, setContent] = useState("");
 
   useEffect(() => {
     UserService.getPublicContent().then(

@@ -15,6 +15,7 @@ import SearchSubCategory from './components/sub-category/search-subCategory.comp
 import AddItem from './components/item/additem.component'
 import SearchItem from './components/item/searchitem.component';
 import PurchaseInvoice from './components/inventory-management/purchase-invoice.component';
+import PurchaseEdit from './components/inventory-management/editPurchase.component';
 import MoveStock from './components/inventory-management/move-stock.component';
 import SaleInvoice from './components/inventory-management/sale-invoice.component';
 import SaleReturn from './components/inventory-management/SaleReturn.component'
@@ -39,7 +40,6 @@ import MyCart from './components/landingpage/CartDetail.component'; //user view
 
 
 import Login from "./components/Login";
-import Register from "./components/Register";
 import Home from "./components/Home";
 import Profile from "./components/Profile";
 import BoardUser from "./components/BoardUser";
@@ -170,6 +170,7 @@ const App = () => {
                     <Route path="/AddUser" render={()=><AddUser />}/>
                     <Route path="/SearchUser" render={()=><SearchUser />}/>
                     <Route path="/PurchaseInvoice" render={() => <PurchaseInvoice />} />
+                    <Route path="/PurchaseEdit" render={() => <PurchaseEdit />} />
                     <Route path="/MoveStock" render={() => <MoveStock  />} />
                     <Route path="/SaleInvoice" render={() => <SaleInvoice  />} />
                     <Route path="/SaleReturn" render={() => <SaleReturn  />} />

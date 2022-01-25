@@ -101,8 +101,22 @@ R_description: {
       fontSize: 12,
       fontStyle: 'bold',
   },
+  tf_qty: {
+    width: '10%',
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+    textAlign: 'right',
+    paddingRight: 8,
+  },
+  tf_rate: {
+    width: '15%',
+    borderRightColor: borderColor,
+    borderRightWidth: 1,
+    textAlign: 'right',
+    paddingRight: 8,
+  },
   tf_description: {
-      width: '85%',
+      width: '60%',
       textAlign: 'right',
       borderRightColor: borderColor,
       borderRightWidth: 1,
@@ -240,16 +254,20 @@ const InvoiceThankYouMsg = () => (
 
 const InvoiceTableFooter = ({items}) => {
   var total = 0.00; 
+  var totalQty = 0.00;
   items.map((item, index) => {
-    console.log(index)
+    //console.log(index)
+    totalQty = parseFloat(totalQty) + parseFloat(item.quantity);  
     total = parseFloat(total) + parseFloat(item.quantity * item.price);  
-    console.log(total)                    
+    //console.log(total)                    
     //date = item.dt;
     return "";
     })
   return(    
       <View style={styles.tf_row}>
-          <Text style={styles.tf_description}>TOTAL</Text>
+           <Text style={styles.tf_description}>TOTAL</Text>
+          <Text style={styles.tf_qty}>{parseFloat(totalQty)}</Text>
+          <Text style={styles.tf_rate}> </Text>
           <Text style={styles.tf_total}>{ Number.parseFloat(total).toFixed(2)}</Text>
       </View>
   )

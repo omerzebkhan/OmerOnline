@@ -65,7 +65,7 @@ export const fetchPurInvPayDetial = (invoiceId) =>{
           } 
 
 
-export const fetchPurchaseByDate = (sDate, eDate) => {
+export const fetchPurchaseByDate = (sDate, eDate, customerId) => {
         return dispatch =>{
             if (sDate !== "" && eDate !== "") {
                 var dateFormat = require('dateformat');
@@ -84,7 +84,7 @@ export const fetchPurchaseByDate = (sDate, eDate) => {
                 // .where("dt", '<=',eDate);
            // const collectionRef = firestore.collection('PurchaseInvoice');
            dispatch (fetchPurchaseStart());
-           inventoryService.getAllPurchaseByDate(sDate, eDate)
+           inventoryService.getAllPurchaseByDate(sDate, eDate, customerId)
            .then (response => {
                    const purchaseMap = response.data;
                    dispatch(fetchPurchaseSuccess(purchaseMap));          
@@ -105,20 +105,7 @@ export const fetchPurchaseByInputStartAsync = (userId) => {
           .catch(error=>dispatch(fetchPurchaseFailure(error.response.request.response.message)));
         }}
 
-export const fetchPurchaseInvoiceDetailAsync = (PurchaseInvoiceId) => {
-            //console.log(`Sale Invoce ID = ${SaleInvoiceId}`);
-            return dispatch => {
-                //const collectionRef = firestore.collection('SaleInvoiceDetail').where("SaleInvoiceId", "==", SaleInvoiceId);
-                dispatch(fetchPurchaseStart());
-                inventoryService.getAllPurchaseDetailByInvoice(PurchaseInvoiceId)
-                    .then(response => {
-                        const purchaseMap = response.data;
-                        // console.log(saleMap);
-                        dispatch(fetchPurchaseInvoiceDetail(purchaseMap));
-                    })
-                    .catch(error=> dispatch(fetchPurchaseFailure((error.response.request.response.message))))
-            }
-        }
+
      
 export const fetchPurchaseAP = () => {
             return dispatch => {
@@ -131,6 +118,21 @@ export const fetchPurchaseAP = () => {
                         dispatch(fetchPurchaseAPSuccess(purchaseMap));
                     })
                     .catch(error => dispatch(fetchPurchaseFailure((error.response.request.response.message))))
+            }
+        }
+
+        export const fetchPurchaseInvoiceDetailAsync = (PurchaseInvoiceId) => {
+            //console.log(`Sale Invoce ID = ${SaleInvoiceId}`);
+            return dispatch => {
+                //const collectionRef = firestore.collection('SaleInvoiceDetail').where("SaleInvoiceId", "==", SaleInvoiceId);
+                dispatch(fetchPurchaseStart());
+                inventoryService.getAllPurchaseDetailByInvoice(PurchaseInvoiceId)
+                    .then(response => {
+                        const purchaseMap = response.data;
+                        // console.log(saleMap);
+                        dispatch(fetchPurchaseInvoiceDetail(purchaseMap));
+                    })
+                    .catch(error=> dispatch(fetchPurchaseFailure((error.response.request.response.message))))
             }
         }
 

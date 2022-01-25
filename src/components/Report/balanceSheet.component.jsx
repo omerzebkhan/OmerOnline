@@ -41,7 +41,7 @@ class BalanceSheet extends React.Component {
     inventoryService.getBalanceSheetByDate(this.state.startDate.toDateString(), this.state.endDate.toDateString())
       .then(response => {
 
-        var isDescending = true; //set to false for ascending
+       // var isDescending = true; //set to false for ascending
        // console.log(["8/2/2020", "8/1/2020", "8/13/2020", "8/2/2020"].sort((a, b) => isDescending ? new Date(b).getTime() - new Date(a).getTime() : new Date(a).getTime() - new Date(b).getTime()));
         //console.log(response.data.sort((a, b) => isDescending ? new Date(b.date).getTime() - new Date(a.date).getTime() : new Date(a.date).getTime() - new Date(b.date).getTime()));
         //var arr1 = [{ id: 1, date: '30/10/2021' }, { id: 1, date: '25/10/2021' }, { id: 1, date: '29/09/2021' }]

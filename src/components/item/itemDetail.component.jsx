@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { useLocation } from "react-router-dom";
 
-import { connect, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 
-import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
+// import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
 
 
 import "../../App.css";
 
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlus } from '@fortawesome/free-solid-svg-icons';
+// import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+// import { faPlus } from '@fortawesome/free-solid-svg-icons';
 
 
 //item detail for the customer view
@@ -31,21 +31,21 @@ const ItemDetail = () => {
     const [description, setDescription] = useState("");
     const [brand, setBrand] = useState("");
     const [code, setCode] = useState("");
-    const [selCat, setSelCat] = useState("");
-    const [selSubCat, setSelSubCat] = useState("");
-    const [activeOption, setActiveOption] = useState(0);
-    const [filteredOptions, setFilteredOptions] = useState([]);
-    const [showOptions, setShowOptions] = useState(false);
+    // const [selCat, setSelCat] = useState("");
+    // const [selSubCat, setSelSubCat] = useState("");
+    // const [activeOption, setActiveOption] = useState(0);
+    // const [filteredOptions, setFilteredOptions] = useState([]);
+    // const [showOptions, setShowOptions] = useState(false);
     const [userInput, setUserInput] = useState('');
-    const [btnBrand, setBtnBrand] = useState("Show");
+    // const [btnBrand, setBtnBrand] = useState("Show");
 
     const [message, setMessage] = useState("");
 
 
-    const [content, setContent] = useState("");
-    const [access, setAccess] = useState(false);
+    // const [content, setContent] = useState("");
+    // const [access, setAccess] = useState(false);
 
-    const currentUser = useSelector((state) => state.user.user.user);
+    // const currentUser = useSelector((state) => state.user.user.user);
 
    
 

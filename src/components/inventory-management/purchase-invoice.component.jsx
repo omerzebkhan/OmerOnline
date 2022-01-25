@@ -19,8 +19,7 @@ const PurchaseInvoice = ({
     const [quantity, setQuantity] = useState("");
     const [price, setPrice] = useState("");
     const [invoice, setInvoice] = useState("");
-    const [btnItem, setBtnItem] = useState("Show");
-    const [btnUser, setBtnUser] = useState("Show");
+   
     const [invoiceItem, setInvoiceItem] = useState([]);
     const [totalInvoiceValue, setTotalInvoiceValue] = useState(0);
     const [totalInvoiceQuantity, setTotalInvoiceQuantity] = useState(0);
@@ -165,40 +164,7 @@ const PurchaseInvoice = ({
         inventoryService.createPurchase(data)
             .then(response => {
                 setMessage(`Purchase successfully Added Invoice id = ${response.data.id}`);
-                // console.log(response.data);
-                // if invoice is added get the invoceid and store in invoice detail
-                // update vendor with the total sale and outstanding
-
-                //////////////////////Update Vendor////////////////////////
-                // 1- get total purchase & outstanding value of current vendor.
-                // 2- update the purchase & outstanding with curenct invoice values.
-                // userService.get(cSupplier[0].id)
-                //     .then(resUser => {
-                //         // console.log(`supplier outstanding value = ${resUser.data.outstanding}
-                //         //              supplier total purchase value = ${resUser.data.totalamount}
-                //         // `);
-                //         var usrData = {
-                //             totalamount: parseInt(resUser.data.totalamount) + parseInt(totalInvoiceValue),
-                //             outstanding: parseInt(resUser.data.outstanding) + parseInt(totalInvoiceValue),
-
-                //         };
-                //         userService.update(cSupplier[0].id, usrData)
-                //             .then(resUpdateBalance => {
-                //                 setMessage("User Balance updated");
-                //             })
-                //             .catch(e => { setMessage(`catch of User Balance ${e} error from server  ${e.message}`)
-                //                           console.log(`catch of User Balance ${e} error from server  ${e.message}`);
-                //             })
-
-                //     })
-                //     .catch()
-
-
-                ///////////////////////////////////////////////////////
-
-
-
-
+               
                 // loop throuhg invoice item 
                 //1-create new purchase detail 
                 //2- get each item stock value and update stock value in the item table 

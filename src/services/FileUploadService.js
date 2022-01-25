@@ -34,8 +34,10 @@ const getImage = (data) => {
   return http.post(`/get/image`,data);
 };
 
-export default {
+const fileUploadService ={
   upload,
   getFiles,
   getImage,
-};
+}
+
+export default fileUploadService;

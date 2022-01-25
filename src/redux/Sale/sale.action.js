@@ -38,7 +38,7 @@ export const setCurrentSale = sale => ({
 
 export const fetchSaleStartAsync = (sDate, eDate) => {
     return dispatch => {
-        var f = "";
+        //var f = "";
         if (sDate !== "" && eDate !== "") {
             var dateFormat = require('dateformat');
             sDate = dateFormat(sDate, "yyyy-mm-dd");
@@ -85,7 +85,6 @@ export const fetchSaleByIdAsync = (invoiceId) => {
 
     }
 }
-
 
 export const fetchSaleByDate = (sDate, eDate, customerId) => {
     return dispatch => {
@@ -142,11 +141,6 @@ export const fetchSaleAR = () => {
             .catch(error => dispatch(fetchSaleFailure((error.response.request.response.message))))
     }
 }
-
-
-
-
-
 
 export const fetchSaleByInputStartAsync = (userId) => {
     return dispatch => {
