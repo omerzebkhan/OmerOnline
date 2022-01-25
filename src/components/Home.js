@@ -5,8 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css'
 import UserService from "../services/user.service";
 
 const Home = () => {
-  // const [content, setContent] = useState("");
-
+  //const [content, setContent] = useState("");
+const temp="";
   useEffect(() => {
     UserService.getPublicContent().then(
       (response) => {
