@@ -95,6 +95,7 @@ class PurchaseReport extends React.Component {
                             <thead>
                                 <tr>
                                     <th>Reff Invoice</th>
+                                    <th>Purchase Id</th>
                                     <th>Total Items</th>
                                     <th>Invoice Value</th>
                                     <th>Date Time</th>
@@ -108,6 +109,7 @@ class PurchaseReport extends React.Component {
                                         onClick={() => this.selectInvoice(item)}
                                         >
                                             <td>{item.reffInvoice}</td>
+                                            <td>{item.id}</td>
                                             <td>{item.totalitems}</td>
                                             <td>{item.invoicevalue}</td>
                                             <td>{item.createdAt}</td>
@@ -122,14 +124,14 @@ class PurchaseReport extends React.Component {
            }
            {this.props.purchaseInvoiceDetailData ?
                     <div>
-                        <h3>Sale Invoice Detail View</h3>
+                        <h3>Purchase Invoice Detail View</h3>
                         <table id='returnTBL' border='1'>
 
                             <thead>
                                 <tr>
                                     <th>Id</th>
                                     <th>Date</th>
-                                    <th>Sale Id</th>
+                                    <th>Purchase Id</th>
                                     <th>Item Name</th>
                                     <th>Price</th>
                                     <th>Qyantity</th>
@@ -145,7 +147,7 @@ class PurchaseReport extends React.Component {
                                         >
                                             <td>{item.id}</td>
                                             <td>{item.createdAt}</td>
-                                            <td>{item.SaleInvoiceId}</td>
+                                            <td>{item.purchaseInvoiceId}</td>
                                             <td>{item.items.name}</td>
                                             <td>{item.price}</td>
                                             <td>{item.quantity}</td>

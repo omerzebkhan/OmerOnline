@@ -159,7 +159,7 @@ const EditSale = ({
                             console.log(`catch of Recalculated ${error.response.request.response.message}`);
                         })
 
-                    //////////////////////update customer outstanding amount
+                    //////////////////////calaulate the value diff between old and new value
                     //console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
                     var priceDiff = 0;
                     var quantityDiff = 0;
@@ -724,6 +724,7 @@ const EditSale = ({
                         <thead>
                             <tr>
                                 <th>Reff Invoice</th>
+                                <th>Customer Name</th>
                                 <th>Total Items</th>
                                 <th>Invoice Value</th>
                                 <th>Date Time</th>
@@ -737,6 +738,7 @@ const EditSale = ({
                                         onClick={() => selectInvoice(item)}
                                     >
                                         <td>{item.id}</td>
+                                        <td>{item.customers.name}</td>
                                         <td>{item.totalitems}</td>
                                         <td>{item.invoicevalue}</td>
                                         <td>{item.createdAt}</td>

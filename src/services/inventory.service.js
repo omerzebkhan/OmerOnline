@@ -16,8 +16,16 @@ class inventoryDataService {
     return http.get("/purchase/");
   }
 
+  getPurchaseRecalculate(id) {
+    return http.put(`/getPurchaseRecalculate/${id}`);
+  }
+
   getPurchaseAP() {
     return http.get(`/purchaseAP/`);
+  }
+
+  deletePurchase(id) {
+    return http.delete(`/purchase/${id}`);
   }
 
   getAllPurchaseByDate(sDate,eDate) {
@@ -55,6 +63,20 @@ class inventoryDataService {
     // console.log(data);
     return http.post("/purchaseDetail/",data,{headers: authHeader() });
   }
+
+  updatePurchaseDetail(id, data) {
+    //console.log(`update triggred from react .....`)
+    return http.put(`/UpdatePurchaseDetail/${id}`, data);
+  }
+
+  deletePurchaseDetail(id) {
+    return http.delete(`/purchaseDetail/${id}`);
+  }
+
+  deletePurchaseInvoiceByPurchaseId(id) {
+    return http.delete(`/PurchaseDetailByPurchaseId/${id}`);
+  }
+
 
   ///////////////////////////////////////////
   //////Purchase Invoice Payment/////////////
