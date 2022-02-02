@@ -790,14 +790,16 @@ const EditPurchase = ({
                 <div>
                     <h3>Purchase View</h3>
                     <table border='1'>
-                        <thead>
-                            <tr>
-                                <th>Reff Invoice</th>
-                                <th>Total Items</th>
-                                <th>Invoice Value</th>
-                                <th>Date Time</th>
-                            </tr>
-                        </thead>
+                    <thead>
+                                <tr>
+                                    <th>Reff Invoice</th>
+                                    <th>Purchase Id</th>
+                                    <th>Customer Name</th>
+                                    <th>Total Items</th>
+                                    <th>Invoice Value</th>
+                                    <th>Date Time</th>
+                                </tr>
+                            </thead>
                         <tbody>
                             {
                                 purchaseData.map((item, index) => (
@@ -805,10 +807,12 @@ const EditPurchase = ({
                                     <tr key={index}
                                         onClick={() => selectInvoice(item)}
                                     >
-                                        <td>{item.id}</td>
-                                        <td>{item.totalitems}</td>
-                                        <td>{item.invoicevalue}</td>
-                                        <td>{item.createdAt}</td>
+                                         <td>{item.reffInvoice}</td>
+                                            <td>{item.id}</td>
+                                            <td>{item.suppliers.name}</td>
+                                            <td>{item.totalitems}</td>
+                                            <td>{item.invoicevalue}</td>
+                                            <td>{item.createdAt}</td>
                                     </tr>
                                 ))
                             }

@@ -96,6 +96,7 @@ class PurchaseReport extends React.Component {
                                 <tr>
                                     <th>Reff Invoice</th>
                                     <th>Purchase Id</th>
+                                    <th>Customer Name</th>
                                     <th>Total Items</th>
                                     <th>Invoice Value</th>
                                     <th>Date Time</th>
@@ -110,6 +111,7 @@ class PurchaseReport extends React.Component {
                                         >
                                             <td>{item.reffInvoice}</td>
                                             <td>{item.id}</td>
+                                            <td>{item.suppliers.name}</td>
                                             <td>{item.totalitems}</td>
                                             <td>{item.invoicevalue}</td>
                                             <td>{item.createdAt}</td>
@@ -134,7 +136,7 @@ class PurchaseReport extends React.Component {
                                     <th>Purchase Id</th>
                                     <th>Item Name</th>
                                     <th>Price</th>
-                                    <th>Qyantity</th>
+                                    <th>Quantity</th>
                                   
                                 </tr>
                             </thead>

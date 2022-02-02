@@ -46,7 +46,7 @@ const SaleReturn = ({
     }
 
     const returnHandler = event => {
-        var retrunQuantity;
+        var returnQuantity=0;
         var totalReturnValue = 0;
         var totalReturnCost = 0;
         var totalReturnProfit = 0;
@@ -56,14 +56,21 @@ const SaleReturn = ({
         //        var batch = firestore.batch();
 
         saleInvoiceDetailData.map((item, index) => {
-            retrunQuantity = 0;
-            if (document.getElementById(index) != null) {
-                retrunQuantity = document.getElementById(index).value;
+           
+            //console.log(`index value${document.getElementById(index)}`)
+           // console.log(document.getElementById(index))
+           // console.log(document.getElementById(index).value)
+            if (document.getElementById(index).value !== '' ) {
+                returnQuantity = 0;
+                returnQuantity = document.getElementById(index).value;
                 totalReturnValue = totalReturnValue + (document.getElementById(index).value * item.price);
                 totalReturnCost = totalReturnCost + (document.getElementById(index).value * item.cost);
                // totalReturnProfit = totalReturnProfit + (document.getElementById(index).value * item.profit);
-                totalReturnQuantity = parseInt(totalReturnQuantity) + parseInt(retrunQuantity);
-                console.log(`totalReturnQuantity = ${totalReturnQuantity}
+                totalReturnQuantity = parseInt(totalReturnQuantity) + parseInt(returnQuantity);
+                console.log(` retrunQuantity = ${returnQuantity}
+                totalReturnValue = ${totalReturnValue}
+                totalReturnCost = ${totalReturnCost}
+                totalReturnQuantity = ${totalReturnQuantity}
                          `)
                 /////////////////////////////////////////////////////////////////////////////////
                 ////////////////////Add values in the Sale Return table ////////////////////////
@@ -73,23 +80,28 @@ const SaleReturn = ({
                 var vSaleReturn = ({
                     saleInvoiceId: item.saleInvoiceId,
                     itemId: item.itemId,
-                    quantity: item.quantity
+                    quantity: returnQuantity
                 });
+                console.log(`return Sale values`)
+                console.log(vSaleReturn)
+
 
                 inventoryService.createSaleReturn(vSaleReturn)
                     .then(resSaleReturn => {
                         console.log(`Sale Returned Entered Successfully.....`)
+                        setMessage(`Sale Returned Entered Successfully.....`);
 
                         /////////////////////////////////////////////////////////////////////////////////
                         //////////////Update Sale deatils amount to reduce the quantity  ///////////////
                         /////////////////////////////////////////////////////////////////////////////////
                         var vSaleDetails = ({
-                            quantity: item.quantity - retrunQuantity
+                            quantity: parseInt(item.quantity) -  parseInt(returnQuantity)
                         });
-                        console.log(`sale Detail id = ${item.id}`)
-                        inventoryService.updateSaleDetailQ(item.id,vSaleDetails)
+                        console.log(`sale Detail id = ${item.id} itemqty = ${item.quantity} - returnqty = ${returnQuantity}  quantity = ${vSaleDetails.quantity}`)
+                        inventoryService.updateSaleDetail(item.id,vSaleDetails)
                             .then(resUpdateSaleDetailQ => {
                                 console.log(`Updated Sale Detail Successfully......`);
+                                setMessage(`Updated Sale Detail Successfully......`);
               
                                  /////////////////////////////////////////////////////////////////////////////////
                                 //////////////Update Item and Quantity Or showroom             //////////////////
@@ -101,11 +113,11 @@ const SaleReturn = ({
                                         console.log(response2.data);
                                         const { id, quantity, showroom } = response2.data;
                                        
-                                        console.log(`invoice quantity = ${parseInt(retrunQuantity)} `)
+                                        console.log(`invoice quantity = ${parseInt(returnQuantity)} `)
                                         // update quantity and showroom  of item
                                         var itemUpdated = {
-                                            quantity: parseInt(quantity) + parseInt(retrunQuantity),
-                                            showroom: parseInt(showroom) + parseInt(retrunQuantity)
+                                            quantity: parseInt(quantity) + parseInt(returnQuantity),
+                                            showroom: parseInt(showroom) + parseInt(returnQuantity)
                                         }
                                         itemService.update(id, itemUpdated)
                                             .then(response4 => {
@@ -130,30 +142,24 @@ const SaleReturn = ({
                                                 ${vSaleInvoice.Outstanding}
                                                 ${vSaleInvoice.invoicevalue}
                                                 `)
-                                                inventoryService.updateSaleRIvOTi(saleData.id,vSaleInvoice)
+                                                inventoryService.updateSale(saleData.id,vSaleInvoice)
                                                 .then(res=>{
                                                     setMessage(`Sale Invoice updated successfully`)
-                                                    console.log(`Sale Invoice updated successfully`)})
-
-
-
-
-                                               
+                                                    console.log(`Sale Invoice updated successfully`)})              
                                             })
                                             .catch(e => {
-                                                console.log(`catch of Update item ${e}
-                                        error from server  ${e.message}`)
+                                                console.log(`catch of Update item ${e} error from server  ${e.message}`)
+                                                setMessage(`catch of Update item ${e} error from server  ${e.message}`);    
                                             })
                                     })
                                     .catch(e => {
-                                        console.log(`catch of Update item ${e}
-                                        error from server  ${e.message}`)
+                                        console.log(`catch of retriving item ${e} error from server  ${e.message}`)
+                                        setMessage(`catch of retriving item ${e} error from server  ${e.message}`)
                                     })
                             })
-
                             .catch(e => {
-                                console.log(`catch of Update Sale Detail ${e}
-                            error from server  ${e.message}`)
+                                console.log(`catch of Update Sale Detail ${e} error from server  ${e.message}`)
+                                setMessage(`catch of Update Sale Detail ${e} error from server  ${e.message}`)
                             }
                             )
 
@@ -161,8 +167,8 @@ const SaleReturn = ({
 
                     })
                     .catch(e => {
-                        console.log(`catch of Sale Return ${e}
-                        error from server  ${e.message}`)
+                        console.log(`catch of Sale Return ${e} error from server  ${e.message}`)
+                        setMessage(`catch of Sale Return ${e} error from server  ${e.message}`)
                     }
                     )
 
@@ -171,143 +177,7 @@ const SaleReturn = ({
 
             }
         })
-        //totalReturnValue = totalReturnValue + (item.saleprice * retrunQuantity);
-        // enter record in sale Return table
-        // make a batch to do one entry
-
-        //         var ItemRef = firestore.collection('SaleReturn');
-        //         var id;
-        //         id = ItemRef.doc().id;
-
-
-
-
-
        
-
-
-        //         batch.set(ItemRef.doc(id), {
-        //             saleInvoiceId: item.SaleInvoiceId,
-        //             itemName: item.itemName,
-        //             quantity: item.quantity,
-        //             dt: `${new Date().toISOString()}`
-        //         })
-
-        //         console.log(`
-        //         Enter in Sale Return table
-        //         sale invoice = ${item.SaleInvoiceId}
-        //         item Name = ${item.itemName}
-        //         retun stock = ${retrunQuantity}
-        //         enter dt also 
-        //         `)
-
-        //        //update SaleInvoiceDetail and reduce the quantity 
-        //        var UserRef = firestore.collection("SaleInvoiceDetail").doc(item.id);
-        //        console.log(UserRef);
-        //        batch.update(UserRef,{
-        //            quantity : item.quantity - retrunQuantity,
-        //            profit :  parseInt((item.quantity - retrunQuantity)*item.saleprice) - parseInt((item.quantity - retrunQuantity)*item.costPrice),
-
-        //        })
-
-        //        console.log(`
-        //        Enter in SaleInvoiceDetail
-        //        item quantity = ${item.quantity - retrunQuantity}
-        //        profit = ${parseInt((item.quantity - retrunQuantity)*item.saleprice) - parseInt((item.quantity - retrunQuantity)*item.costPrice)}
-        //        `)
-        //        //update item details
-        //         //Updating Item Stock
-        //         const collectionRef = firestore.collection('Items').where("name", "==",item.itemName);
-        //         collectionRef.get()
-        //         .then(snapshot => {
-        //                 const qty1 = snapshot.docs.map(doc => {
-        //                     const id = doc.id;
-        //                     const { quantity, showroom } = doc.data();
-        //                    // console.log(`item quantity = ${online}`);
-        //                     return ({
-        //                         id,
-        //                         quantity,
-        //                         showroom
-        //                     });
-        //                 });
-
-        //                  //3- update item with batch
-
-        //         //     var itemRef = firestore.collection("Items").doc(qty1[0].id);
-        //         //     batch.update(itemRef,{
-        //         //         quantity: parseInt(qty1[0].quantity) - retrunQuantity,
-        //         //         showroom: parseInt(qty1[0].showroom) - retrunQuantity
-        //         //     })
-        //         // })
-        //             //if batch did not worked then update through normal update
-        //                 firestore.collection("Items").doc(qty1[0].id)
-        //                 .update({
-        //                     quantity: parseInt(qty1[0].quantity) - retrunQuantity,
-        //                     showroom: parseInt(qty1[0].showroom) - retrunQuantity
-        //                 })
-        //             .then(() => {
-        //                         console.log("Stock Quantity updated successfully");
-        //                 })
-        //             });
-
-
-        //        console.log(`
-        //        Enter in item
-        //        where item name = ${item.itemName}
-        //        item quantity = add ${retrunQuantity}
-        //        `)
-
-
-
-        // } 
-
-
-
-        //        saleData.map((item, index) => {
-        //                firestore.collection("SaleInvoice").doc(item.id)
-        //                 .update({
-        //                     Returned: parseInt(item.Returned) + totalReturnValue,
-        //                     invoicevalue : parseInt(item.invoicevalue) - totalReturnValue,
-        //                     Outstanding: parseInt(item.Outstanding) - totalReturnValue,
-        //                     totalitems : parseInt(item.totalitems) - totalReturnQuantity    
-        //                 })
-        //             .then(() => {
-        //                         console.log(`
-        //         Sale invoice update
-        //         update returned = ${totalReturnValue}
-        //         update outstanding = ${item.Outstanding - totalReturnValue}
-        //         update total items = ${item.totalitems - retrunQuantity}
-        //         `);
-        //                 })
-        //             });
-        //               })
-
-        //          // commit the batch
-        //   batch.commit().then(function () {
-        //     console.log("Batch Record updated successfully")
-
-        // });
-        //         // get customer details to update it back
-        //         user.map((item, index) => {
-        //             firestore.collection("User").doc(item.id)
-        //             .update({
-        //                 totalPurchase: parseInt(item.totalPurchase) - totalReturnValue,
-        //                 Outstanding: parseInt(item.Outstanding) - totalReturnValue,
-        //                 totalCost : parseInt(item.totalCost) - totalReturnCost,
-        //                 totalProfit : parseInt(item.totalProfit) - totalReturnProfit 
-        //             })
-        //         .then(() => {
-        //             console.log(`
-        //             user update
-        //             update total purchase = ${item.totalPurchase - totalReturnValue }
-        //             update total outstaning = ${item.Outstanding - totalReturnValue}
-
-        //             update total cost = ${item.totalCost - totalReturnCost}
-        //             update total profit = ${item.totalProfit - totalReturnProfit}
-        //             `);
-        //             })
-
-
     }
 
 
@@ -395,7 +265,7 @@ const SaleReturn = ({
                                     <th>Sale Id</th>
                                     <th>Item Name</th>
                                     <th>Price</th>
-                                    <th>Qyantity</th>
+                                    <th>Quantity</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -407,9 +277,9 @@ const SaleReturn = ({
                                         >
                                             <td>{item.id}</td>
                                             <td>{item.createdAt}</td>
-                                            <td>{item.SaleInvoiceId}</td>
+                                            <td>{item.saleInvoiceId}</td>
                                             <td>{item.items.name}</td>
-                                            <td>{item.saleprice}</td>
+                                            <td>{item.price}</td>
                                             <td>{item.quantity}</td>
                                             <td>{item.costPrice}</td>
                                             <td> <input
