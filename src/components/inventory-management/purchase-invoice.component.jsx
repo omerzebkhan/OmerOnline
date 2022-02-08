@@ -142,7 +142,7 @@ const PurchaseInvoice = ({
     }
 
     const savePurchase = () => {
-
+       // setLoading('True');
         console.log(`save purchase is clicked....'
         ${invoice}
         ${cSupplier[0].id}
@@ -215,32 +215,30 @@ const PurchaseInvoice = ({
                                     itemService.update(item[3], itemUpdated)
                                         .then(response4 => {
                                             setMessage(`Updated Stock value successfully`);
-                                            setMessage(`Purchase successfully Added Invoice id = ${response.data.id}`);
+                                            setMessage(`Updating stock of item id = ${item[3]}`);
                                         })
                                         .catch(e => {
-                                            console.log(`catch of update Stock ${e}
-                                        error from server  ${e.message}`);
+                                            console.log(`catch of update Stock ${e} error from server  ${e.message}`);
+                                            setMessage(`catch of update Stock ${e} error from server  ${e.message}`);
                                         })
                                 })
                                 .catch(e => {
-                                    console.log(`catch of specific item detail ${e}
-                                        error from server  ${e.message}
-                                        `);
+                                    console.log(`catch of specific item detail ${e} error from server  ${e.message}`);
+                                    setMessage(`catch of specific item detail ${e} error from server  ${e.message}`);
                                 })
 
 
                         })
                         .catch(e => {
-                            console.log(`catch of purchase detail ${e}
-                            error from server  ${e.message}
-                            `
-                            );
+                            console.log(`catch of purchase detail ${e} error from server  ${e.message} `);
+                            setMessage(`catch of purchase detail ${e} error from server  ${e.message} `);
                         })
 
                 })
             })
             .catch(e => {
                 console.log(`catch of create purchase${e}`);
+                setMessage(`catch of create purchase${e}`);
             });
     }
 

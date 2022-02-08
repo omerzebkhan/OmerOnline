@@ -299,7 +299,7 @@ const PrintInvoice=({invoice,customer}) =>{
     console.log(`Print invoice is called called..
     customer name = ${customer.name}`);
     var invoiceNo= "";
-    var customerName= "";
+   // var customerName= "";
     var date = "";
       invoice.map((item, index) => {
                                     console.log('')  
@@ -310,12 +310,12 @@ const PrintInvoice=({invoice,customer}) =>{
                                     })
                                     
                                       
-                                      customerName = customer.name;                      
+                                      //customerName = customer.name;                      
                                      //date = item.dt;
-                                          console.log(`invoceNo=${invoiceNo}
-      date=${date}
-      customerName = ${customerName}
-      `)
+      //                                     console.log(`invoceNo=${invoiceNo}
+      // date=${date}
+      // customerName = ${customerName}
+      // `)
        return (
     <div className="App">
       
@@ -325,7 +325,8 @@ const PrintInvoice=({invoice,customer}) =>{
       date = {date}
       customer ={customer}
       
-      />} fileName="somename.pdf">
+      />} fileName={invoiceNo +".pdf"} >
+      {/* fileName="somename.pdf">   */}
       {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'PDF Print')}
     </PDFDownloadLink>
     </div>

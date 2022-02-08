@@ -95,7 +95,7 @@ const SaleInvoice = ({
             setItemInput(event.target.value);
         }
         else if (event.target.id === "customerSearch") {
-           console.log(`customer input=${customerInput} ${event.target.value}`)
+          // console.log(`customer input=${customerInput} ${event.target.value}`)
            if(userData.user){
             setFilteredOptionsCustomer(userData.user.filter(
                 // console.log(userData[0].name)
@@ -143,7 +143,7 @@ const SaleInvoice = ({
 
                invoiceItem[index][2] = event.target.value;
               // console.log(invoiceItem[index])
-               console.log(`value is changed ${event.target.value}`) 
+            //   console.log(`value is changed ${event.target.value}`) 
                setReload(event.target.value)
             }
          })
@@ -179,7 +179,7 @@ const SaleInvoice = ({
             // console.log(`outside map total=${total} && qty=${qty}`);
 
             if (invoiceItem.length === 0) {
-                console.log("no value in the invoice item")
+              //  console.log("no value in the invoice item")
                 setTotalInvoiceValue(total * qty);
                 setTotalInvoiceQuantity(parseInt(qty));
                 setTotalInvoiceCost(parseFloat(cost) * parseInt(qty));
@@ -227,7 +227,7 @@ const SaleInvoice = ({
         inventoryService.createSale(data)
             .then(response => {
 
-                console.log(`Sale successfully Added Invoice id = ${response.data.id}`);
+         //       console.log(`Sale successfully Added Invoice id = ${response.data.id}`);
                
                 // loop throuhg invoice item 
                 //1-create new sale detail 
@@ -246,35 +246,35 @@ const SaleInvoice = ({
 
                     });
 
-                    console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
+           //         console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
 
                     inventoryService.createSaleDetail(sDetailData)
                         .then(response1 => {
                             setMessage("Sale Detail Entered");
-                            console.log("Sale Detail Entered")
-                            console.log(response1.data);
+             //               console.log("Sale Detail Entered")
+             //               console.log(response1.data);
                             //Updating Item Stock
                             // get quantity and averageprice of an item
                             itemService.get(item[6])
                                 .then(response2 => {
-                                    console.log("get specific Item detail")
-                                    console.log(response2.data);
+                                    // console.log("get specific Item detail")
+                                    // console.log(response2.data);
                                     const { id, quantity, showroom,averagePrice } = response2.data;
-                                    console.log(`item id = ${id}
-                                    item Quantity = ${quantity}
-                                    Item showroom = ${showroom}
-                                    Item averagePrice = ${averagePrice}
-                                    `);
-                                    console.log(`invoice quantity = ${parseInt(item[2])} `)
-                                    // update quantity and showroom  of item
+                                    // console.log(`item id = ${id}
+                                    // item Quantity = ${quantity}
+                                    // Item showroom = ${showroom}
+                                    // Item averagePrice = ${averagePrice}
+                                    // `);
+                                    // console.log(`invoice quantity = ${parseInt(item[2])} `)
+                                    // // update quantity and showroom  of item
                                     var itemUpdated = {
                                         quantity: parseInt(quantity) - parseInt(item[2]),
                                         showroom: parseInt(showroom) - parseInt(item[2])
                                     }
                                     itemService.update(id, itemUpdated)
                                         .then(response4 => {
-                                            console.log(`response qty =${response4.data.quantity}
-                                                response showroom = ${response4.data.showroom}`)
+                                            // console.log(`response qty =${response4.data.quantity}
+                                            //     response showroom = ${response4.data.showroom}`)
                                             setMessage(`Updated Stock value successfully`);
                                             setMessage(`Sale successfully Added Invoice id = ${response.data.id}`);
                                             //     //reset all state
@@ -353,8 +353,8 @@ const SaleInvoice = ({
         setFilteredOptionsItem([]);
         setShowOptionsItem(false);
 
-        console.log(e.currentTarget.dataset.id);
-        console.log(itemData);
+        // console.log(e.currentTarget.dataset.id);
+        // console.log(itemData);
         const selectedItem = itemData.filter(
             (option) => option.id == e.currentTarget.dataset.id
         );
@@ -366,8 +366,8 @@ const SaleInvoice = ({
     };
     let optionListItem;
     if (showOptionsItem && itemInput) {
-        console.log(filteredOptionsItem);
-        console.log(filteredOptionsItem.length)
+        // console.log(filteredOptionsItem);
+        // console.log(filteredOptionsItem.length)
         if (filteredOptionsItem.length) {
             optionListItem = (
                 <ul className="options">
@@ -531,8 +531,8 @@ const SaleInvoice = ({
         setFilteredOptionsAgent([]);
         setShowOptionsAgent(false);
 
-        console.log(e.currentTarget.dataset.id);
-        console.log(itemData);
+        // console.log(e.currentTarget.dataset.id);
+        // console.log(itemData);
         const selectedAgent = userData.user.filter(
             (option) => option.id == e.currentTarget.dataset.id
         );
@@ -543,8 +543,8 @@ const SaleInvoice = ({
     };
     let optionListAgent;
     if (showOptionsAgent && agentInput) {
-        console.log(filteredOptionsAgent);
-        console.log(filteredOptionsAgent.length)
+        // console.log(filteredOptionsAgent);
+        // console.log(filteredOptionsAgent.length)
         if (filteredOptionsAgent.length) {
             optionListAgent = (
                 <ul className="options">
