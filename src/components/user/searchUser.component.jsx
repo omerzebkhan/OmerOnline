@@ -275,10 +275,12 @@ const SearchUser = ({
                         :
                         ""}
                                     <div className="col-md-6">
-                                        {currentUser && show==="" ? (
+                                        {console.log(show)}
+                                        {currentUser && !show ? (
                                             //Object.keys(currentBrand).length? (
-                                            //  console.log(Object.keys(currentBrand).length)
+                                            
                                             <div>
+                                               
                                                 <AddUser selectedUser={currentUser} />
 
                                             </div>

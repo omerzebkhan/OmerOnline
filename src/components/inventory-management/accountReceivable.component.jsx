@@ -50,6 +50,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
     const selectSaleInvoice = (item) =>{
         fetchSaleByInputStartAsync(item.customerId);
+        setCurrentUser(item.customerId);
     }
 
     const handleChange = event => {
@@ -62,6 +63,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }
 
     const updatHandler = () => {
+        console.log('update is clicked.....')
         if (currentInvoice.Outstanding < parseInt(cashPayment) + parseInt(bankPayment)) {
             alert("values are wrong...");
         }
@@ -96,6 +98,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             parseInt(cashPayment) -
                             parseInt(bankPayment)
                     }
+                    console.log(`${parseInt(currentInvoice.Outstanding)} -
+                    ${parseInt(cashPayment)} -
+                    ${parseInt(bankPayment)}`)
 
                     inventoryService.updateSale(currentInvoice.id, vSaleInv)
                         .then(res => {
@@ -112,29 +117,43 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     ///////////////////////////////////////////
                     //3- update Outstandig in the user profile
                     //////////////////////////////////////////
-                    console.log(`current invoice outstanting = ${currentUser.outstanding}`);
-                    var vUser = {
-                        outstanding: parseInt(currentUser.outstanding) -
-                            parseInt(cashPayment) -
-                            parseInt(bankPayment)
-                    }
-                    console.log(`current invoice outstanting after = ${vUser.outstanding}`);
-                    user.update(currentUser.id, vUser)
-                        .then(res => {
-                            setMessage("Update User Outstanding completed successfully.....")
-                            console.log("Update User Outstanding completed successfully.....")
+                    // console.log({currentUser})
+                    // console.log(`current invoice outstanting = ${currentUser.outstanding}`);
+                    // var vUser = {
+                    //     outstanding: parseInt(currentUser.outstanding) -
+                    //         parseInt(cashPayment) -
+                    //         parseInt(bankPayment)
+                    // }
+                    // console.log(`current invoice outstanting after = ${vUser.outstanding}`);
+                    // user.update(currentUser.id, vUser)
+                    //     .then(res => {
+                    //         setMessage("Update User Outstanding completed successfully.....")
+                    //         console.log("Update User Outstanding completed successfully.....")
 
-                            setLoading(false);
-                            //console.log(currentItem)
-                            setSInvoice([]);
+                    //         setLoading(false);
+                    //         //console.log(currentItem)
+                    //         setSInvoice([]);
+                    //        // setCurrentUser([]);
+
+                    //         // clear and reload the invoice 
+                    //         fetchSaleAR();
+                    //        // fetchSaleByInputStartAsync(currentInvoice.customers.id);
+                    //         setSInvPayDetail([])
+                    //         setCurrentInvoice([]);
+
+                    //     })
+                    //     .catch(e => {
+                    //         console.log(`catch of User Outstanding ${e}
+                    //                         error from server  ${e.message}`);
+                    //     })
+                             // clear and reload the invoice 
+                            fetchSaleAR();
+                            fetchSaleByInputStartAsync(0);
+                            setSInvPayDetail([])
                             setCurrentInvoice([]);
-                            setCurrentUser([]);
+                            setCashPayment(0);
+                            setBankPayment(0);
 
-                        })
-                        .catch(e => {
-                            console.log(`catch of User Outstanding ${e}
-                                            error from server  ${e.message}`);
-                        })
                 })
                 .catch(e => {
                     console.log(`catch of Create Sale Invoice Payment ${e}
@@ -213,6 +232,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     <tr>
                                         <th>Date</th>
                                         <th>Customer id</th>
+                                        <th>Customer Name</th>
                                         <th>Reff Invoice</th>
                                         <th>Invoice Value</th>
                                         <th>OutStanding</th>
@@ -226,6 +246,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                             <tr key={index}>
                                                 <td>{item.createdAt}</td>
                                                 <td>{item.customerId}</td>
+                                                <td>{item.customers.name}</td>
                                                 <td>{item.id}</td>
                                                 <td>{item.invoicevalue}</td>
                                                 <td>{item.Outstanding}</td>
@@ -249,7 +270,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         ""
                     }
                     {currentInvoice.id ?
-                        <div><div className="form-group row">
+                        <div>
+                            <div className="form-group row">
                             <label className="col-sm-2 col-form-label" htmlFor="Name">Invoice Id</label>
                             <div className="col-sm-10">
                                 <input
@@ -258,6 +280,18 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     id="reffInvoice"
                                     placeholder="reffInvoice"
                                     value={currentInvoice.id}
+                                    disabled />
+                            </div>
+                        </div>
+                        <div className="form-group row">
+                            <label className="col-sm-2 col-form-label" htmlFor="Name">Customer Name</label>
+                            <div className="col-sm-10">
+                                <input
+                                    type="text"
+                                    name="reffInvoice"
+                                    id="reffInvoice"
+                                    placeholder="reffInvoice"
+                                    value={currentInvoice.customers.name}
                                     disabled />
                             </div>
                         </div>
@@ -318,7 +352,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         </div>
                         :
                         ""}
-                    {sInvPayDetail ?
+                    {sInvPayDetail && sInvPayDetail.length >0 ?
                         <div>
                             <table border="1">
                                 <thead>

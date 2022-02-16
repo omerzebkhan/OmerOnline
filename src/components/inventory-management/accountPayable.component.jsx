@@ -118,31 +118,38 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                 ///////////////////////////////////////////
                 //3- update Outstandig in the user profile
                 //////////////////////////////////////////
-                console.log(`current invoice outstanting = ${currentUser.outstanding}`);
-                var vUser = {
-                    outstanding: parseInt(currentUser.outstanding) -
-                        parseInt(cashPayment) -
-                        parseInt(bankPayment)
-                }
-                console.log(`current invoice outstanting after = ${vUser.outstanding}`);
-                user.update(currentUser.id, vUser)
-                    .then(res => {
-                        setMessage("Update User Outstanding completed successfully.....")
-                        console.log("Update User Outstanding completed successfully.....")
+                // console.log(`current invoice outstanting = ${currentUser.outstanding}`);
+                // var vUser = {
+                //     outstanding: parseInt(currentUser.outstanding) -
+                //         parseInt(cashPayment) -
+                //         parseInt(bankPayment)
+                // }
+                // console.log(`current invoice outstanting after = ${vUser.outstanding}`);
+                // user.update(currentUser.id, vUser)
+                //     .then(res => {
+                //         setMessage("Update User Outstanding completed successfully.....")
+                //         console.log("Update User Outstanding completed successfully.....")
 
-                        setLoading(false);
-                        //console.log(currentItem)
-                        setPInvoice([]);
-                        setCurrentInvoice([]);
-                        setCurrentUser([]);
+                //         setLoading(false);
+                //         //console.log(currentItem)
+                //         setPInvoice([]);
+                //         setCurrentInvoice([]);
+                //         setCurrentUser([]);
 
-                    })
-                    .catch(e => {
-                        console.log(`catch of User Outstanding ${e}
-                                        error from server  ${e.message}`);
-                    })
+                //     })
+                //     .catch(e => {
+                //         console.log(`catch of User Outstanding ${e}
+                //                         error from server  ${e.message}`);
+                //     })
 
-
+                    // clear and reload the invoice 
+                    fetchPurchaseAP();
+                    fetchPurchaseByInputStartAsync(0);
+                    setPInvPayDetail([])
+                    setCurrentInvoice([]);
+                    setCashPayment(0);
+                    setBankPayment(0);
+                    setLoading(false)
 
 
 
@@ -217,6 +224,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                             <tr>
                                 <th>Date</th>
                                 <th>Supplier id</th>
+                                <th>Supplier Name</th>
                                 <th>Reff Invoice</th>
                                 <th>Invoice Value</th>
                                 <th>OutStanding</th>
@@ -228,6 +236,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                                 return (<tr key={index}>
                                     <td>{item.createdAt}</td>
                                     <td>{item.supplierId}</td>
+                                    <td>{item.suppliers.name}</td>
                                     <td>{item.id}</td>
                                     <td>{item.invoicevalue}</td>
                                     <td>{item.Outstanding}</td>
@@ -257,6 +266,18 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                             id="reffInvoice"
                             placeholder="reffInvoice"
                             value={currentInvoice.id}
+                            disabled />
+                    </div>
+                </div>
+                <div className="form-group row">
+                    <label className="col-sm-2 col-form-label" htmlFor="Name">Supplier Name</label>
+                    <div className="col-sm-10">
+                        <input
+                            type="text"
+                            name="supplier Name"
+                            id="supplier Name"
+                            placeholder="Supplier Name"
+                            value={currentInvoice.suppliers.name}
                             disabled />
                     </div>
                 </div>
@@ -317,7 +338,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                 </div>
                 :
                 ""}
-            {pInvPayDetail ?
+            {pInvPayDetail && pInvPayDetail.length >0 ?
             <div>
                   <table border="1">
                         <thead>
