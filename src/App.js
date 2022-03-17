@@ -136,14 +136,14 @@ const App = () => {
               </li>
             </div>
           ) : (
+            // redirect to login screen
+            //logout()
             <div className="navbar-nav ml-auto">
               <li className="nav-item">
                 <Link to={"/login"} className="nav-link">
                   Login
                 </Link>
-              </li>
-
-             
+              </li>  
             </div>
           )}
         </nav>

@@ -1,7 +1,13 @@
 import React, { useState, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { Redirect } from 'react-router-dom';
+
 import "../App.css";
 
 import UserService from "../services/user.service";
+import { logout } from "../redux/user/user.action";
+
+
 
 
 import Navigation from '../components/Navigation/navigation';
@@ -9,8 +15,9 @@ import Navigation from '../components/Navigation/navigation';
 
 
 
-const BoardAdmin = () => {
+const BoardAdmin = (props) => {
   const [content, setContent] = useState("");
+  const dispatch = useDispatch();
 
   useEffect(() => {
     UserService.getAdminBoard().then(
@@ -30,6 +37,16 @@ const BoardAdmin = () => {
     );
   }, []);
 
+  const logOut = (c) => {
+   console.log(`content = ${content}`)
+    //<Redirect to="/login" />
+    props.history.push({pathname:'/Login',state: { detail: c }});
+    localStorage.removeItem("user");
+    //dispatch(logout());// getting error on it
+//    props.history.push("/Login",state:"data");
+   // window.location.reload();
+  };
+
   return (
     <div className="container">
     
@@ -38,7 +55,10 @@ const BoardAdmin = () => {
             <Navigation />
         </div>
         :
-        content}
+        // redirect to login page due to unauthrization
+       //logOut(content)
+       content
+        }
      
     </div>
   );

@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { setMessage } from '../../redux/user/user.action';
 
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+
 const StockReport = ({
     fetchItemStartAsync, itemData,
     isFetching }) => {
@@ -13,6 +15,9 @@ const StockReport = ({
     const [filter, setFilter] = useState("");
     const [data, setData] = useState("");
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
+    const [totalQuantity,setTotalQuantity] = useState([0]);
+    const [totalRecord,setTotalRecord] = useState([0]);
+    const [totalInventoryValue,setTotalInventoryValue] = useState([0]);
 
     useEffect(() => {
         fetchItemStartAsync();
@@ -29,6 +34,24 @@ const StockReport = ({
             setFilteredOptionsItem(sorted);
         }
     }, [itemData])
+
+
+    useEffect(() => {
+        var sumQuantity = 0
+        var sumRecord = 1
+        var sumInventoryValue = 0
+        filteredOptionsItem.map((item, index) =>{
+            sumQuantity = sumQuantity + item.quantity
+            setTotalQuantity(sumQuantity)
+            sumRecord = index + 1
+            setTotalRecord(sumRecord)
+            sumInventoryValue = sumInventoryValue + (item.quantity*item.averageprice)
+            setTotalInventoryValue(parseFloat(sumInventoryValue).toFixed(3))
+        })
+    }, [filteredOptionsItem])
+
+
+
 
     const searchHandler = event => {
       
@@ -50,13 +73,13 @@ const StockReport = ({
             else if (filter === 'Greater Than')
             {
                 selectedItem = itemData.filter(
-                    (option) => option[data] >= parseFloat(valueInput) 
+                    (option) => option[data] > parseFloat(valueInput) 
               );
             }
             else if (filter === 'Less Than')
             {
                 selectedItem = itemData.filter(
-                    (option) => option[data] <= parseFloat(valueInput) 
+                    (option) => option[data] < parseFloat(valueInput) 
               );
             }
            
@@ -121,6 +144,7 @@ const StockReport = ({
                     Data
                     <select id="Data" name="Data" onChange={handleChange}>
                         <option selected="Please Select">Please Select</option>
+                        <option value="averageprice">Average Cost</option>
                         <option value="quantity">Quantity</option>
                         <option value="online">Online Quantity</option>
                         <option value="showroom">Showroom Quantity</option>
@@ -138,17 +162,33 @@ const StockReport = ({
                         value={valueInput}
                         onChange={handleChange} />
                     <button className="btn btn-primary" type="button" onClick={searchHandler}>Search</button>
-
+                    <div>  
+                                        <ReactHTMLTableToExcel  
+                                                className="btn btn-info"  
+                                                table="stockView"  
+                                                filename="ReportExcel"  
+                                                sheet="Sheet"  
+                                                buttonText="Export excel" />  
+                                </div>  
                 </div>
 
             </form>
             {isFetching ?
                 <div>"Loading data ....."</div> :
                 ""}
+                <div>
+                 <div className="inputFormHeader"><h2>Summary</h2></div>
+                    <div className="inputForm">
+                    <div>Total Item Quantity = {totalQuantity}</div>
+                    <div>Total Records = {totalRecord}</div>
+                    <div>Inventory Value = {totalInventoryValue}</div>
+                    </div>
+                </div>
+                
             {filteredOptionsItem ?
                 <div>
                     <h3>Stock View</h3>
-                    <table border='1'>
+                    <table border='1' id="stockView">
 
                         <thead>
                             <tr>

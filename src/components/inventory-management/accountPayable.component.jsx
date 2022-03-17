@@ -25,6 +25,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [access,setAccess] = useState(false);
+    const [totalOutStanding,setTotalOutStanding] = useState(0);
 
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
@@ -42,6 +43,18 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
     useEffect(() => {
        setPInvoice(purchaseInvoice);
     }, [purchaseInvoice])
+
+    useEffect(() => {
+        var sumOutStanding = 0
+        if(purchaseApData){
+            purchaseApData.map((item, index) =>{
+            sumOutStanding = sumOutStanding + item.purchaseOutstanding
+            setTotalOutStanding(sumOutStanding)
+           
+        })
+    }
+    }, [purchaseApData])
+
 
     useEffect(() => {
         setPInvPayDetail(purInvDetail)
@@ -179,6 +192,13 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
 
             {purchaseApData ?
                         <div>
+                             <div>
+                                <div className="inputFormHeader"><h2>Summary</h2></div>
+                                <div className="inputForm">
+                                    <div>Total Amount = {totalOutStanding}</div>
+                                    
+                                </div>
+                            </div>
                             <h1>Outstanding Suppliers</h1>
                             <table border="1">
                                 <thead>
@@ -219,6 +239,8 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                 : ""}
             {pInvoice ?
                 <div>
+                   
+                    <h1>Outstanding Invoices</h1>       
                     <table border="1">
                         <thead>
                             <tr>

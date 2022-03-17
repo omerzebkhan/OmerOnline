@@ -26,6 +26,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [access, setAccess] = useState(false);
+    const [totalOutStanding,setTotalOutStanding] = useState(0);
 
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
@@ -34,10 +35,23 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }
         , []);
 
-   useEffect(() => {
+    useEffect(() => {
         fetchSaleAR();
 
     }, [fetchSaleAR])
+
+
+    useEffect(() => {
+        var sumOutStanding = 0
+        if(saleArData){
+        saleArData.map((item, index) =>{
+            sumOutStanding = sumOutStanding + item.salesOutstanding
+            setTotalOutStanding(sumOutStanding)
+           
+        })
+    }
+    }, [saleArData])
+
 
 
     useEffect(() => {
@@ -48,7 +62,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         setSInvPayDetail(salInvDetail)
     }, [salInvDetail])
 
-    const selectSaleInvoice = (item) =>{
+    const selectSaleInvoice = (item) => {
         fetchSaleByInputStartAsync(item.customerId);
         setCurrentUser(item.customerId);
     }
@@ -146,13 +160,13 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     //         console.log(`catch of User Outstanding ${e}
                     //                         error from server  ${e.message}`);
                     //     })
-                             // clear and reload the invoice 
-                            fetchSaleAR();
-                            fetchSaleByInputStartAsync(0);
-                            setSInvPayDetail([])
-                            setCurrentInvoice([]);
-                            setCashPayment(0);
-                            setBankPayment(0);
+                    // clear and reload the invoice 
+                    fetchSaleAR();
+                    fetchSaleByInputStartAsync(0);
+                    setSInvPayDetail([])
+                    setCurrentInvoice([]);
+                    setCashPayment(0);
+                    setBankPayment(0);
 
                 })
                 .catch(e => {
@@ -190,11 +204,21 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
                     {saleArData ?
                         <div>
+                            <div>
+                                <div className="inputFormHeader"><h2>Summary</h2></div>
+                                <div className="inputForm">
+                                    <div>Total Outstanding = {totalOutStanding}</div>
+                                    
+                                </div>
+                            </div>
+
+
+
                             <h1>Outstanding Customers</h1>
                             <table border="1">
                                 <thead>
                                     <tr>
-                                        
+
                                         <th>Customer id</th>
                                         <th>Name</th>
                                         <th>Address</th>
@@ -206,13 +230,13 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     {saleArData.map((item, index) => {
                                         //console.log(index)
                                         return (
-                                            <tr key={index}  onClick={() => selectSaleInvoice(item)}>
+                                            <tr key={index} onClick={() => selectSaleInvoice(item)}>
                                                 <td>{item.customerId}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.address}</td>
                                                 <td>{item.saleInvoiceValue}</td>
                                                 <td>{item.salesOutstanding}</td>
-                                                
+
                                             </tr>)
                                     })}
                                 </tbody>
@@ -241,7 +265,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                 <tbody>
                                     {sInvoice.map((item, index) => {
                                         //console.log(index)
-
+                                        if (item.Outstanding>0){
                                         return (
                                             <tr key={index}>
                                                 <td>{item.createdAt}</td>
@@ -260,7 +284,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                     setCurrentInvoice([]);
                                                     getPaymentDetail(item.id)
                                                 }}>Payment Details</button></td>
-                                            </tr>)
+                                            </tr>)}
                                     })}
                                 </tbody>
                             </table>
@@ -272,29 +296,29 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     {currentInvoice.id ?
                         <div>
                             <div className="form-group row">
-                            <label className="col-sm-2 col-form-label" htmlFor="Name">Invoice Id</label>
-                            <div className="col-sm-10">
-                                <input
-                                    type="text"
-                                    name="reffInvoice"
-                                    id="reffInvoice"
-                                    placeholder="reffInvoice"
-                                    value={currentInvoice.id}
-                                    disabled />
+                                <label className="col-sm-2 col-form-label" htmlFor="Name">Invoice Id</label>
+                                <div className="col-sm-10">
+                                    <input
+                                        type="text"
+                                        name="reffInvoice"
+                                        id="reffInvoice"
+                                        placeholder="reffInvoice"
+                                        value={currentInvoice.id}
+                                        disabled />
+                                </div>
                             </div>
-                        </div>
-                        <div className="form-group row">
-                            <label className="col-sm-2 col-form-label" htmlFor="Name">Customer Name</label>
-                            <div className="col-sm-10">
-                                <input
-                                    type="text"
-                                    name="reffInvoice"
-                                    id="reffInvoice"
-                                    placeholder="reffInvoice"
-                                    value={currentInvoice.customers.name}
-                                    disabled />
+                            <div className="form-group row">
+                                <label className="col-sm-2 col-form-label" htmlFor="Name">Customer Name</label>
+                                <div className="col-sm-10">
+                                    <input
+                                        type="text"
+                                        name="reffInvoice"
+                                        id="reffInvoice"
+                                        placeholder="reffInvoice"
+                                        value={currentInvoice.customers.name}
+                                        disabled />
+                                </div>
                             </div>
-                        </div>
                             <div className="form-group row">
                                 <label className="col-sm-2 col-form-label" htmlFor="Name">Invoice Value</label>
                                 <div className="col-sm-10">
@@ -352,7 +376,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         </div>
                         :
                         ""}
-                    {sInvPayDetail && sInvPayDetail.length >0 ?
+                    {sInvPayDetail && sInvPayDetail.length > 0 ?
                         <div>
                             <table border="1">
                                 <thead>
