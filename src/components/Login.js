@@ -78,8 +78,8 @@ const Login = (props) => {
           className="profile-img-card"
           
         />
-        {/* {console.log(location.state.detail)}
-        {location.state.detail} */}
+
+        {location.state ? location.state.detail : ""}
         <Form onSubmit={handleLogin} ref={form}>
           <div className="form-group">
             <label htmlFor="username">Username</label>

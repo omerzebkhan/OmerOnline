@@ -41,7 +41,7 @@ const BoardAdmin = (props) => {
    console.log(`content = ${content}`)
     //<Redirect to="/login" />
     props.history.push({pathname:'/Login',state: { detail: c }});
-    localStorage.removeItem("user");
+    //localStorage.removeItem("user");
     //dispatch(logout());// getting error on it
 //    props.history.push("/Login",state:"data");
    // window.location.reload();
@@ -57,7 +57,10 @@ const BoardAdmin = (props) => {
         :
         // redirect to login page due to unauthrization
        //logOut(content)
-       content
+        content ? 
+        logOut(content) 
+        : 
+        ""
         }
      
     </div>

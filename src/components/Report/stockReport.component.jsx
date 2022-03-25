@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 //import { fetchStockStartAsync } from '../../redux/stock/stock.action';
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { setMessage } from '../../redux/user/user.action';
+import itemService from "../../services/item.services";
 
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
@@ -18,6 +19,8 @@ const StockReport = ({
     const [totalQuantity,setTotalQuantity] = useState([0]);
     const [totalRecord,setTotalRecord] = useState([0]);
     const [totalInventoryValue,setTotalInventoryValue] = useState([0]);
+    const [itemPurchaseHistory,setItemPurchaseHistory] = useState([])
+    const [itemSaleHistory,setItemSaleHistory] = useState([])
 
     useEffect(() => {
         fetchItemStartAsync();
@@ -50,8 +53,34 @@ const StockReport = ({
         })
     }, [filteredOptionsItem])
 
+    const getPurchaseHistory = (itemId) =>{
+        console.log(`item for the purchase history ${itemId}`)
+        itemService.getItemPurchaseHistory(itemId)
+        .then(response2 => {
+     
+            setItemPurchaseHistory(response2.data)
+            
+        })
+        .catch(e => {
+            console.log(`get Purchase History error ${e}`);
+        })
+     
+    }
 
+    const getSaleHistory = (itemId) =>{
+        //console.log(`item for the purchase history ${itemId}`)
+        itemService.getItemSaleHistory(itemId)
+        .then(response2 => {
+            //console.log(response2.data)
+            setItemSaleHistory(response2.data)
+        })
+        .catch(e => {
+            console.log(`get Sale History  error ${e}`);
+        })
+      //fetchPurInvPayDetial(invoiceId);
+      // setPInvPayDetail(purInvDetail)
 
+    }
 
     const searchHandler = event => {
       
@@ -225,6 +254,103 @@ const StockReport = ({
                                         <td>{item.onlineprice}</td>
                                         <td>{item.showroomprice}</td>
                                         <td>{item.onlinediscount}</td>
+                                        <td><button type="button" onClick={() =>{
+                                            getPurchaseHistory(item.id)
+                                        }}>Purchase History</button></td>
+                                    <td><button type="button" onClick={()=>{
+                                        getSaleHistory(item.id)
+                                        }}>Sale History </button></td>
+                                    </tr>
+                                )
+                                )
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                :
+                ""
+            }
+            {itemPurchaseHistory ?
+                <div>
+                    <h3>Purchase History </h3>
+                    <table border='1' id="Purchase History">
+
+                        <thead>
+                            <tr>
+                                <th>Invoice Id</th>
+                                <th>Supllier Name</th>
+                                <th>Item Name</th>
+                                <th>Inv. Deatil Id</th>
+                                <th>Cost</th>
+                                <th>Quantity</th>
+                                <th>Creation Date Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+
+                            {
+                                itemPurchaseHistory.map((item, index) => (
+                                    //   console.log(item);
+
+                                    <tr key={index}
+                                    //onClick={() => setActiveBrand(item, index)}
+                                    >
+                                        <td>{item.id}</td>
+                                        <td>{item.supplierName}</td>
+                                        <td>{item.itemName}</td>
+                                        <td>{item.InvPurId}</td>
+                                        <td>{item.price}</td>
+                                        <td>{item.quantity}</td>
+                                        <td>{item.createdAt}</td>
+                                    </tr>
+                                )
+                                )
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                :
+                ""
+            }
+
+{itemSaleHistory ?
+                <div>
+                    <h3>Sale History </h3>
+                    <table border='1' id="Sale History">
+
+                        <thead>
+                            <tr>
+                                <th>Invoice Id</th>
+                                <th>Customer Name</th>
+                                <th>Item Name</th>
+                                <th>Inv. Deatil Id</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Creation Date Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+
+                            {
+                                itemSaleHistory.map((item, index) => (
+                                    //   console.log(item);
+
+                                    <tr key={index}
+                                    //onClick={() => setActiveBrand(item, index)}
+                                    >
+                                        <td>{item.id}</td>
+                                        <td>{item.customerName}</td>
+                                        <td>{item.itemName}</td>
+                                        <td>{item.InvPurId}</td>
+                                        <td>{item.price}</td>
+                                        <td>{item.quantity}</td>
+                                        <td>{item.createdAt}</td>
                                     </tr>
                                 )
                                 )

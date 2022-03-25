@@ -14,6 +14,13 @@ class itemDataService {
     return http.get(`/itemByCat/${id}`);
   }
 
+  getItemPurchaseHistory(id) {
+    return http.get(`/itemPurchaseHistory/${id}`);
+  }
+
+  getItemSaleHistory(id) {
+    return http.get(`/itemSaleHistory/${id}`);
+  }
 
   create(data) {
     console.log(data);
