@@ -785,6 +785,7 @@ const SaleInvoice = ({
                                                 <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
                                                 <td>{((parseFloat(item[3]) * parseFloat(item[2])) - (parseFloat(item[4]) * parseFloat(item[2]))).toFixed(3)}</td>
                                                 <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>
+                                                {((parseFloat(item[3]) * parseFloat(item[2])) - (parseFloat(item[4]) * parseFloat(item[2]))).toFixed(3) <=0 ? <td style={{'background-color':"#FF0000"}}>Low Price</td> : ""}
                                             </tr>
                                             )
                                         })

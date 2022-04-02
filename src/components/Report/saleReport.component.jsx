@@ -298,6 +298,7 @@ const SaleReport = ({
                                 <th>Price</th>
                                 <th>Quantity</th>
                                 <th>Cost</th>
+                                <th>profit</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -313,7 +314,7 @@ const SaleReport = ({
                                         <td>{item.price}</td>
                                         <td>{item.quantity}</td>
                                         <td>{item.cost}</td>
-
+                                        <td>{parseFloat((item.price*item.quantity)-(item.cost * item.quantity)).toFixed(3)}</td>
                                     </tr>
                                 ))
                             }
