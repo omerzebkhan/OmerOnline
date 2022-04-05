@@ -69,7 +69,7 @@ const SaleReport = ({
        
         // const { fetchUserByInputAsync } = this.props;
         fetchUserByInputAsync(item.customerId);
-        fetchSaleInvoiceDetailAsync(item.id);
+        fetchSaleInvoiceDetailAsync(item.saleInvoiceId);
 
 
         
@@ -261,6 +261,7 @@ const SaleReport = ({
                                 <th>Customer Name</th>
                                 <th>Total Items</th>
                                 <th>Invoice Value</th>
+                                <th>Profit</th>
                                 <th>Date Time</th>
                             </tr>
                         </thead>
@@ -271,11 +272,13 @@ const SaleReport = ({
                                     <tr key={index}
                                         onClick={() => selectInvoice(item)}
                                     >
-                                        <td>{item.id}</td>
-                                        <td>{item.customers.name}</td>
+                                        <td>{item.saleInvoiceId}</td>
+                                        <td>{item.name}</td>
                                         <td>{item.totalitems}</td>
                                         <td>{item.invoicevalue}</td>
-                                        <td>{item.createdAt}</td>
+                                        <td>{item.profit}</td>
+                                        <td>{item.date}</td>
+
                                     </tr>
                                 ))
                             }
