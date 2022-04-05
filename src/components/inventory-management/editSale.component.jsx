@@ -100,11 +100,11 @@ const EditSale = ({
 
     const selectInvoice = (item) => {
         console.log("Select Invoice clicked");
-        setSaleInvoice(item.id);
+        setSaleInvoice(item.saleInvoiceId);
 
         setSDCustomerId(item.customerId);
         fetchUserByInputAsync(item.customerId);
-        fetchSaleInvoiceDetailAsync(item.id);
+        fetchSaleInvoiceDetailAsync(item.saleInvoiceId);
 
     }
 
@@ -737,11 +737,11 @@ const EditSale = ({
                                     <tr key={index}
                                         onClick={() => selectInvoice(item)}
                                     >
-                                        <td>{item.id}</td>
-                                        <td>{item.customers.name}</td>
+                                        <td>{item.saleInvoiceId}</td>
+                                        <td>{item.name}</td>
                                         <td>{item.totalitems}</td>
                                         <td>{item.invoicevalue}</td>
-                                        <td>{item.createdAt}</td>
+                                        <td>{item.date}</td>
                                     </tr>
                                 ))
                             }
