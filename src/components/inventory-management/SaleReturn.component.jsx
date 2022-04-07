@@ -261,6 +261,7 @@ const SaleReturn = ({
                                         <tr>
                                             <th>Id</th>
                                             <th>Reff Invoice</th>
+                                            <th>Customer Name</th>
                                             <th>Total Items</th>
                                             <th>Invoice Value</th>
                                             <th>Date Time</th>
@@ -275,6 +276,7 @@ const SaleReturn = ({
                                             >
                                                 <td>{saleData.id}</td>
                                                 <td>{saleData.reffInvoice}</td>
+                                                <td>{saleData.customers.name}</td>
                                                 <td>{saleData.totalitems}</td>
                                                 <td>{saleData.invoicevalue}</td>
                                                 <td>{saleData.createdAt}</td>

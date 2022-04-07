@@ -187,16 +187,17 @@ const EditSale = ({
 
                     ///////////////////////////update item value for the stock management
                     //                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
-                    if (quantityDiff > 0) {
+                    //if (quantityDiff > 0) {
                         //get current customer values 
+                        console.log(`item id = ${sdItemId}`)
                         itemService.get(sdItemId)
                             .then(res => {
                                 var iData = {
-                                    quantity: res.data.quantity + (quantityDiff),
-                                    showroom: res.data.showroom + (quantityDiff)
+                                    quantity: res.data.quantity + (quantityDiff* -1),
+                                    showroom: res.data.showroom + (quantityDiff* -1)
                                 }
                                 console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
-                                userService.update(sdItemId, iData)
+                                itemService.update(sdItemId, iData)
                                     .then(res => {
                                         console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
                                     })
@@ -211,7 +212,7 @@ const EditSale = ({
                             })
 
                         // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
-                    }
+                   // }
 
                     ////////////////////////////////////////////////////////////
 
@@ -350,37 +351,17 @@ const EditSale = ({
                                     showroom: parseInt(showroom) - parseInt(item[2])
                                 }
                                 itemService.update(id, itemUpdated)
-                                    .then(response4 => {
-                                        // console.log(`response qty =${response4.data.quantity}
-                                        //     response showroom = ${response4.data.showroom}`)
-                                        setMessage(`Updated Stock value successfully`);
-
-
-                                    })
-                                    .catch(e => {
-                                        console.log(`catch of update Stock ${e}
-                            error from server  ${e.message}`);
-                                    })
+                                    .then(response4 => {setMessage(`Updated Stock value successfully`); })
+                                    .catch(e => {console.log(`catch of update Stock ${e} error from server  ${e.message}`); })
                             })
-                            .catch(e => {
-                                console.log(`catch of specific item detail ${e}
-                            error from server  ${e.message}
-                            `);
-                            })
-
-
+                            .catch(e => {console.log(`catch of specific item detail ${e} error from server  ${e.message}`); })
                     })
-                    .catch(e => {
-                        setMessage(`catch of sale detail ${e} `)
-                        console.log(`catch of sale detail ${e} `);
-                    })
-
-
+                    .catch(e => {setMessage(`catch of sale detail ${e} `);  console.log(`catch of sale detail ${e} `);})
             }
         })
 
 
-        // recalculate sale invoice
+        
 
 
     }

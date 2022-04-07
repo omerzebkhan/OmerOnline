@@ -126,7 +126,7 @@ const SaleInvoice = ({
        //  editRow[2]=(event.target.value)
          invoiceItem.forEach((item,index)=>{
             if(item[0] === editRow[0] ){
-                var total = parseInt(item[3]);  // price 
+                var total = parseFloat(item[3]);  // price 
                 var qty = event.target.value - item[2];
                 var cost = parseFloat(item[4]) ;
                 console.log(`Change in quantity = ${qty}

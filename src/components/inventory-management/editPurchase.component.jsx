@@ -186,7 +186,7 @@ const EditPurchase = ({
 
                     ///////////update item value & average cost for the stock management 
                     //                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
-                    if (quantityDiff > 0) {
+                    //if (quantityDiff > 0) {
                         //get current item values 
                         //calculate the average cost
                         itemService.get(pdItemId)
@@ -214,12 +214,12 @@ const EditPurchase = ({
 
 
                                 var iData = {
-                                    quantity: res.data.quantity + (quantityDiff),
-                                    showroom: res.data.showroom + (quantityDiff),
+                                    quantity: res.data.quantity + (quantityDiff * -1),
+                                    showroom: res.data.showroom + (quantityDiff * -1),
                                     averageprice: ap
                                 }
                                 console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
-                                userService.update(pdItemId, iData)
+                                itemService.update(pdItemId, iData)
                                     .then(res => {
                                         console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
                                     })
@@ -234,7 +234,7 @@ const EditPurchase = ({
                             })
 
                         // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
-                    }
+                   // }
 
                     ////////////////////////////////////////////////////////////
 

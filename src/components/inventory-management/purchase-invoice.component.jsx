@@ -110,7 +110,7 @@ const PurchaseInvoice = ({
         event.preventDefault();
         // check if same item is added twice 
         setInvoiceItem([...invoiceItem, [cItem[0].name, quantity, price, cItem[0].id]]);
-        var total = parseInt(price);
+        var total = parseFloat(price).toFixed(3);
         var qty = parseInt(quantity);
         // console.log(`outside map total=${total} && qty=${qty}`);
 
@@ -120,8 +120,8 @@ const PurchaseInvoice = ({
             setTotalInvoiceQuantity(parseInt(qty));
         } else {
 
-            setTotalInvoiceValue(parseInt(totalInvoiceValue) + (total * qty));
-            setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
+            setTotalInvoiceValue(parseFloat(totalInvoiceValue).toFixed(3) + (total * qty));
+            setTotalInvoiceQuantity(parseFloat(totalInvoiceQuantity) + qty);
         }
 
         // setTotalInvoiceQuantity(qty);
