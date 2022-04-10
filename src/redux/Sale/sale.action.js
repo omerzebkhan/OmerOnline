@@ -11,6 +11,26 @@ export const fetchSaleSuccess = saleMap => ({
     payload: saleMap
 });
 
+export const fetchSaleFailure = errorMessage => ({
+    type: SaleActionType.FETCH_SALE_FAILURE,
+    payload: errorMessage
+})
+
+export const fetchSaleSummaryStart = () => ({
+    type: SaleActionType.FETCH_SALESUMMARY_START
+});
+
+export const fetchSaleSummarySuccess = saleMap => ({
+    type: SaleActionType.FETCH_SALESUMMARY_SUCCESS,
+    payload: saleMap
+});
+
+export const fetchSaleSummaryFailure = errorMessage => ({
+    type: SaleActionType.FETCH_SALE_FAILURE,
+    payload: errorMessage
+})
+
+
 export const fetchSaleInvoiceDetail = saleMap => ({
     type: SaleActionType.FETCH_SALEINVOICEDETAIL_SUCCESS,
     payload: saleMap
@@ -26,10 +46,7 @@ export const fetchSaleARSuccess = saleMap => ({
     payload: saleMap
 })
 
-export const fetchSaleFailure = errorMessage => ({
-    type: SaleActionType.FETCH_SALE_FAILURE,
-    payload: errorMessage
-})
+
 
 export const setCurrentSale = sale => ({
     type: SaleActionType.SET_CURRENT_SALE,
@@ -108,6 +125,30 @@ export const fetchSaleByDate = (sDate, eDate, customerId) => {
                     dispatch(fetchSaleSuccess(saleMap));
                 })
                 .catch(error => dispatch(fetchSaleFailure(error.response.request.response.message)))
+                ;
+        }
+    }
+}
+
+export const fetchSaleByDateSummary = (sDate, eDate) => {
+    return dispatch => {
+        if (sDate !== "" && eDate !== "") {
+            var dateFormat = require('dateformat');
+            sDate = dateFormat(sDate, "yyyy-mm-dd");
+            eDate = dateFormat(eDate, "yyyy-mm-dd");
+            var myDate = new Date(eDate);
+            myDate.setDate(myDate.getDate() + 1);
+            myDate = dateFormat(myDate, "yyyy-mm-dd");
+            eDate = myDate;
+
+
+            dispatch(fetchSaleSummaryStart());
+            inventoryService.getAllSaleByDateSummary(sDate, eDate)
+                .then(response => {
+                    const saleMap = response.data;
+                    dispatch(fetchSaleSummarySuccess(saleMap));
+                })
+                .catch(error => dispatch(fetchSaleSummaryFailure(error.response.request.response.message)))
                 ;
         }
     }

@@ -153,7 +153,7 @@ class PurchaseReport extends React.Component {
                                             <td>{item.items.name}</td>
                                             <td>{item.price}</td>
                                             <td>{item.quantity}</td>
-                                            <td>{item.costPrice}</td>
+                                            
                                             
                                         </tr>
                                     ))

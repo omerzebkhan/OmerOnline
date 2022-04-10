@@ -190,36 +190,29 @@ const InvoiceTableHeader = () => (
   <View style={styles.container}>
     <Text style={styles.description}>Item Description</Text>
     <Text style={styles.qty}>Qty</Text>
-    <Text style={styles.rate}>@</Text>
-    <Text style={styles.amount}>Amount</Text>
   </View>
 );
 
-const InvoiceTableRow = ({items,customer,invoiceNo,date}) => {
+const InvoiceTableRow = ({items,sDate,eDate}) => {
   const rows = items.map((item, index) => {
     if (index === 26)
     {
       return <View >
       <View> 
-      <InvoiceNo invoiceNo={invoiceNo} date={date} /> 
-      <BillTo customer={customer} />
+      <InvoiceNo sDate={sDate} eDate={eDate} /> 
       <InvoiceTableHeader />
       </View>
       <View style={styles.row} key={index}>
-      <Text style={styles.R_description}>{item.items.name}</Text>
-      <Text style={styles.R_qty}>{item.quantity}</Text>
-      <Text style={styles.R_rate}>{item.price}</Text>
-      <Text style={styles.R_amount}>{(item.quantity * item.price).toFixed(2)}</Text>
+      <Text style={styles.R_description}>{item.name}</Text>
+      <Text style={styles.R_qty}>{item.sum}</Text>
       </View>
     </View>;
     }
     else
     {
       return <View style={styles.row} key={index}>
-      <Text style={styles.R_description}>{item.items.name}</Text>
-      <Text style={styles.R_qty}>{item.quantity}</Text>
-      <Text style={styles.R_rate}>{item.price}</Text>
-      <Text style={styles.R_amount}>{(item.quantity * item.price).toFixed(2)}</Text>
+      <Text style={styles.R_description}>{item.name}</Text>
+      <Text style={styles.R_qty}>{item.sum}</Text>
     </View>;
     }
     
@@ -234,37 +227,16 @@ const InvoiceTitle = ({ title }) => (
   </View>
 );
 
-const BillTo = ({ customer }) => {
-  // const rows = customer.map((item, index) => {
-  //   return <View style={styles.headerContainer} key={index}>
-  //       <Text style={styles.billTo}>Bill To:</Text>  
-  //       <Text style={styles.R_description}>{item.name}</Text>
 
 
-  const rows = <View style={styles.headerContainer} key={1}>
-    <Text style={styles.billTo}>Bill To:</Text>
-    <Text style={styles.R_BillTo}>{customer.name}</Text>
-    <Text style={styles.R_BillTo}>{customer.address}</Text>
-
-  </View>;
-
-
-  return (<Fragment>{rows}</Fragment>)
-
-
-};
-
-const InvoiceNo = ({ invoiceNo, date }) => (
+const InvoiceNo = ({sDate, eDate }) => (
   <Fragment>
     <View style={styles.invoiceNoContainer}>
-      <Text style={styles.label}>Invoice No:{invoiceNo}</Text>
-      <Text style={styles.invoiceDate}>Date:{date}</Text>
+      <Text style={styles.label}>Start Date:{sDate}</Text>
+      <Text style={styles.invoiceDate}>End Date:{eDate}</Text>
 
     </View >  
-    {/* <View style={styles.invoiceDateContainer}>
-      <Text >Date: </Text>
-      <Text >{date}</Text>
-    </View > */}
+    
   </Fragment>
 );
 const InvoiceThankYouMsg = () => (
@@ -274,39 +246,34 @@ const InvoiceThankYouMsg = () => (
 );
 
 const InvoiceTableFooter = ({ items }) => {
-  var total = 0.00;
   var totalQty = 0.00;
   items.map((item, index) => {
     //console.log(index)
-    totalQty = parseFloat(totalQty) + parseFloat(item.quantity);
-    total = parseFloat(total) + parseFloat(item.quantity * item.price);
-    //console.log(total)                    
-    //date = item.dt;
+    totalQty = parseFloat(totalQty) + parseFloat(item.sum);
     return "";
   })
   return (
     <View style={styles.tf_row}>
       <Text style={styles.tf_description}>TOTAL</Text>
       <Text style={styles.tf_qty}>{parseFloat(totalQty)}</Text>
-      <Text style={styles.tf_rate}> </Text>
-      <Text style={styles.tf_total}>{Number.parseFloat(total).toFixed(2)}</Text>
+
     </View>
   )
 };
 
-const MyDoc = ({ data, invoiceNo, date, customer }) => (
+const MyDoc = ({ data, sDate, eDate}) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <View>
         {/* <Image style={styles.logo} src={logo} /> */}
-        <InvoiceTitle title='Sale Invoice' />
+        <InvoiceTitle title='Summary Invoice' />
         <InvoiceTitle title='N & M Traders' />
-        <InvoiceNo invoiceNo={invoiceNo} date={date} />
-        <BillTo customer={customer} />
+        <InvoiceNo sDate={sDate} eDate={eDate} />
         <InvoiceTableHeader />
-        <InvoiceTableRow items={data} customer={customer} invoiceNo={invoiceNo} date={date} />
+        {/* to print on next page */}
+        <InvoiceTableRow items={data}  sDate={sDate} eDate={eDate} />  
         {/* check if the length of data is more than the paga then add header again */}
-        <InvoiceTableFooter items={data} />
+        {<InvoiceTableFooter items={data} /> }
         <InvoiceThankYouMsg />
       </View>
 
@@ -315,46 +282,31 @@ const MyDoc = ({ data, invoiceNo, date, customer }) => (
 );
 
 
-const PrintInvoice = ({ invoice, customer }) => {
+const PrintSaleSummary = ({data,sDate,eDate}) => {
   console.log(`Print invoice is called called..
-    customer name = ${customer.name}`);
-  var invoiceNo = "";
-  // var customerName= "";
-  var date = "";
-  invoice.map((item, index) => {
-    console.log('')
-
-    invoiceNo = item.saleInvoiceId;
-    date = item.createdAt;
-    return "";
-  })
-
-
-  //customerName = customer.name;                      
-  //date = item.dt;
-  //                                     console.log(`invoceNo=${invoiceNo}
-  // date=${date}
-  // customerName = ${customerName}
-  // `)
+    data = ${data}
+    start date = ${sDate}
+    end date = ${eDate}`);
+ 
   return (
     <div className="App">
 
       <PDFDownloadLink document={<MyDoc
-        data={invoice}
-        invoiceNo={invoiceNo}
-        date={date}
-        customer={customer}
+        data={data}
+        sDate={sDate}
+       eDate={eDate}
 
-      />} fileName={invoiceNo + ".pdf"} >
+      />} 
+      fileName={"SummaryInvoice.pdf"} >
         {/* fileName="somename.pdf">   */}
-        {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Sale Invoice Print')}
+        {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Summary Invoice Print')}
       </PDFDownloadLink>
     </div>
-  );
+ );
 }
 
 
 
 
 
-export default PrintInvoice;
+export default PrintSaleSummary;

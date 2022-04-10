@@ -59,10 +59,7 @@ const PurchaseInvoice = ({
         useEffect(() => {
             fetchUserStartAsync();
         }, [fetchUserStartAsync])
-    useEffect(() => {
-        //  console.log(qty);
-        //  console.log(qty.id);     
-    }, [qty]);
+   
 
     useEffect(() => {
         setMessage("");
@@ -113,15 +110,18 @@ const PurchaseInvoice = ({
         var total = parseFloat(price).toFixed(3);
         var qty = parseInt(quantity);
         // console.log(`outside map total=${total} && qty=${qty}`);
-
+        
         if (invoiceItem.length === 0) {
             console.log("no value in the invoice item")
             setTotalInvoiceValue(total * qty);
             setTotalInvoiceQuantity(parseInt(qty));
         } else {
 
-            setTotalInvoiceValue(parseFloat(totalInvoiceValue).toFixed(3) + (total * qty));
-            setTotalInvoiceQuantity(parseFloat(totalInvoiceQuantity) + qty);
+            // console.log(`total = ${total}
+            // qty =${qty}
+            // quantity = ${total*qty}`)
+            setTotalInvoiceValue(totalInvoiceValue + (total * qty));
+            setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
         }
 
         // setTotalInvoiceQuantity(qty);
@@ -133,7 +133,7 @@ const PurchaseInvoice = ({
         const temp = [...invoiceItem];
         temp.splice(index, 1);
         setInvoiceItem(temp);
-        setTotalInvoiceValue(parseInt(totalInvoiceValue) - (parseInt(item[1] * parseInt(item[2]))));
+        setTotalInvoiceValue(parseFloat(totalInvoiceValue).toFixed(3) - (parseFloat(item[1].toFixed(3) * parseFloat(item[2]).toFixed(3))));
         setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) - parseInt(item[1]));
         setQuantity("");
         setPrice("");

@@ -5,19 +5,21 @@ import inventoryService from "../../services/inventory.service";
 import userService from "../../services/user.service";
 import itemService from "../../services/item.services";
 import { fetchItemStartAsync } from '../../redux/item/item.action';
-import { fetchSaleByDate, fetchSaleInvoiceDetailAsync } from '../../redux/Sale/sale.action';
+import { fetchSaleByDate, fetchSaleInvoiceDetailAsync,fetchSaleByDateSummary } from '../../redux/Sale/sale.action';
 import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
-import PdfInvoice from "./printInvoice"
+import PdfInvoice from "./printInvoice";
+import PrintSaleSummary from './printSaleSummary';
 
 const SaleReport = ({
     fetchUserStartAsync, userData,
     fetchItemStartAsync, itemData,
-    fetchSaleByDate,
-    fetchSaleInvoiceDetailAsync, fetchUserByInputAsync,
+    fetchSaleByDate,saleData,
+    fetchSaleInvoiceDetailAsync,saleInvoiceDetailData,
+     fetchUserByInputAsync,user,
     currentUser,
-    saleData, saleInvoiceDetailData, user
+    fetchSaleByDateSummary,saleSummary
 }) => {
 
     const [startDate, setStartDate] = useState(new Date());
@@ -59,6 +61,7 @@ const SaleReport = ({
         else {
             fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0");
         }
+        fetchSaleByDateSummary(startDate.toDateString(), endDate.toDateString());
 
     }
 
@@ -251,6 +254,12 @@ const SaleReport = ({
                 </div>
             </form>
 
+            {saleSummary?        
+            <PrintSaleSummary data={saleSummary} sDate={startDate.toDateString()} eDate={endDate.toDateString()} />
+            :
+            ""
+            }
+
             { saleData ?
                 <div>
                     <h3>Sale View</h3>
@@ -276,7 +285,7 @@ const SaleReport = ({
                                         <td>{item.name}</td>
                                         <td>{item.totalitems}</td>
                                         <td>{item.invoicevalue}</td>
-                                        <td>{item.profit}</td>
+                                        <td>{parseFloat(item.profit).toFixed(3)}</td>
                                         <td>{item.date}</td>
 
                                     </tr>
@@ -339,12 +348,14 @@ const mapStateToProps = state => ({
     itemData: state.item.items,
     user: state.user.users,
     saleData: state.sale.sale,
+    saleSummary : state.sale.saleSummary,
     saleInvoiceDetailData: state.sale.saleInvoiceDetail,
     userData: state.user.users
 })
 
 const mapDispatchToProps = dispatch => ({
     fetchSaleByDate: (sDate, eDate, id) => dispatch(fetchSaleByDate(sDate, eDate, id)),
+    fetchSaleByDateSummary :(sDate,eDate) => dispatch(fetchSaleByDateSummary(sDate, eDate)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
     fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
