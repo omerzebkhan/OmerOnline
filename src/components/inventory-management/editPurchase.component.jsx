@@ -393,8 +393,8 @@ const EditPurchase = ({
                                 console.log(`invoice quantity = ${parseInt(item[2])} `)
                                 // update quantity and showroom  of item
                                 var itemUpdated = {
-                                    quantity: parseInt(quantity) - parseInt(item[2]),
-                                    showroom: parseInt(showroom) - parseInt(item[2]),
+                                    quantity: parseInt(quantity) + parseInt(item[2]),
+                                    showroom: parseInt(showroom) + parseInt(item[2]),
                                     averageprice: ap
 
                                 }
