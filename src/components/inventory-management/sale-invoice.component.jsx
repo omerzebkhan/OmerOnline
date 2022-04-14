@@ -31,6 +31,7 @@ const SaleInvoice = ({
     const [reload,setReload] = useState("False");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [lastPrice,setLastPrice] = useState([])
 
     const [cItem, setcItem] = useState([]);
     const [itemInput, setItemInput] = useState("");
@@ -362,7 +363,23 @@ const SaleInvoice = ({
         setcItem(selectedItem);
         setPrice(selectedItem[0].showroomprice)
 
-        // console.log(cItem[0].name)
+        ///Query and get last 2 prices of the item from the DB
+      if (cCustomer.length ===0)
+      {
+          alert("Select customer first");
+      }
+      else{
+       // console.log(`itemId = ${cItem[0].id}
+       // customer id = ${cCustomer[0].id}`)
+        console.log(selectedItem)
+        console.log(selectedItem)
+
+        inventoryService.getSaleByLatestDate(selectedItem[0].id,cCustomer[0].id)
+        .then(response2 => {console.log(response2); setLastPrice(response2.data)})
+        .catch(e => {console.log(`catch of update Stock ${e} error from server  ${e.message}`);
+            })    
+   
+      }
     };
     let optionListItem;
     if (showOptionsItem && itemInput) {
@@ -754,6 +771,37 @@ const SaleInvoice = ({
                         </div>
                         <div>
                             <button className="btn btn-primary" type="button" onClick={submitInvoceHandler}>Submit Invoice</button>
+                        </div>
+                        <div>
+                            {lastPrice.length >0 ?
+                            <div>
+                                 <table border="1">
+                                <thead>
+                                    <tr>
+                                        <th>Item Name</th>
+                                        <th>Price</th>
+                                        <th>Date</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        lastPrice.map((item, index) => {
+                                            return (
+                                            <tr key={index}>
+                                                <td>{item.name}</td>
+                                                <td>{item.price}</td>
+                                                <td>{item.createdAt}</td>
+                                                
+                                            </tr>
+                                            )})
+                                            }
+                                      
+                                      
+                                </tbody>
+                            </table>
+                            </div>    :
+                            ""}
                         </div>
 
                         <div>

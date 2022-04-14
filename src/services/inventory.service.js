@@ -123,6 +123,11 @@ class inventoryDataService {
      return http.get(`/saleByDateSummary/${sDate}/${eDate}`);
    }
 
+   getSaleByLatestDate(itemId,customerId) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/saleByLatestDate/${itemId}/${customerId}`);
+   }
+
 
   getAllSaleByCustId(id) {
     return http.get(`/saleByCustId/${id}`);
