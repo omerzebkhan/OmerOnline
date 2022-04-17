@@ -108,6 +108,9 @@ const AddItem = ({
     }
 
     const upload = (id) => {
+        console.log('upload file is triggered')
+        console.log(selectedFiles)
+        if (selectedFiles){
         let currentFile = selectedFiles[0];
         //console.log(`image itemid = ${id}`)
         setProgress(0);
@@ -153,8 +156,9 @@ const AddItem = ({
                 //setMessage(response.data.message);
                // setCurrentFile(undefined);
             });
-
+           
         setSelectedFiles(undefined);
+        }
     };
 
     const saveItem = () => {
@@ -213,7 +217,7 @@ const AddItem = ({
             subCategoryId: selSubCat,
         };
 
-        itemService.update(data)
+        itemService.update(selectedItem.id,data)
             .then(response => {
                 
                 setMessage(`Item successfully Updated`);

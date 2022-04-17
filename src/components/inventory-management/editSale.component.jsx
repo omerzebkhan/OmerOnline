@@ -181,7 +181,7 @@ const EditSale = ({
                     }
                     console.log(`
                 Price Diff = ${sdOldPrice} - ${sdPrice} =  ${priceDiff}
-                Quanity Diff = ${sdOldQuantity} - ${sdQuantity} = ${quantityDiff} = ${quantityDiff * -1}
+                Quanity Diff = ${sdOldQuantity} - ${sdQuantity} = ${quantityDiff} = ${quantityDiff}
                 Amount Diff = ${amountDiff * -1}
                 `)
 
@@ -193,10 +193,12 @@ const EditSale = ({
                         itemService.get(sdItemId)
                             .then(res => {
                                 var iData = {
-                                    quantity: res.data.quantity + (quantityDiff* -1),
-                                    showroom: res.data.showroom + (quantityDiff* -1)
+                                    quantity: res.data.quantity + (quantityDiff),
+                                    showroom: res.data.showroom + (quantityDiff)
                                 }
-                                console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
+                                console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......
+                                 quantity update value = ${iData.quantity}
+                                `);
                                 itemService.update(sdItemId, iData)
                                     .then(res => {
                                         console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
