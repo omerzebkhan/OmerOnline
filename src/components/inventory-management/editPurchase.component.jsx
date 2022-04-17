@@ -214,8 +214,8 @@ const EditPurchase = ({
 
 
                                 var iData = {
-                                    quantity: res.data.quantity + (quantityDiff * -1),
-                                    showroom: res.data.showroom + (quantityDiff * -1),
+                                    quantity: res.data.quantity - (quantityDiff ),
+                                    showroom: res.data.showroom - (quantityDiff ),
                                     averageprice: ap
                                 }
                                 console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
