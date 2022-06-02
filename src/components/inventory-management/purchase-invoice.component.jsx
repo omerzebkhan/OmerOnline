@@ -198,7 +198,7 @@ const PurchaseInvoice = ({
                                     `);
                                     //average price calculation
                                     var ap = 0;
-                                    if (averageprice === 0) {
+                                    if (averageprice === 0  || quantity ===0) {
                                         ap = item[2];
                                     } else {
                                         //console.log(`(${parseInt(averageprice)}+${parseInt(item[2])})/2`);
