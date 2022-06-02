@@ -27,6 +27,11 @@ const SaleReport = ({
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
 
+    const [totalSaleRecord,setTotalSaleRecord] = useState([0]);
+    const [totalSaleItem,setTotalSaleItem] = useState(0);
+    const [totalSaleInvVal,setTotalSaleInvVal] = useState(0);
+    const [totalSaleProfit,setTotalSaleProfit] = useState(0);
+
 
 
     const [cCustomer, setcCustomer] = useState([]);
@@ -41,6 +46,23 @@ const SaleReport = ({
     }, [fetchUserStartAsync])
 
   
+    useEffect(() => {
+        if (saleData){ 
+        var sumQuantity = 0
+        var sumRecord = 1
+        var sumInvValue = 0
+        var sumProfit =0
+        saleData.map((item, index) =>{
+            sumQuantity = sumQuantity + parseInt(item.totalitems)
+            setTotalSaleItem(sumQuantity)
+            sumRecord = index + 1
+            setTotalSaleRecord(sumRecord)
+            sumInvValue = sumInvValue + (item.invoicevalue)
+            setTotalSaleInvVal(parseFloat(sumInvValue).toFixed(3))
+            sumProfit = sumProfit + (item.profit)
+            setTotalSaleProfit(parseFloat(sumProfit).toFixed(3))
+        })}
+    }, [saleData])
 
 
 
@@ -261,7 +283,18 @@ const SaleReport = ({
             }
 
             { saleData ?
-                <div>
+               <div>
+                   <div>
+                    <div className="inputFormHeader"><h2>Summary Sale Data</h2></div>
+                    <div className="inputForm">
+                    <div>Total Records = {totalSaleRecord}</div>    
+                    <div>Total Item = {totalSaleItem}</div>
+                    <div>Total Invoice Value = {totalSaleInvVal}</div>
+                    <div>Total profit = {totalSaleProfit} </div>
+                    </div>
+                </div>
+               <div>
+                    
                     <h3>Sale View</h3>
                     <table border='1'>
                         <thead>
@@ -293,6 +326,7 @@ const SaleReport = ({
                             }
                         </tbody>
                     </table>
+                </div>
                 </div>
                 :
                 ""
