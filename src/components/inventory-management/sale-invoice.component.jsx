@@ -76,7 +76,7 @@ const SaleInvoice = ({
     const handleChange = event => {
         //console.log(event);
         if (event.target.id === "Quantity") {
-            console.log(event)
+            //console.log(event)
             setQuantity(event.target.value);
         }
         else if (event.target.id === "Price") {
@@ -129,7 +129,7 @@ const SaleInvoice = ({
             if(item[0] === editRow[0] ){
                 var total = parseFloat(item[3]);  // price 
                 var qty = event.target.value - item[2];  //Qty  ??
-                var cost = parseFloat(item[4]) ;
+                var cost = parseFloat(item[4]).toFixed(3) ;
                 console.log(`Change in quantity = ${qty}
                 cost = ${item[5]} / ${item[2]}`);
                 
@@ -137,9 +137,6 @@ const SaleInvoice = ({
                 setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
                 setTotalInvoiceCost(parseFloat(totalInvoiceCost) + (cost * qty));
                 setTotalInvoiceProfit(parseFloat(totalInvoiceProfit) + (total * qty) - (cost * qty));
-
-
-
 
 
                invoiceItem[index][2] = event.target.value;
@@ -173,25 +170,26 @@ const SaleInvoice = ({
         // } 
         // else {
             setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
-            var total = parseInt(price);
+            var total = parseFloat(price).toFixed(3);
             var qty = parseInt(quantity);
-            var cost = parseInt(cItem[0].averageprice);
+            var cost = parseFloat(cItem[0].averageprice).toFixed(3);
 
-            // console.log(`outside map total=${total} && qty=${qty}`);
+            //console.log(`cost=${cItem[0].averageprice} && qty=${qty} = ${cost*qty}`);
 
             if (invoiceItem.length === 0) {
               //  console.log("no value in the invoice item")
                 setTotalInvoiceValue(total * qty);
                 setTotalInvoiceQuantity(parseInt(qty));
-                setTotalInvoiceCost(parseFloat(cost) * parseInt(qty));
+                setTotalInvoiceCost(cost * parseInt(qty));
+               // setTotalInvoiceCost(cost * qty);
                 setTotalInvoiceProfit((price * quantity) - (cItem[0].averageprice * quantity));
 
             } else {
 
                 setTotalInvoiceValue(parseInt(totalInvoiceValue) + (total * qty));
                 setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
-                setTotalInvoiceCost(parseFloat(totalInvoiceCost) + (cost * qty));
-                setTotalInvoiceProfit(parseInt(totalInvoiceProfit) + (price * quantity) - (cItem[0].averageprice * quantity));
+                setTotalInvoiceCost(totalInvoiceCost + (cost * qty));
+                setTotalInvoiceProfit(totalInvoiceProfit + ((price * quantity) - (cItem[0].averageprice * quantity)));
 
             //}
         }
@@ -791,8 +789,7 @@ const SaleInvoice = ({
                                             <tr key={index}>
                                                 <td>{item.name}</td>
                                                 <td>{item.price}</td>
-                                                <td>{item.createdAt}</td>
-                                                
+                                                <td>{item.createdAt}</td>   
                                             </tr>
                                             )})
                                             }
@@ -822,8 +819,7 @@ const SaleInvoice = ({
                                     {invoiceItem.length > 0 || reload !== 'False' ? (
                                         invoiceItem.map((item, index) => {
                                             console.log(editRow)
-                                            return (<tr key={index}  onClick={() => selectRow(item)}
-                                                >
+                                            return (<tr key={index}  onClick={() => selectRow(item)}>
                                                 <td>{index + 1}</td>
                                                 <td>{item[0]}</td>
                                                 <td>{item[1]}</td>
@@ -833,7 +829,7 @@ const SaleInvoice = ({
                                                 <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
                                                 <td>{((parseFloat(item[3]) * parseFloat(item[2])) - (parseFloat(item[4]) * parseFloat(item[2]))).toFixed(3)}</td>
                                                 <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>
-                                                {((parseFloat(item[3]) * parseFloat(item[2])) - (parseFloat(item[4]) * parseFloat(item[2]))).toFixed(3) <=0 ? <td style={{'background-color':"#FF0000"}}>Low Price</td> : ""}
+                                                {((parseFloat(item[3])*parseFloat(item[2]))-(parseFloat(item[4])*parseFloat(item[2]))).toFixed(3)<=0?<td style={{'background-color':"#FF0000"}}>Low Price</td>:<td></td>}
                                             </tr>
                                             )
                                         })

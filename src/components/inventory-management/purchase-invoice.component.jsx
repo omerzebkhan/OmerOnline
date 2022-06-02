@@ -133,7 +133,7 @@ const PurchaseInvoice = ({
         const temp = [...invoiceItem];
         temp.splice(index, 1);
         setInvoiceItem(temp);
-        setTotalInvoiceValue(parseFloat(totalInvoiceValue).toFixed(3) - (parseFloat(item[1].toFixed(3) * parseFloat(item[2]).toFixed(3))));
+        setTotalInvoiceValue(parseFloat(totalInvoiceValue).toFixed(3) - (parseFloat(item[1]).toFixed(3) * parseFloat(item[2]).toFixed(3)));
         setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) - parseInt(item[1]));
         setQuantity("");
         setPrice("");
@@ -543,7 +543,7 @@ const PurchaseInvoice = ({
                                 Total Quantity= {totalInvoiceQuantity}
                             </div>
                             <div className="col-sm-3">
-                                Total Price = {totalInvoiceValue}
+                                Total Price = {parseFloat(totalInvoiceValue).toFixed(3)}
                             </div>
                             <div className="col-sm-1">
                                 <button className="btn btn-primary" type="submit">Add Item</button>
@@ -574,7 +574,7 @@ const PurchaseInvoice = ({
                                                 <td>{item[0]}</td>
                                                 <td>{item[1]}</td>
                                                 <td>{item[2]}</td>
-                                                <td>{item[2] * item[1]}</td>
+                                                <td>{parseFloat(item[2] * item[1]).toFixed(3)}</td>
                                                 <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>
                                             </tr>
                                             )

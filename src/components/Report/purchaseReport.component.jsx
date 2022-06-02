@@ -5,12 +5,14 @@ import { fetchPurchaseByDate,fetchPurchaseInvoiceDetailAsync } from '../../redux
 import { fetchUserByInputAsync } from '../../redux/user/user.action';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import PdfInvoice from "./printPurchaseInvoice";
 
 class PurchaseReport extends React.Component {
 
     constructor (props) {
         super(props)
         this.state = {
+          user :{},
           startDate: new Date(),
           endDate: new Date()
         };
@@ -46,6 +48,10 @@ class PurchaseReport extends React.Component {
       console.log(item.id);
 
       console.log(`customer id = ${item.supplierId}`)
+      this.setState({user:
+        {name:item.suppliers.name,
+        address:item.suppliers.address
+        }})
       // const { fetchUserByInputAsync } = this.props;
       this.props.fetchUserByInputAsync(item.supplierId);
 
@@ -151,7 +157,7 @@ class PurchaseReport extends React.Component {
                                             <td>{item.createdAt}</td>
                                             <td>{item.purchaseInvoiceId}</td>
                                             <td>{item.items.name}</td>
-                                            <td>{item.price}</td>
+                                            <td>{parseFloat(item.price).toFixed(3)}</td>
                                             <td>{item.quantity}</td>
                                             
                                             
@@ -160,7 +166,7 @@ class PurchaseReport extends React.Component {
                                 }
                             </tbody>
                         </table>
-                        {/* <PdfInvoice invoice={this.props.saleInvoiceDetailData} customer={this.props.user} /> */}
+                        <PdfInvoice invoice={this.props.purchaseInvoiceDetailData} customer={this.state.user} />
         </div>
           
           :

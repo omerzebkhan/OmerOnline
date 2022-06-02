@@ -35,6 +35,8 @@ const AddItem = ({
     const [showOptions, setShowOptions] = useState(false);
     const [userInput, setUserInput] = useState('');
     const [btnBrand, setBtnBrand] = useState("Show");
+    const [higherLimit,setHigherLimit] = useState(0);
+    const [lowerlimit,setLowerLimit] = useState(0);
 
     const [message, setMessage] = useState("");
     const [selectedFiles, setSelectedFiles] = useState(undefined);
@@ -179,7 +181,9 @@ const AddItem = ({
             onlineprice: 0,
             onlinediscount: 0,
             showroomprice: 0,
-            averageprice: 0
+            averageprice: 0,
+            higherlimit:higherLimit,
+            lowerlimit:lowerlimit
         };
 
         itemService.create(data)
@@ -293,6 +297,12 @@ const AddItem = ({
         }
         else if (event.target.id === "Description") {
             setDescription(event.target.value);
+        }
+        else if (event.target.id === "higherLimit") {
+            setHigherLimit(event.target.value);
+        }
+        else if (event.target.id === "lowerLimit") {
+            setLowerLimit(event.target.value);
         }
         else if (event.target.id === "Category") {
             const options = CategoryData;
@@ -419,6 +429,32 @@ const AddItem = ({
                                         value={userInput}
                                         onChange={handleChange}
                                         onKeyDown={onKeyDown}
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group row">
+                                <label className="col-sm-2 col-form-label" htmlFor="Higher limit" >Higher Limit</label>
+                                <div className="col-sm-10">
+                                    <input
+                                        type="text"
+                                        name="higherLimit"
+                                        id="higherLimit"
+                                        placeholder="Higher Limit"
+                                        value={higherLimit}
+                                        onChange={handleChange}         
+                                    />
+                                </div>
+                            </div>
+                            <div className="form-group row">
+                                <label className="col-sm-2 col-form-label" htmlFor="Lower limit" >Lower Limit</label>
+                                <div className="col-sm-10">
+                                    <input
+                                        type="text"
+                                        name="lowerLimit"
+                                        id="lowerLimit"
+                                        placeholder="lower Limit"
+                                        value={lowerlimit}
+                                        onChange={handleChange}         
                                     />
                                 </div>
                             </div>
