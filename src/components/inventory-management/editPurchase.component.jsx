@@ -61,6 +61,10 @@ const EditPurchase = ({
     }, [fetchUserStartAsync])
 
     useEffect(() => {
+        fetchItemStartAsync();
+    }, [fetchItemStartAsync])
+    
+    useEffect(() => {
         ////// load current invoice detail in Invoice Item from saleInvoiceDetailData
         //setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
         if (purchaseInvoiceDetailData) {

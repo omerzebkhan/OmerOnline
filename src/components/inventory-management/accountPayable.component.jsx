@@ -10,6 +10,7 @@ import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
 import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
 const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
     fetchPurchaseByInputStartAsync,
@@ -26,6 +27,8 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
     const [loading, setLoading] = useState(false);
     const [access,setAccess] = useState(false);
     const [totalOutStanding,setTotalOutStanding] = useState(0);
+    const [nameInput, setNameInput] = useState("");
+    const [filteredOptionsName, setFilteredOptionsName] = useState([]);
 
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
@@ -44,13 +47,15 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
        setPInvoice(purchaseInvoice);
     }, [purchaseInvoice])
 
+   
+
     useEffect(() => {
         var sumOutStanding = 0
         if(purchaseApData){
             purchaseApData.map((item, index) =>{
             sumOutStanding = sumOutStanding + item.purchaseOutstanding
             setTotalOutStanding(sumOutStanding)
-           
+            setFilteredOptionsName(purchaseApData)
         })
     }
     }, [purchaseApData])
@@ -70,6 +75,23 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
           setCashPayment(event.target.value);}
       else if(event.target.id === "bankPayment") {
             setBankPayment(event.target.value);}
+      else if (event.target.id === "Name") {
+                setNameInput(event.target.value);
+                if (event.target.value === "") {
+                    // //sort item data based on id 
+                    // function sortByDate(a, b) {
+                    //     return parseInt(a.id) - parseInt(b.id);
+                    // }
+                    // const sorted = itemData.sort(sortByDate);
+                    // setFilteredOptionsItem(sorted);
+                    setFilteredOptionsName(purchaseApData)
+
+                }
+                else {
+                    setFilteredOptionsName(purchaseApData.filter(
+                        (option) => option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
+                    ));
+                }  }    
       } 
       
       const getPaymentDetail = (invoiceId) =>{
@@ -189,8 +211,28 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
             {loading ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
             {isFetching ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
             {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-
-            {purchaseApData ?
+            <h1>Accounts Payable</h1>
+            <div>
+                            <div className="form-group">
+                    <label htmlFor="Name">Customer Name</label>
+                    <input
+                        type="text"
+                        name="Name"
+                        id="Name"
+                        placeholder="Customer Name"
+                        value={nameInput}
+                        onChange={handleChange} />
+                            </div>
+                            <div>  
+                                        <ReactHTMLTableToExcel  
+                                                className="btn btn-info"  
+                                                table="OutstandingSuppliers"  
+                                                filename="ReportExcel"  
+                                                sheet="Sheet"  
+                                                buttonText="Export excel" />  
+                                </div>  
+                            </div>
+            {filteredOptionsName ?
                         <div>
                              <div>
                                 <div className="inputFormHeader"><h2>Summary</h2></div>
@@ -199,8 +241,9 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                                     
                                 </div>
                             </div>
+                           
                             <h1>Outstanding Suppliers</h1>
-                            <table border="1">
+                            <table border="1" id="OutstandingSuppliers">
                                 <thead>
                                     <tr>
                                         
@@ -212,7 +255,7 @@ const AccountPayable = ({fetchPurInvPayDetial,purInvDetail,
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {purchaseApData.map((item, index) => {
+                                    {filteredOptionsName.map((item, index) => {
                                         //console.log(index)
                                         return (
                                             <tr key={index}  onClick={() => selectPurchaseInvoice(item)}>

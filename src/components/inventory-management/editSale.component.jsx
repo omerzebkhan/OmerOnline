@@ -60,6 +60,11 @@ const EditSale = ({
     }, [fetchUserStartAsync])
 
     useEffect(() => {
+        fetchItemStartAsync();
+    }, [fetchItemStartAsync])
+
+    
+    useEffect(() => {
         ////// load current invoice detail in Invoice Item from saleInvoiceDetailData
         //setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
         if (saleInvoiceDetailData) {
@@ -254,6 +259,11 @@ const EditSale = ({
                         inventoryService.deleteSaleDetail(sdId)
                             .then(response2 => {
                                 console.log(`sale details has been removed of ${sdId}`)
+
+                                //check if invoice item was the last item then i.e. invoiceItem length was on then 
+                                //remove sale invoice because there will not be any more sale details for it
+                                //invoiceItem  
+
 
                                 ////////////////////////////////// update invoce Detail outstanding,tatalitem,invoice value 
                                 // call new service to recalculate the invoice value of given invoice no

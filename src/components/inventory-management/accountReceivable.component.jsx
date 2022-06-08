@@ -11,6 +11,7 @@ import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
+import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
 const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     fetchSaleByInputStartAsync,
@@ -27,6 +28,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [loading, setLoading] = useState(false);
     const [access, setAccess] = useState(false);
     const [totalOutStanding,setTotalOutStanding] = useState(0);
+    const [nameInput, setNameInput] = useState("");
+    const [filteredOptionsName, setFilteredOptionsName] = useState([]);
 
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
@@ -47,7 +50,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         saleArData.map((item, index) =>{
             sumOutStanding = sumOutStanding + item.salesOutstanding
             setTotalOutStanding(sumOutStanding)
-           
+            setFilteredOptionsName(saleArData)
         })
     }
     }, [saleArData])
@@ -74,6 +77,23 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         else if (event.target.id === "bankPayment") {
             setBankPayment(event.target.value);
         }
+        else if (event.target.id === "Name") {
+            setNameInput(event.target.value);
+            if (event.target.value === "") {
+                // //sort item data based on id 
+                // function sortByDate(a, b) {
+                //     return parseInt(a.id) - parseInt(b.id);
+                // }
+                // const sorted = itemData.sort(sortByDate);
+                // setFilteredOptionsItem(sorted);
+                setFilteredOptionsName(saleArData)
+
+            }
+            else {
+                setFilteredOptionsName(saleArData.filter(
+                    (option) => option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
+                ));
+            }  }    
     }
 
     const updatHandler = () => {
@@ -201,8 +221,28 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         // fetchPurchaseByInputStartAsync(currentUser.id)
 
                         : ""}
-
-                    {saleArData ?
+                    <h1>Accounts Receivable</h1>
+            <div>
+                            <div className="form-group">
+                    <label htmlFor="Name">Customer Name</label>
+                    <input
+                        type="text"
+                        name="Name"
+                        id="Name"
+                        placeholder="Customer Name"
+                        value={nameInput}
+                        onChange={handleChange} />
+                            </div>
+                            <div>  
+                                        <ReactHTMLTableToExcel  
+                                                className="btn btn-info"  
+                                                table="OutstandingCustomer"  
+                                                filename="ReportExcel"  
+                                                sheet="Sheet"  
+                                                buttonText="Export excel" />  
+                                </div>  
+                            </div>
+                    {filteredOptionsName ?
                         <div>
                             <div>
                                 <div className="inputFormHeader"><h2>Summary</h2></div>
@@ -215,7 +255,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
 
                             <h1>Outstanding Customers</h1>
-                            <table border="1">
+                            <table border="1" id="OutstandingCustomer">
                                 <thead>
                                     <tr>
 
@@ -227,7 +267,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {saleArData.map((item, index) => {
+                                    {filteredOptionsName.map((item, index) => {
                                         //console.log(index)
                                         return (
                                             <tr key={index} onClick={() => selectSaleInvoice(item)}>
