@@ -1,99 +1,274 @@
-import React from 'react';
+import React,{ useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { fetchPurchaseByDate,fetchPurchaseInvoiceDetailAsync } from '../../redux/purchase/purchase.action';
-import { fetchUserByInputAsync } from '../../redux/user/user.action';
+import { fetchUserByInputAsync,fetchUserStartAsync} from '../../redux/user/user.action';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import PdfInvoice from "./printPurchaseInvoice";
 
-class PurchaseReport extends React.Component {
+//class PurchaseReport extends React.Component {
+const PurchaseReport = ({
+  fetchUserStartAsync, userData,
+    fetchItemStartAsync, itemData,
+    fetchPurchaseByDate,purchaseData,
+    fetchPurchaseInvoiceDetailAsync,purchaseInvoiceDetailData,
+     fetchUserByInputAsync,user
+}) =>{
 
-    constructor (props) {
-        super(props)
-        this.state = {
-          user :{},
-          startDate: new Date(),
-          endDate: new Date()
-        };
-        this.handleStartDTPicker = this.handleStartDTPicker.bind(this);
-        this.handleEndDTPicker = this.handleEndDTPicker.bind(this);
-      }
-    
-      handleStartDTPicker(date) {
-        this.setState({
-          startDate: date
-        })
-      }
+  const [startDate, setStartDate] = useState(new Date());
+    const [endDate, setEndDate] = useState(new Date());
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
+    const [supplier,setSupplier] = useState({});
 
-      handleEndDTPicker(date) {
-        this.setState({
-          endDate: date
-        })
-      }
+    const [totalSaleRecord,setTotalSaleRecord] = useState([0]);
+    const [totalSaleItem,setTotalSaleItem] = useState(0);
+    const [totalSaleInvVal,setTotalSaleInvVal] = useState(0);
+    const [totalSaleProfit,setTotalSaleProfit] = useState(0);
+
+    const [cCustomer, setcCustomer] = useState([]);
+    const [customerInput, setCustomerInput] = useState("");
+    const [activeOptionCustomer, setActiveOptionCustomer] = useState("");
+    const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
+    const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
+
+    useEffect(() => {
+      fetchUserStartAsync();
+  }, [fetchUserStartAsync])
+
+
+  useEffect(() => {
+    if (purchaseData){ 
+    var sumQuantity = 0
+    var sumRecord = 1
+    var sumInvValue = 0
+    var sumProfit =0
+    purchaseData.map((item, index) =>{
+        sumQuantity = sumQuantity + parseInt(item.totalitems)
+        setTotalSaleItem(sumQuantity)
+        sumRecord = index + 1
+        setTotalSaleRecord(sumRecord)
+        sumInvValue = sumInvValue + (item.invoicevalue)
+        setTotalSaleInvVal(parseFloat(sumInvValue).toFixed(3))
+        sumProfit = sumProfit + (item.profit)
+        setTotalSaleProfit(parseFloat(sumProfit).toFixed(3))
+    })}
+}, [purchaseData])
+
+
+        
+    const handleStartDTPicker = (date) => { setStartDate(date); }
+
+  const handleEndDTPicker = (date) => { setEndDate(date);  }
     
-    handleSubmit = event => {
+  const  handleSubmit = event => {
         event.preventDefault();
         // console.log("submit handler of searchBrand ");
         // console.log(
         //     `start date = ${this.state.startDate.toDateString()}
         //     end date = ${this.state.endDate.toDateString()}
         // `);
-        const { fetchPurchaseByDate } = this.props;
-        fetchPurchaseByDate(this.state.startDate.toDateString(),this.state.endDate.toDateString());
+        // const { fetchPurchaseByDate } = this.props;
+        // fetchPurchaseByDate(this.state.startDate.toDateString(),this.state.endDate.toDateString());
+        event.preventDefault();
+        //console.log(cCustomer.length)
+        if (cCustomer.length > 0) {
+            console.log(cCustomer[0].id)
+            fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
+        }
+        else {
+            fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), "0");
+        }
+        //fetchPurchaseByDateSummary(startDate.toDateString(), endDate.toDateString());
     }
 
-    selectInvoice = (item) => {
+  const  selectInvoice = (item) => {
       console.log("Select Invoice clicked");
       console.log(item.id);
 
       console.log(`customer id = ${item.supplierId}`)
-      this.setState({user:
-        {name:item.suppliers.name,
-        address:item.suppliers.address
-        }})
+      setSupplier({name:item.suppliers.name,
+          address:item.suppliers.address
+          })
       // const { fetchUserByInputAsync } = this.props;
-      this.props.fetchUserByInputAsync(item.supplierId);
+      //this.props.fetchUserByInputAsync(item.supplierId);
 
-      this.props.fetchPurchaseInvoiceDetailAsync(item.id);
+      fetchPurchaseInvoiceDetailAsync(item.id);
   }
 
-    render() {
+
+  const handleChange = event => {
+    //console.log(event);
+   if (event.target.id === "customerSearch") {
+        console.log(`customer input=${customerInput} ${event.target.value}`)
+        if (userData.user) {
+            setFilteredOptionsCustomer(userData.user.filter(
+                // console.log(userData[0].name)
+                (option) =>
+                    option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "SUPPLIER"
+                //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
+            ));
+            setActiveOptionCustomer(0);
+            setShowOptionsCustomer(true);
+            //setCustomerInput(customerInput);
+            setCustomerInput(event.target.value);
+        }
+        else { setMessage(`No data for customer search...`) }
+    }
+}
+
+   //////////////////////////////////////////////////////////////////////
+    /////////////////////////// Drop down logic for Customer 
+    const onKeyDownCustomer = (e) => {
+      //console.log("On change is fired")
+      // const { activeOption, filteredOptions } = this.props;
+      if (e.keyCode === 13) {
+          setActiveOptionCustomer(0);
+          setShowOptionsCustomer(false);
+          setCustomerInput(filteredOptionsCustomer[activeOptionCustomer]);
+      } else if (e.keyCode === 38) {
+          if (activeOptionCustomer === 0) {
+              //setcCustomer([]);
+              return;
+          }
+          setActiveOptionCustomer(activeOptionCustomer - 1)
+      } else if (e.keyCode === 40) {
+          if (activeOptionCustomer - 1 === filteredOptionsCustomer.length) {
+              //setcCustomer([]);
+              return;
+          }
+          setActiveOptionCustomer(activeOptionCustomer + 1)
+      }
+  };
+  const onClickCustomer = (e) => {
+      setActiveOptionCustomer(0);
+      setFilteredOptionsCustomer([]);
+      setShowOptionsCustomer(false);
+
+      console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
+      console.log(`user data${userData.user[0].id}`);
+      const selectedCustomer = userData.user.filter(
+          (option) => option.id == e.currentTarget.dataset.id
+      );
+
+      setCustomerInput(selectedCustomer[0].name);
+      setcCustomer(selectedCustomer);
+
+      // console.log(cItem[0].name)
+  };
+  let optionListCustomer;
+  if (showOptionsCustomer && customerInput) {
+      console.log(filteredOptionsCustomer);
+      console.log(filteredOptionsCustomer.length)
+      if (filteredOptionsCustomer.length) {
+          optionListCustomer = (
+              <ul className="options">
+                  {filteredOptionsCustomer.map((optionName, index) => {
+                      let className;
+                      if (index === activeOptionCustomer) {
+                          className = 'option-active';
+                      }
+                      return (
+                          <li key={optionName.id} className={className} data-id={optionName.id} onClick={onClickCustomer}>
+                              <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
+                                  <thead>
+                                      <tr>
+                                          <th className="th-sm">Name</th>
+                                          <th>Address</th>
+                                      </tr>
+                                  </thead>
+                                  <tbody>
+                                      <tr>
+                                          <td>{optionName.name}</td>
+                                          <td>{optionName.address}</td>
+                                      </tr>
+                                  </tbody>
+                              </table>
+
+                          </li>
+                      );
+                  })}
+              </ul>
+          );
+      } else {
+          optionListCustomer = (
+              <div className="no-options">
+                  <em>No Option!</em>
+              </div>
+          );
+      }
+  }
+
+
+  //////////////////////////////////////////////////////////////////////
+
+
+
+    
         return (
             <div className="submit-form container">
 
                 <h1>Purchase Report</h1>
-                <form onSubmit={this.handleSubmit}>
+                <form onSubmit={handleSubmit}>
                   
                     <div>
                     Start Date    
                     {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                    <DatePicker
-                      id = "datePicker" 
-                      selected={ this.state.startDate }
-                      onChange={ this.handleStartDTPicker }
-                      name="startDate"
-                      dateFormat="MM/dd/yyyy"
-                    />
+                    <DatePicker id = "datePicker" selected={startDate} onChange={handleStartDTPicker}
+                      name="startDate" dateFormat="MM/dd/yyyy"/>
                     </div>
                     <div>
                     End Date    
                     {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                    <DatePicker
-                      id = "datePicker" 
-                      selected={ this.state.endDate }
-                      onChange={ this.handleEndDTPicker }
-                      name="startDate"
-                      dateFormat="MM/dd/yyyy"
-                    />
+                    <DatePicker id = "datePicker" selected={endDate} onChange={handleEndDTPicker }
+                      name="startDate" dateFormat="MM/dd/yyyy" />
                     </div>
+                    <div className="form-group row">
+
+                    <div className="col-sm-2">
+                        <label className="col-form-label" htmlFor="Item">Customer Name</label>
+                    </div>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="customerSearch"
+                            id="customerSearch"
+                            placeholder="Select Customer"
+                            value={customerInput}
+                            onChange={handleChange}
+                            onKeyDown={onKeyDownCustomer}
+                        />
+
+                    </div>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="Customer"
+                            id="Customer"
+                            placeholder="Customer Id"
+                            value={cCustomer[0] ? cCustomer[0].id : ""}
+                            disabled />
+                    </div>
+                    <div className="col-sm-2">
+                        <input
+                            type="text"
+                            name="Customer Address"
+                            id="customerAddress"
+                            placeholder="Address"
+                            value={cCustomer[0] ? cCustomer[0].address : ""}
+                            disabled />
+                    </div>
+                    {optionListCustomer}
+
+
+                </div>
                     <div >
                         <button className="btn btn-success" type="submit" >Search</button>
-
                     </div>
                 </form>
 
-                { this.props.purchaseData ?
+                {purchaseData ?
                     <div>
                         <h3>purchase View</h3>
                         <table border='1'>
@@ -110,10 +285,10 @@ class PurchaseReport extends React.Component {
                             </thead>
                             <tbody>
                             {
-                                this.props.purchaseData.map((item, index) => (
+                                purchaseData.map((item, index) => (
                                         //   console.log(item);
                                         <tr key={index}
-                                        onClick={() => this.selectInvoice(item)}
+                                        onClick={() => selectInvoice(item)}
                                         >
                                             <td>{item.reffInvoice}</td>
                                             <td>{item.id}</td>
@@ -130,7 +305,7 @@ class PurchaseReport extends React.Component {
            :
            ""
            }
-           {this.props.purchaseInvoiceDetailData ?
+           {purchaseInvoiceDetailData ?
                     <div>
                         <h3>Purchase Invoice Detail View</h3>
                         <table id='returnTBL' border='1'>
@@ -142,13 +317,11 @@ class PurchaseReport extends React.Component {
                                     <th>Purchase Id</th>
                                     <th>Item Name</th>
                                     <th>Price</th>
-                                    <th>Quantity</th>
-                                  
+                                    <th>Quantity</th>                      
                                 </tr>
                             </thead>
                             <tbody>
-                                {
-                                    this.props.purchaseInvoiceDetailData.map((item, index) => (
+                                {purchaseInvoiceDetailData.map((item, index) => (
                                         //   console.log(item);
                                         <tr key={index}
                                         // onClick={() => this.selectInvoice(item)}
@@ -158,15 +331,13 @@ class PurchaseReport extends React.Component {
                                             <td>{item.purchaseInvoiceId}</td>
                                             <td>{item.items.name}</td>
                                             <td>{parseFloat(item.price).toFixed(3)}</td>
-                                            <td>{item.quantity}</td>
-                                            
-                                            
+                                            <td>{item.quantity}</td>           
                                         </tr>
                                     ))
                                 }
                             </tbody>
                         </table>
-                        <PdfInvoice invoice={this.props.purchaseInvoiceDetailData} customer={this.state.user} />
+                        <PdfInvoice invoice={purchaseInvoiceDetailData} customer={supplier} />
         </div>
           
           :
@@ -174,17 +345,18 @@ class PurchaseReport extends React.Component {
       }
         </div>
         )}
-}
 
 const mapStateToProps = state => ({
                     purchaseData: state.purchase.purchase,
-                    purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail
+                    purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail,
+                    userData: state.user.users
 })
 
 const mapDispatchToProps = dispatch =>({
-  fetchPurchaseByDate: (sDate,eDate) => dispatch(fetchPurchaseByDate(sDate,eDate)),
+  fetchPurchaseByDate: (sDate,eDate,id) => dispatch(fetchPurchaseByDate(sDate,eDate,id)),
   fetchPurchaseInvoiceDetailAsync: (invoiceId) => dispatch(fetchPurchaseInvoiceDetailAsync(invoiceId)),
-  fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),  
+  fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
+  fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
 });
 
 export default connect(mapStateToProps,mapDispatchToProps)(PurchaseReport);

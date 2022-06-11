@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 
-import inventoryService from "../../services/inventory.service";
-import userService from "../../services/user.service";
-import itemService from "../../services/item.services";
+// import inventoryService from "../../services/inventory.service";
+// import userService from "../../services/user.service";
+// import itemService from "../../services/item.services";
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { fetchSaleByDate, fetchSaleInvoiceDetailAsync,fetchSaleByDateSummary } from '../../redux/Sale/sale.action';
 import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
@@ -31,8 +31,6 @@ const SaleReport = ({
     const [totalSaleItem,setTotalSaleItem] = useState(0);
     const [totalSaleInvVal,setTotalSaleInvVal] = useState(0);
     const [totalSaleProfit,setTotalSaleProfit] = useState(0);
-
-
 
     const [cCustomer, setcCustomer] = useState([]);
     const [customerInput, setCustomerInput] = useState("");
@@ -76,7 +74,7 @@ const SaleReport = ({
 
     const handleSubmit = event => {
         event.preventDefault();
-        console.log(cCustomer.length)
+        //console.log(cCustomer.length)
         if (cCustomer.length > 0) {
             fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
         }
@@ -120,8 +118,6 @@ const SaleReport = ({
             }
             else { setMessage(`No data for customer search...`) }
         }
-       
-
     }
 
     
