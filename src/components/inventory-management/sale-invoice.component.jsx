@@ -374,7 +374,7 @@ const SaleInvoice = ({
 
         inventoryService.getSaleByLatestDate(selectedItem[0].id,cCustomer[0].id)
         .then(response2 => {console.log(response2); setLastPrice(response2.data)})
-        .catch(e => {console.log(`catch of update Stock ${e} error from server  ${e.message}`);
+        .catch(e => {console.log(`catch of getSaleByLatestDate ${e} error from server  ${e.message}`);
             })    
    
       }

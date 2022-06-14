@@ -59,6 +59,11 @@ class inventoryDataService {
     return http.get(`/purchaseDetailById/${id}`);
   }
 
+  getPurcahseByLatestDate(itemId,customerId) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/purchaseByLatestDate/${itemId}`);
+   }
+
   createPurchaseDetail(data) {
     // console.log(data);
     return http.post("/purchaseDetail/",data,{headers: authHeader() });
