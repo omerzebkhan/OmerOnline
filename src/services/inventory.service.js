@@ -28,9 +28,9 @@ class inventoryDataService {
     return http.delete(`/purchase/${id}`);
   }
 
-  getAllPurchaseByDate(sDate,eDate) {
-    console.log(`dates are ${sDate} ${eDate}`)
-    return http.get(`/purchaseByDate/${sDate}/${eDate}`);
+  getAllPurchaseByDate(sDate,eDate,customerId) {
+    //console.log(`dates are ${sDate} ${eDate}`)
+    return http.get(`/purchaseByDate/${sDate}/${eDate}/${customerId}`);
   }
 
 
@@ -59,7 +59,7 @@ class inventoryDataService {
     return http.get(`/purchaseDetailById/${id}`);
   }
 
-  getPurcahseByLatestDate(itemId,customerId) {
+  getPurcahseByLatestDate(itemId) {
     // console.log(`dates are ${sDate} ${eDate}`)
      return http.get(`/purchaseByLatestDate/${itemId}`);
    }

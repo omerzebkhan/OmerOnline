@@ -754,13 +754,13 @@ const SaleInvoice = ({
                                 Total Quantity= {totalInvoiceQuantity}
                             </div>
                             <div className="col-sm-3">
-                                Total Price = {totalInvoiceValue}
+                                Total Price = {parseFloat(totalInvoiceValue).toFixed(3)}
                             </div>
                             <div className="col-sm-3">
-                                Total Cost = {totalInvoiceCost}
+                                Total Cost = {parseFloat(totalInvoiceCost).toFixed(3)}
                             </div>
                             <div className="col-sm-3">
-                                Total Profit = {totalInvoiceProfit}
+                                Total Profit = {parseFloat(totalInvoiceProfit).toFixed(3)}
                             </div>
                             <div className="col-sm-1">
                                 <button className="btn btn-primary" type="submit">Add Item</button>
