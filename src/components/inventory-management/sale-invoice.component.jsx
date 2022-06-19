@@ -32,6 +32,7 @@ const SaleInvoice = ({
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [lastPrice,setLastPrice] = useState([])
+    const [lastCost,setLastCost] = useState([])
 
     const [cItem, setcItem] = useState([]);
     const [itemInput, setItemInput] = useState("");
@@ -372,10 +373,18 @@ const SaleInvoice = ({
         console.log(selectedItem)
         console.log(selectedItem)
 
+        
         inventoryService.getSaleByLatestDate(selectedItem[0].id,cCustomer[0].id)
         .then(response2 => {console.log(response2); setLastPrice(response2.data)})
         .catch(e => {console.log(`catch of getSaleByLatestDate ${e} error from server  ${e.message}`);
-            })    
+            })
+            
+         //call api to get the latest cost of an item.
+
+         inventoryService.getPurcahseByLatestDate(selectedItem[0].id)
+         .then(response2 => {console.log(response2); setLastCost(response2.data)})
+         .catch(e => {console.log(`catch of getSaleByLatestDate ${e} error from server  ${e.message}`);
+             })  
    
       }
     };
@@ -790,6 +799,36 @@ const SaleInvoice = ({
                                                 <td>{item.name}</td>
                                                 <td>{item.price}</td>
                                                 <td>{item.createdAt}</td>   
+                                            </tr>
+                                            )})
+                                            }
+                                      
+                                      
+                                </tbody>
+                            </table>
+                            </div>    :
+                            ""}
+                            {lastCost.length >0 ?
+                            <div> <h2>Last Price</h2>
+                                 <table border="1">
+                                <thead>
+                                    <tr>
+                                        <th>Item Id</th>
+                                        <th>Item Name</th>
+                                        <th>Cost</th>
+                                        <th>Date</th>
+                                        
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {
+                                        lastCost.map((item, index) => {
+                                            return (
+                                            <tr key={index}>
+                                                <td>{item.id}</td>
+                                                <td>{item.name}</td>
+                                                <td>{item.price}</td>
+                                                <td>{item.createdAt}</td>      
                                             </tr>
                                             )})
                                             }
