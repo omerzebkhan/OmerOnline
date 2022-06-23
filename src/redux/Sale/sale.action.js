@@ -41,6 +41,16 @@ export const fetchSalInvPayDeatilSuccess = saleMap => ({
     payload: saleMap
 });
 
+export const fetchSalePayHisSuccess = saleMap => ({
+    type : SaleActionType.FETCH_SALEPAYHIST_SUCCESS,
+    payload : saleMap
+})
+
+export const FETCH_SALEPAYHIST_FAILURE = errorMessage => ({
+    type: SaleActionType.FETCH_SALEPAYHIST_FAILURE,
+    payload: errorMessage
+})
+
 export const fetchSaleARSuccess = saleMap => ({
     type: SaleActionType.FETCH_SALEAR_SUCCESS,
     payload: saleMap
@@ -180,6 +190,20 @@ export const fetchSaleAR = () => {
                 dispatch(fetchSaleARSuccess(saleMap));
             })
             .catch(error => dispatch(fetchSaleFailure((error.response.request.response.message))))
+    }
+}
+
+export const fetchSalePayHist = (custId) =>{
+     //console.log(`redux method is called ${invoiceId }`)
+     return dispatch => {
+        dispatch(fetchSaleStart());
+        inventoryService.getSalePayHist(custId)
+            .then(response => {
+                const saleMap = response.data;
+                console.log(saleMap)
+                dispatch(fetchSalePayHisSuccess(saleMap));
+            })
+            .catch(error => dispatch( FETCH_SALEPAYHIST_FAILURE((error.response.request.response.message))))
     }
 }
 

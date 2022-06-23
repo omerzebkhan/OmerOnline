@@ -1,5 +1,6 @@
 import SaleActionType from './sale.type';
 const INITIAL_STATE = {
+    salePayHist:null,
     sale: null,
     saleSummary : null,
     saleInvoiceDetail: null,
@@ -21,6 +22,12 @@ const saleReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 isFetching: true
+            }
+            case SaleActionType.FETCH_SALEPAYHIST_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                salePayHist: action.payload
             }
 
         case SaleActionType.FETCH_SALE_SUCCESS:

@@ -212,6 +212,10 @@ class inventoryDataService {
     return http.get(`/saleInvPay/${id}`);
   }
 
+  getSalePayHist(id){
+    return http.get(`/salePayHist/${id}`);
+  }
+
 
 
   /////////////////////////
