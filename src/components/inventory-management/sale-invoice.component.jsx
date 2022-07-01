@@ -217,6 +217,7 @@ const SaleInvoice = ({
         var data = {
             reffInvoice: invoice,
             customerId: cCustomer[0].id,
+            agentid :cAgent[0].id,
             invoicevalue: totalInvoiceValue,
             totalitems: totalInvoiceQuantity,
             paid: 0,
