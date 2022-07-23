@@ -234,10 +234,10 @@ const SaleInvoice = ({
                 //1-create new sale detail 
                 //2- get each item stock value and update stock value in the item table 
 
-                invoiceItem.map((item) => {
+                invoiceItem.map((item,index) => {
                     var sDetailData = ({
                         saleInvoiceId: response.data.id,
-                        // itemName: item[0],
+                        srno : index,
                         itemName: item[6],
                         quantity: item[2],
                         price: item[3],
