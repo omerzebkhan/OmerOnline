@@ -22,6 +22,10 @@ class itemDataService {
     return http.get(`/itemSaleHistory/${id}`);
   }
 
+  getItemReturnHistory(id){
+    return http.get(`/itemReturnHistory/${id}`);
+  }
+
   create(data) {
     console.log(data);
     return http.post("/item/", data,{headers: authHeader() });

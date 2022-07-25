@@ -21,6 +21,7 @@ const StockReport = ({
     const [totalInventoryValue,setTotalInventoryValue] = useState([0]);
     const [itemPurchaseHistory,setItemPurchaseHistory] = useState([])
     const [itemSaleHistory,setItemSaleHistory] = useState([])
+    const [itemReturnHistory,setItemReturnHistory] = useState([])
 
     useEffect(() => {
         fetchItemStartAsync();
@@ -81,6 +82,22 @@ const StockReport = ({
       // setPInvPayDetail(purInvDetail)
 
     }
+
+    const getReturnHistory = (itemId) =>{
+        //console.log(`item for the purchase history ${itemId}`)
+        itemService.getItemReturnHistory(itemId)
+        .then(response2 => {
+            //console.log(response2.data)
+            setItemReturnHistory(response2.data)
+        })
+        .catch(e => {
+            console.log(`get Sale History  error ${e}`);
+        })
+      //fetchPurInvPayDetial(invoiceId);
+      // setPInvPayDetail(purInvDetail)
+
+    }
+
 
     const searchHandler = event => {
       
@@ -260,6 +277,9 @@ const StockReport = ({
                                     <td><button type="button" onClick={()=>{
                                         getSaleHistory(item.id)
                                         }}>Sale History </button></td>
+                                     <td><button type="button" onClick={()=>{
+                                        getReturnHistory(item.id)
+                                        }}>Return History </button></td>    
                                     </tr>
                                 )
                                 )
@@ -362,6 +382,48 @@ const StockReport = ({
                 :
                 ""
             }
+        {itemReturnHistory ?
+                <div>
+                    <h3>Return History </h3>
+                    <table border='1' id="Return History">
+
+                        <thead>
+                            <tr>
+                                <th>Sale Invoice Id</th>
+                                <th>Return Id</th>
+                                <th>Item Name</th>
+                                <th>Quantity</th>
+                                <th>Creation Date Time</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+
+                            {
+                                itemReturnHistory.map((item, index) => (
+                                    //   console.log(item);
+
+                                    <tr key={index}
+                                    //onClick={() => setActiveBrand(item, index)}
+                                    >
+                                        <td>{item.saleInvoiceId}</td>
+                                        <td>{item.id}</td>
+                                        <td>{item.name}</td>
+                                        <td>{item.quantity}</td>
+                                        <td>{item.createdAt}</td>
+                                    </tr>
+                                )
+                                )
+
+                            }
+                        </tbody>
+                    </table>
+                </div>
+                :
+                ""
+            }    
+
         </div>
     )
 }
