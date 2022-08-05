@@ -23,6 +23,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [sInvoice, setSInvoice] = useState(saleInvoice);
     const [sInvPayDetail, setSInvPayDetail] = useState([]);
     const [payHist,setPayHist]= useState([])
+    const [returnHist,setReturnHist]=useState([])
     const [currentInvoice, setCurrentInvoice] = useState([]);
     const [cashPayment, setCashPayment] = useState(0);
     const [bankPayment, setBankPayment] = useState(0);
@@ -305,6 +306,14 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                     getPayHist(item.customerId)
                                                 }
                                                 }>Pyament History</button></td>
+                                                 <td><button type="button" onClick={() => {
+                                                    setSInvPayDetail([]);
+                                                    setCurrentInvoice([]);
+                                                    selectSaleInvoice([]);
+                                                    setSInvoice([]);
+                                                    getPayHist(item.customerId)
+                                                }
+                                                }>Return History</button></td>
                                             </tr>)
                                     })}
                                 </tbody>

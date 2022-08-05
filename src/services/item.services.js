@@ -26,6 +26,10 @@ class itemDataService {
     return http.get(`/itemReturnHistory/${id}`);
   }
 
+  getItemlimitReport(id){
+    return http.get(`/itemLimitReport/`);
+  }
+
   create(data) {
     console.log(data);
     return http.post("/item/", data,{headers: authHeader() });

@@ -230,6 +230,10 @@ const EditSale = ({
                 })
 
         }
+        /////should refresh the screen
+        ////hide edit screen
+        setEdit("False")
+
     }
 
     const deleteRecordHandler = () => {

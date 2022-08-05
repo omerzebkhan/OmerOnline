@@ -27,6 +27,7 @@ import StockReport from './components/Report/stockReport.component';
 import PurchaseReport from './components/Report/purchaseReport.component';
 import SaleReport from './components/Report/saleReport.component';
 import BalanceSheetReport from './components/Report/balanceSheet.component'
+import ItemLimitReport from "./components/Report/itemLimitReport.component";
 import AddUser from './components/user/addUser.component';
 import SearchUser from './components/user/searchUser.component';
 import AddRole from './components/user/addRole.component';
@@ -182,12 +183,14 @@ const App = () => {
                     <Route path="/PurchaseReport" render={()=><PurchaseReport />}/>
                     <Route path="/SaleReport" render={()=><SaleReport />}/> 
                     <Route path="/BalanceSheetReport" render={()=><BalanceSheetReport />}/> 
+                    <Route path="/ItemLimitReport" render={()=><ItemLimitReport />}/>
                     <Route path="/AddRole" render={()=><AddRole />}/>
                     <Route path="/UpdateAccess" render={()=><UpdateAccess />}/> 
                     <Route path="/AddExpense" render={()=><AddExpense />}/> 
                     <Route path="/ItemList" render={()=><ItemList />}/> 
                     <Route path="/ItemDetail" render={()=><ItemDetail />}/>
                     <Route path="/myCart" render={()=><MyCart />}/>
+
                     
                      
           </Switch>
