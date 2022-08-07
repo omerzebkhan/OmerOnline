@@ -227,6 +227,17 @@ class inventoryDataService {
     return http.post("/saleReturn/",data,{headers: authHeader() });
   }
 
+  getAllSaleReturnByDate(sDate,eDate) {
+     return http.get(`/saleReturnByDate/${sDate}/${eDate}`);
+   }
+
+   //getSaleReturnDetailByInvoice
+   getSaleReturnDetailByInvoice(id) {
+    return http.get(`/saleReturnDetailByInvoice/${id}`);
+  }
+
+
+
   /////////////////////////
   /////Others/////////////
   ////////////////////////

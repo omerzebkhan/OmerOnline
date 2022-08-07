@@ -16,6 +16,34 @@ export const fetchSaleFailure = errorMessage => ({
     payload: errorMessage
 })
 
+export const fetchSaleReturnStart = () => ({
+    type: SaleActionType.FETCH_SALERETURN_START
+});
+
+export const fetchSaleReturnSuccess = saleMap => ({
+    type: SaleActionType.FETCH_SALERETURN_SUCCESS,
+    payload: saleMap
+});
+
+export const fetchSaleReturnFailure = errorMessage => ({
+    type: SaleActionType.FETCH_SALERETURN_FAILURE,
+    payload: errorMessage
+})
+
+export const fetchSaleReturnDetailStart = () => ({
+    type: SaleActionType.FETCH_SALERETURNDETAIL_START
+});
+
+export const fetchSaleReturnDetailSuccess = saleMap => ({
+    type: SaleActionType.FETCH_SALERETURNDETAIL_SUCCESS,
+    payload: saleMap
+});
+
+export const fetchSaleReturnDetailFailure = errorMessage => ({
+    type: SaleActionType.FETCH_SALERETURNDETAIL_FAILURE,
+    payload: errorMessage
+})
+
 export const fetchSaleSummaryStart = () => ({
     type: SaleActionType.FETCH_SALESUMMARY_START
 });
@@ -140,6 +168,42 @@ export const fetchSaleByDate = (sDate, eDate, customerId) => {
     }
 }
 
+export const fetchSaleReturnByDate = (sDate,eDate) =>{
+    return dispatch => {
+        if (sDate !== "" && eDate !== "") {
+            var dateFormat = require('dateformat');
+            sDate = dateFormat(sDate, "yyyy-mm-dd");
+            eDate = dateFormat(eDate, "yyyy-mm-dd");
+            var myDate = new Date(eDate);
+            myDate.setDate(myDate.getDate() + 1);
+            myDate = dateFormat(myDate, "yyyy-mm-dd");
+            eDate = myDate;
+            dispatch(fetchSaleReturnStart());
+            inventoryService.getAllSaleReturnByDate(sDate, eDate)
+                .then(response => {
+                    const saleMap = response.data;
+                    dispatch(fetchSaleReturnSuccess(saleMap));
+                })
+                .catch(error => dispatch(fetchSaleReturnFailure(error.response.request.response.message)))
+                ;
+        }
+    }
+
+}
+
+export const fetchSaleReturnDetail = (SaleInvoiceId) => {
+    return dispatch => {
+        dispatch(fetchSaleReturnDetailStart());
+        inventoryService.getSaleReturnDetailByInvoice(SaleInvoiceId)
+            .then(response => {
+                const saleMap = response.data;
+                // console.log(saleMap);
+                dispatch(fetchSaleReturnDetailSuccess(saleMap));
+            })
+            .catch(error => dispatch(fetchSaleReturnDetailFailure((error.response.request.response.message))))
+    }
+}
+
 export const fetchSaleByDateSummary = (sDate, eDate) => {
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
@@ -234,5 +298,6 @@ export const fetchSaleInvoiceDetailAsync = (SaleInvoiceId) => {
             .catch(error => dispatch(fetchSaleFailure((error.response.request.response.message))))
     }
 }
+
 
 

@@ -1,8 +1,10 @@
 import SaleActionType from './sale.type';
 const INITIAL_STATE = {
-    salePayHist:null,
+    salePayHist: null,
+    saleReturn: null,
+    saleReturnDetail:null,
     sale: null,
-    saleSummary : null,
+    saleSummary: null,
     saleInvoiceDetail: null,
     saleAR: null,
     salePayDetail: null,
@@ -23,25 +25,36 @@ const saleReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 isFetching: true
             }
-            case SaleActionType.FETCH_SALEPAYHIST_SUCCESS:
+        case SaleActionType.FETCH_SALEPAYHIST_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
                 salePayHist: action.payload
             }
-
+        case SaleActionType.FETCH_SALERETURN_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                saleReturn: action.payload
+            }
+        case SaleActionType.FETCH_SALERETURNDETAIL_SUCCESS:
+                return {
+                    ...state,
+                    isFetching: false,
+                    saleReturnDetail: action.payload
+                }    
         case SaleActionType.FETCH_SALE_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
                 sale: action.payload
             }
-            case SaleActionType.FETCH_SALESUMMARY_SUCCESS:
-                return {
-                    ...state,
-                    isFetching: false,
-                    saleSummary: action.payload
-                }    
+        case SaleActionType.FETCH_SALESUMMARY_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                saleSummary: action.payload
+            }
         case SaleActionType.FETCH_SALINVPAYDETIAL_SUCCESS:
             return {
                 ...state,
