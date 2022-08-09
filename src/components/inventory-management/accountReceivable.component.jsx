@@ -342,7 +342,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                 <tbody>
                                     {sInvoice.map((item, index) => {
                                         //console.log(index)
-                                        if (item.Outstanding>0){
+                                        //if (item.Outstanding!==0){
                                         return (
                                             <tr key={index}>
                                                 <td>{item.createdAt}</td>
@@ -366,7 +366,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                     getPaymentDetail(item.id)
                                                 }}>Payment Details</button></td>
                                             </tr>)}
-                                    })}
+                                    //}
+                                    )}
                                 </tbody>
                             </table>
                         </div>

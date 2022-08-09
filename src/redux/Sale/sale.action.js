@@ -104,8 +104,8 @@ export const fetchSaleStartAsync = (sDate, eDate) => {
             eDate = myDate;
             // var now = new Date();
             // dateFormat(now, "dddd, mmmm dS, yyyy, h:MM:ss TT");
-            console.log(`sDate=${sDate} 
-            edate=${eDate}`);
+            // console.log(`sDate=${sDate} 
+            // edate=${eDate}`);
             // //          f = firestore.collection('SaleInvoice')
             //             .where("dt", '>=', sDate)
             //             .where("dt", '<=',eDate);
@@ -141,7 +141,7 @@ export const fetchSaleByIdAsync = (invoiceId) => {
     }
 }
 
-export const fetchSaleByDate = (sDate, eDate, customerId) => {
+export const fetchSaleByDate = (sDate, eDate, customerId,agentId) => {
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
             var dateFormat = require('dateformat');
@@ -152,12 +152,12 @@ export const fetchSaleByDate = (sDate, eDate, customerId) => {
             myDate = dateFormat(myDate, "yyyy-mm-dd");
             eDate = myDate;
 
-            console.log(`sDate=${sDate} 
-            edate=${eDate}
-            customerid =${customerId}`);
+            // console.log(`sDate=${sDate} 
+            // edate=${eDate}
+            // customerid =${customerId}`);
 
             dispatch(fetchSaleStart());
-            inventoryService.getAllSaleByDate(sDate, eDate, customerId)
+            inventoryService.getAllSaleByDate(sDate, eDate, customerId,agentId)
                 .then(response => {
                     const saleMap = response.data;
                     dispatch(fetchSaleSuccess(saleMap));
@@ -236,7 +236,7 @@ export const fetchSalInvPayDetial = (invoiceId) => {
         inventoryService.getSalInvPay(invoiceId)
             .then(response => {
                 const saleMap = response.data;
-                console.log(saleMap)
+               // console.log(saleMap)
                 dispatch(fetchSalInvPayDeatilSuccess(saleMap));
             })
             .catch(error => dispatch(fetchSaleFailure((error.response.request.response.message))))
@@ -250,7 +250,7 @@ export const fetchSaleAR = () => {
         inventoryService.getSaleAR()
             .then(response => {
                 const saleMap = response.data;
-                console.log(saleMap)
+               // console.log(saleMap)
                 dispatch(fetchSaleARSuccess(saleMap));
             })
             .catch(error => dispatch(fetchSaleFailure((error.response.request.response.message))))
@@ -264,7 +264,7 @@ export const fetchSalePayHist = (custId) =>{
         inventoryService.getSalePayHist(custId)
             .then(response => {
                 const saleMap = response.data;
-                console.log(saleMap)
+                //console.log(saleMap)
                 dispatch(fetchSalePayHisSuccess(saleMap));
             })
             .catch(error => dispatch( FETCH_SALEPAYHIST_FAILURE((error.response.request.response.message))))

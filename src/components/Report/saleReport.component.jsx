@@ -38,6 +38,12 @@ const SaleReport = ({
     const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
     const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
 
+    const [cAgent, setcAgent] = useState([]);
+    const [agentInput, setAgentInput] = useState("");
+    const [activeOptionAgent, setActiveOptionAgent] = useState("");
+    const [showOptionsAgent, setShowOptionsAgent] = useState(false);
+    const [filteredOptionsAgent, setFilteredOptionsAgent] = useState([]);
+
 
     useEffect(() => {
         fetchUserStartAsync();
@@ -74,12 +80,19 @@ const SaleReport = ({
 
     const handleSubmit = event => {
         event.preventDefault();
-        //console.log(cCustomer.length)
-        if (cCustomer.length > 0) {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
+        //console.log(cAgent[0].id)
+
+        if (cCustomer.length > 0 && cAgent.length > 0 ) {
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,cAgent[0].id);
+        }
+        else if (cCustomer.length > 0){
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,"0");
+        }
+        else if (cAgent.length > 0){
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", cAgent[0].id);
         }
         else {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0");
         }
         fetchSaleByDateSummary(startDate.toDateString(), endDate.toDateString());
 
@@ -118,6 +131,16 @@ const SaleReport = ({
             }
             else { setMessage(`No data for customer search...`) }
         }
+        else if (event.target.id === "agentSearch") {
+            setFilteredOptionsAgent(userData.user.filter(
+                (option) => option.name.toLowerCase().indexOf(agentInput.toLowerCase()) > -1
+                    && option.roles.toUpperCase() === "SALEAGENT"
+            ));
+            setActiveOptionAgent(0);
+            setShowOptionsAgent(true);
+            //setCustomerInput(customerInput);
+            setAgentInput(event.target.value);
+        }
     }
 
     
@@ -151,8 +174,8 @@ const SaleReport = ({
         setFilteredOptionsCustomer([]);
         setShowOptionsCustomer(false);
 
-        console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
-        console.log(`user data${userData.user[0].id}`);
+        // console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
+        // console.log(`user data${userData.user[0].id}`);
         const selectedCustomer = userData.user.filter(
             (option) => option.id == e.currentTarget.dataset.id
         );
@@ -164,8 +187,8 @@ const SaleReport = ({
     };
     let optionListCustomer;
     if (showOptionsCustomer && customerInput) {
-        console.log(filteredOptionsCustomer);
-        console.log(filteredOptionsCustomer.length)
+        // console.log(filteredOptionsCustomer);
+        // console.log(filteredOptionsCustomer.length)
         if (filteredOptionsCustomer.length) {
             optionListCustomer = (
                 <ul className="options">
@@ -208,6 +231,87 @@ const SaleReport = ({
 
     //////////////////////////////////////////////////////////////////////
 
+//////////////////////////////////////////////////////////////////////
+    /////////////////////////// Drop down logic for Agent 
+    const onKeyDownAgent = (e) => {
+        //console.log("On change is fired")
+        // const { activeOption, filteredOptions } = this.props;
+        if (e.keyCode === 13) {
+            setActiveOptionAgent(0);
+            setShowOptionsAgent(false);
+            setAgentInput(filteredOptionsAgent[activeOptionAgent]);
+        } else if (e.keyCode === 38) {
+            if (activeOptionAgent === 0) {
+                //setcCustomer([]);
+                return;
+            }
+            setActiveOptionAgent(activeOptionAgent - 1)
+        } else if (e.keyCode === 40) {
+            if (activeOptionAgent - 1 === filteredOptionsAgent.length) {
+                //setcCustomer([]);
+                return;
+            }
+            setActiveOptionAgent(activeOptionAgent + 1)
+        }
+    };
+    const onClickAgent = (e) => {
+        setActiveOptionAgent(0);
+        setFilteredOptionsAgent([]);
+        setShowOptionsAgent(false);
+
+        // console.log(e.currentTarget.dataset.id);
+        // console.log(itemData);
+        const selectedAgent = userData.user.filter(
+            (option) => option.id == e.currentTarget.dataset.id
+        );
+        setAgentInput(selectedAgent[0].name);
+        setcAgent(selectedAgent);
+
+        // console.log(cItem[0].name)
+    };
+    let optionListAgent;
+    if (showOptionsAgent && agentInput) {
+        // console.log(filteredOptionsAgent);
+        // console.log(filteredOptionsAgent.length)
+        if (filteredOptionsAgent.length) {
+            optionListAgent = (
+                <ul className="options">
+                    {filteredOptionsAgent.map((optionName, index) => {
+                        let className;
+                        if (index === activeOptionAgent) {
+                            className = 'option-active';
+                        }
+                        return (
+                            <li key={optionName.id} className={className} data-id={optionName.id} onClick={onClickAgent}>
+                                <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th className="th-sm">Name</th>
+                                            <th>Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{optionName.name}</td>
+                                            <td>{optionName.address}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </li>
+                        );
+                    })}
+                </ul>
+            );
+        } else {
+            optionListAgent = (
+                <div className="no-options">
+                    <em>No Option!</em>
+                </div>
+            );
+        }
+    }
+    //////////////////////////////////////////////////////////////////////
 
 
     return (
@@ -266,6 +370,46 @@ const SaleReport = ({
 
 
                 </div>
+                <div className="form-group row">
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Agent Name</label>
+                            </div>
+                            <div className="col-sm-2">   
+                                <input
+                                    type="text"
+                                    name="agentSearch"
+                                    id="agentSearch"
+                                    placeholder="Select Agent"
+                                    value={agentInput}
+                                    onChange={handleChange}
+                                    onKeyDown={onKeyDownAgent}
+                                />
+                            </div>
+                            
+                            <div className="col-sm-2">    
+                                <input
+                                    type="text"
+                                    name="Agent"
+                                    id="Agnet"
+                                    placeholder="Select Agent"
+                                    value={cAgent[0] ? cAgent[0].id : "" }
+                                    disabled />
+                            </div>
+                            <div className="col-sm-4">
+                                <input
+                                    type="text"
+                                    name="Agent Address"
+                                    id="agentAddress"
+                                    placeholder="Address"
+                                    value={cAgent[0] ? cAgent[0].address : ""}
+                                    disabled />
+                            </div>
+                            <div>
+                                {optionListAgent}
+                            </div>
+
+                        </div>
+
                 <div >
                     <button className="btn btn-success" type="submit" >Search</button>
 
@@ -297,6 +441,7 @@ const SaleReport = ({
                             <tr>
                                 <th>Reff Invoice</th>
                                 <th>Customer Name</th>
+                                <th>Sale Agent</th>
                                 <th>Total Items</th>
                                 <th>Invoice Value</th>
                                 <th>Profit</th>
@@ -312,6 +457,7 @@ const SaleReport = ({
                                     >
                                         <td>{item.saleInvoiceId}</td>
                                         <td>{item.name}</td>
+                                        <td>{item.agentname}</td>
                                         <td>{item.totalitems}</td>
                                         <td>{item.invoicevalue}</td>
                                         <td>{parseFloat(item.profit).toFixed(3)}</td>
@@ -384,7 +530,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    fetchSaleByDate: (sDate, eDate, id) => dispatch(fetchSaleByDate(sDate, eDate, id)),
+    fetchSaleByDate: (sDate, eDate, id, id1) => dispatch(fetchSaleByDate(sDate, eDate, id,id1)),
     fetchSaleByDateSummary :(sDate,eDate) => dispatch(fetchSaleByDateSummary(sDate, eDate)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),

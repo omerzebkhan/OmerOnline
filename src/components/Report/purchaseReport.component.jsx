@@ -64,13 +64,7 @@ const PurchaseReport = ({
     
   const  handleSubmit = event => {
         event.preventDefault();
-        // console.log("submit handler of searchBrand ");
-        // console.log(
-        //     `start date = ${this.state.startDate.toDateString()}
-        //     end date = ${this.state.endDate.toDateString()}
-        // `);
-        // const { fetchPurchaseByDate } = this.props;
-        // fetchPurchaseByDate(this.state.startDate.toDateString(),this.state.endDate.toDateString());
+       
         event.preventDefault();
         //console.log(cCustomer.length)
         if (cCustomer.length > 0) {

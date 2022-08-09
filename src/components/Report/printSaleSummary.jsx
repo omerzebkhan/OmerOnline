@@ -197,8 +197,8 @@ const InvoiceTableRow = ({items,sDate,eDate}) => {
   const rows = items.map((item, index) => {
     if (index === 26)
     {
-      return <View >
-      <View> 
+      return <View key={index+1000}>
+      <View > 
       <InvoiceNo sDate={sDate} eDate={eDate} /> 
       <InvoiceTableHeader />
       </View>
