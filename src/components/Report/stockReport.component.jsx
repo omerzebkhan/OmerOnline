@@ -20,6 +20,8 @@ const StockReport = ({
     const [totalRecord,setTotalRecord] = useState([0]);
     const [totalInventoryValue,setTotalInventoryValue] = useState([0]);
     const [itemPurchaseHistory,setItemPurchaseHistory] = useState([])
+    const [totalQtyPurchaseHistory,setTotalQtyPurchaseHistory] = useState([0]);
+    const [totalRecordPurchaseHistory,setTotalRecordPurchaseHistory] = useState([0]);
     const [itemSaleHistory,setItemSaleHistory] = useState([])
     const [itemReturnHistory,setItemReturnHistory] = useState([])
 
@@ -54,18 +56,31 @@ const StockReport = ({
         })
     }, [filteredOptionsItem])
 
+    useEffect(() => {
+        var sumQuantity = 0
+        var sumRecord = 1
+        
+        itemPurchaseHistory.map((item, index) =>{
+            sumQuantity = sumQuantity + item.quantity
+            setTotalQtyPurchaseHistory(sumQuantity)
+            sumRecord = index + 1
+            setTotalRecordPurchaseHistory(sumRecord)
+            
+        })
+    }, [itemPurchaseHistory])
+
+
+
+
     const getPurchaseHistory = (itemId) =>{
         console.log(`item for the purchase history ${itemId}`)
         itemService.getItemPurchaseHistory(itemId)
-        .then(response2 => {
-     
+        .then(response2 => {  
             setItemPurchaseHistory(response2.data)
-            
         })
         .catch(e => {
             console.log(`get Purchase History error ${e}`);
-        })
-     
+        })    
     }
 
     const getSaleHistory = (itemId) =>{
@@ -293,6 +308,13 @@ const StockReport = ({
             }
             {itemPurchaseHistory ?
                 <div>
+                    <div>
+                    <div className="inputFormHeader"><h2>Summary Purchase History</h2></div>
+                    <div className="inputForm">
+                    <div>Total Item Quantity = {totalQtyPurchaseHistory}</div>
+                    <div>Total Records = {totalRecordPurchaseHistory}</div>
+                    </div>
+                </div>
                     <h3>Purchase History </h3>
                     <table border='1' id="Purchase History">
 

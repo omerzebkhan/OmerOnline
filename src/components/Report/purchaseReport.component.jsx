@@ -43,7 +43,7 @@ const PurchaseReport = ({
     var sumQuantity = 0
     var sumRecord = 1
     var sumInvValue = 0
-    var sumProfit =0
+    
     purchaseData.map((item, index) =>{
         sumQuantity = sumQuantity + parseInt(item.totalitems)
         setTotalSaleItem(sumQuantity)
@@ -51,8 +51,7 @@ const PurchaseReport = ({
         setTotalSaleRecord(sumRecord)
         sumInvValue = sumInvValue + (item.invoicevalue)
         setTotalSaleInvVal(parseFloat(sumInvValue).toFixed(3))
-        sumProfit = sumProfit + (item.profit)
-        setTotalSaleProfit(parseFloat(sumProfit).toFixed(3))
+        
     })}
 }, [purchaseData])
 
@@ -264,6 +263,15 @@ const PurchaseReport = ({
 
                 {purchaseData ?
                     <div>
+                          <div>
+                    <div className="inputFormHeader"><h2>Summary Purchase Data</h2></div>
+                    <div className="inputForm">
+                    <div>Total Records = {totalSaleRecord}</div>    
+                    <div>Total Item = {totalSaleItem}</div>
+                    <div>Total Invoice Value = {totalSaleInvVal}</div>
+                    
+                    </div>
+                </div>
                         <h3>purchase View</h3>
                         <table border='1'>
 

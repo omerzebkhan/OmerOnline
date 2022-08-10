@@ -95,10 +95,10 @@ const EditSale = ({
         event.preventDefault();
         console.log(cCustomer.length)
         if (cCustomer.length > 0) {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,"0");
         }
         else {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0");
         }
 
     }
@@ -884,7 +884,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    fetchSaleByDate: (sDate, eDate, id) => dispatch(fetchSaleByDate(sDate, eDate, id)),
+    fetchSaleByDate: (sDate, eDate, id,id1) => dispatch(fetchSaleByDate(sDate, eDate, id,id1)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
     fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
