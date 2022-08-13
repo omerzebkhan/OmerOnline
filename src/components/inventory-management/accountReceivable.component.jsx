@@ -6,7 +6,7 @@ import SearchUser from "../user/searchUser.component";
 
 //import { fetchItemStartAsync, setCurrentItem } from '../../redux/item/item.action';
 
-import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR , fetchSalePayHist} from '../../redux/Sale/sale.action';
+import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR, fetchSalePayHist } from '../../redux/Sale/sale.action';
 import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
@@ -16,22 +16,23 @@ import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     fetchSaleByInputStartAsync,
     fetchSaleAR, saleArData,
-    fetchSalePayHist,salePayHist,
+    fetchSalePayHist, salePayHist,
     currentUser,
     saleInvoice,
     isFetching, currentUser1 }) => {
     const [sInvoice, setSInvoice] = useState(saleInvoice);
     const [sInvPayDetail, setSInvPayDetail] = useState([]);
-    const [payHist,setPayHist]= useState([])
-    const [returnHist,setReturnHist]=useState([])
+    const [payHist, setPayHist] = useState([])
+    const [returnHist, setReturnHist] = useState([])
     const [currentInvoice, setCurrentInvoice] = useState([]);
     const [cashPayment, setCashPayment] = useState(0);
     const [bankPayment, setBankPayment] = useState(0);
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
     const [access, setAccess] = useState(false);
-    const [totalOutStanding,setTotalOutStanding] = useState(0);
+    const [totalOutStanding, setTotalOutStanding] = useState(0);
     const [nameInput, setNameInput] = useState("");
+    const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
 
 
@@ -50,13 +51,13 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
     useEffect(() => {
         var sumOutStanding = 0
-        if(saleArData){
-        saleArData.map((item, index) =>{
-            sumOutStanding = sumOutStanding + item.salesOutstanding
-            setTotalOutStanding(sumOutStanding)
-            setFilteredOptionsName(saleArData)
-        })
-    }
+        if (saleArData) {
+            saleArData.map((item, index) => {
+                sumOutStanding = sumOutStanding + item.salesOutstanding
+                setTotalOutStanding(sumOutStanding)
+                setFilteredOptionsName(saleArData)
+            })
+        }
     }, [saleArData])
 
 
@@ -69,9 +70,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         setSInvPayDetail(salInvDetail)
     }, [salInvDetail])
 
-   useEffect(() => {
-       setPayHist(salePayHist)
-   },[salePayHist])
+    useEffect(() => {
+        setPayHist(salePayHist)
+    }, [salePayHist])
 
     const selectSaleInvoice = (item) => {
         fetchSaleByInputStartAsync(item.customerId);
@@ -88,20 +89,43 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         else if (event.target.id === "Name") {
             setNameInput(event.target.value);
             if (event.target.value === "") {
-                // //sort item data based on id 
-                // function sortByDate(a, b) {
-                //     return parseInt(a.id) - parseInt(b.id);
-                // }
-                // const sorted = itemData.sort(sortByDate);
-                // setFilteredOptionsItem(sorted);
                 setFilteredOptionsName(saleArData)
-
+            }
+            else if (agentNameInput !=="")
+            {
+                setFilteredOptionsName(saleArData.filter(
+                    option => 
+                    { return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                     option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 }
+                ));
             }
             else {
                 setFilteredOptionsName(saleArData.filter(
                     (option) => option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
                 ));
-            }  }    
+            }
+        }
+        else if (event.target.id === "agentName") {
+            setAgentNameInput(event.target.value);
+            if (event.target.value === "") {       
+                setFilteredOptionsName(saleArData)
+            }
+            else if (nameInput !=="")
+            {
+                setFilteredOptionsName(saleArData.filter(
+                    option => 
+                    { return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                     option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 }
+                ));
+            }
+            else {
+                setFilteredOptionsName(saleArData.filter(
+                    option => { 
+                   return  option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                }
+                ));
+            }
+        }
     }
 
     const updatHandler = () => {
@@ -213,7 +237,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
     const getPayHist = (custId) => {
         //console.log(`payment history is called ${custId}`)
-        fetchSalePayHist( custId);
+        fetchSalePayHist(custId);
     }
 
 
@@ -235,33 +259,51 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
                         : ""}
                     <h1>Accounts Receivable</h1>
-            <div>
-                            <div className="form-group">
-                    <label htmlFor="Name">Customer Name</label>
-                    <input
-                        type="text"
-                        name="Name"
-                        id="Name"
-                        placeholder="Customer Name"
-                        value={nameInput}
-                        onChange={handleChange} />
+                    <div>
+                        <div className="form-group row">
+                        <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Customer Name</label>
                             </div>
-                            <div>  
-                                        <ReactHTMLTableToExcel  
-                                                className="btn btn-info"  
-                                                table="OutstandingCustomer"  
-                                                filename="ReportExcel"  
-                                                sheet="Sheet"  
-                                                buttonText="Export excel" />  
-                                </div>  
+                            <div className="col-sm-6">
+                            <input
+                                type="text"
+                                name="Name"
+                                id="Name"
+                                placeholder="Customer Name"
+                                value={nameInput}
+                                onChange={handleChange} />
                             </div>
+                        </div>
+                        <div className="form-group row">
+                        <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Agent Name</label>
+                            </div>
+                            <div className="col-sm-6">
+                            <input
+                                type="text"
+                                name="agentName"
+                                id="agentName"
+                                placeholder="Agent Name"
+                                value={agentNameInput}
+                                onChange={handleChange} />
+                                </div>
+                        </div>
+                        <div>
+                            <ReactHTMLTableToExcel
+                                className="btn btn-info"
+                                table="OutstandingCustomer"
+                                filename="ReportExcel"
+                                sheet="Sheet"
+                                buttonText="Export excel" />
+                        </div>
+                    </div>
                     {filteredOptionsName ?
                         <div>
                             <div>
                                 <div className="inputFormHeader"><h2>Summary</h2></div>
                                 <div className="inputForm">
                                     <div>Total Outstanding = {totalOutStanding}</div>
-                                    
+
                                 </div>
                             </div>
 
@@ -275,6 +317,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                         <th>Customer id</th>
                                         <th>Name</th>
                                         <th>Address</th>
+                                        <th>Agent Name</th>
                                         <th>Invoice Value</th>
                                         <th>OutStanding</th>
                                     </tr>
@@ -283,12 +326,13 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     {filteredOptionsName.map((item, index) => {
                                         //console.log(index)
                                         return (
-                                            <tr key={index} 
+                                            <tr key={index}
                                             // onClick={() => selectSaleInvoice(item)}
                                             >
                                                 <td>{item.customerId}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.address}</td>
+                                                <td>{item.agentname}</td>
                                                 <td>{item.saleInvoiceValue}</td>
                                                 <td>{item.salesOutstanding}</td>
                                                 <td><button type="button" onClick={() => {
@@ -306,7 +350,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                     getPayHist(item.customerId)
                                                 }
                                                 }>Pyament History</button></td>
-                                                 <td><button type="button" onClick={() => {
+                                                <td><button type="button" onClick={() => {
                                                     setSInvPayDetail([]);
                                                     setCurrentInvoice([]);
                                                     selectSaleInvoice([]);
@@ -325,7 +369,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
 
 
-                    {sInvoice && sInvoice.length >0 ?
+                    {sInvoice && sInvoice.length > 0 ?
                         <div>
                             <h1>Outstaning Invoices</h1>
                             <table border="1">
@@ -359,14 +403,15 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                 }
                                                 }>Make Payment</button></td>
                                                 <td><button type="button" onClick={() => {
-                                                    
+
                                                     setPayHist([]);
                                                     setCurrentInvoice([]);
                                                     selectSaleInvoice([]);
                                                     getPaymentDetail(item.id)
                                                 }}>Payment Details</button></td>
-                                            </tr>)}
-                                    //}
+                                            </tr>)
+                                    }
+                                        //}
                                     )}
                                 </tbody>
                             </table>
@@ -458,9 +503,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         </div>
                         :
                         ""}
-                    {payHist && payHist.length >0 ?
-                    <div>
-                         <table border="1">
+                    {payHist && payHist.length > 0 ?
+                        <div>
+                            <table border="1">
                                 <thead>
                                     <tr>
                                         <th>Customer Id</th>
@@ -487,8 +532,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     })}
                                 </tbody>
                             </table>
-                    </div>:
-                    ""
+                        </div> :
+                        ""
                     }
                     {sInvPayDetail && sInvPayDetail.length > 0 ?
                         <div>
