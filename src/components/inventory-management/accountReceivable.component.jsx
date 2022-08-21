@@ -31,9 +31,13 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [loading, setLoading] = useState(false);
     const [access, setAccess] = useState(false);
     const [totalOutStanding, setTotalOutStanding] = useState(0);
+    const [totalInvoiceOutStanding, setTotalInvoiceOutStanding] = useState(0);
     const [nameInput, setNameInput] = useState("");
     const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
+    const [totalInvoiceValue, setTotalInvoiceValue] = useState([0]);
+    const [filterOutstanding, setFilterOutstanding] = useState([0]);
+    const [totalRecord, setTotalRecord] = useState([0]);
 
 
     useLayoutEffect(() => {
@@ -60,7 +64,20 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         }
     }, [saleArData])
 
+    useEffect(() => {
+        var sumInvoiceValue = 0
+        var sumOutstanding = 0
+        var sumRecord = 1
 
+        filteredOptionsName.map((item, index) => {
+            sumInvoiceValue = sumInvoiceValue + item.saleInvoiceValue
+            setTotalInvoiceValue(sumInvoiceValue)
+            sumOutstanding = sumOutstanding + item.salesOutstanding
+            setFilterOutstanding(sumOutstanding)
+            sumRecord = index + 1
+            setTotalRecord(sumRecord)
+        })
+    }, [filteredOptionsName])
 
     useEffect(() => {
         setSInvoice(saleInvoice);
@@ -77,6 +94,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const selectSaleInvoice = (item) => {
         fetchSaleByInputStartAsync(item.customerId);
         setCurrentUser(item.customerId);
+        setTotalInvoiceOutStanding(item.salesOutstanding);
     }
 
     const handleChange = event => {
@@ -91,12 +109,12 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
             if (event.target.value === "") {
                 setFilteredOptionsName(saleArData)
             }
-            else if (agentNameInput !=="")
-            {
+            else if (agentNameInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
-                    option => 
-                    { return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                     option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 }
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
+                    }
                 ));
             }
             else {
@@ -107,22 +125,22 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         }
         else if (event.target.id === "agentName") {
             setAgentNameInput(event.target.value);
-            if (event.target.value === "") {       
+            if (event.target.value === "") {
                 setFilteredOptionsName(saleArData)
             }
-            else if (nameInput !=="")
-            {
+            else if (nameInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
-                    option => 
-                    { return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                     option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 }
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
+                    }
                 ));
             }
             else {
                 setFilteredOptionsName(saleArData.filter(
-                    option => { 
-                   return  option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
-                }
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                    }
                 ));
             }
         }
@@ -172,6 +190,17 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         .then(res => {
                             setMessage("Update Sale Outstanding completed successfully.....")
                             console.log("Update Sale Outstanding completed successfully.....")
+
+
+                            // clear and reload the invoice 
+                            fetchSaleAR();
+                            fetchSaleByInputStartAsync(0);
+                            setSInvPayDetail([])
+                            setCurrentInvoice([]);
+                            setCashPayment(0);
+                            setBankPayment(0);
+
+
                         })
                         .catch(e => {
                             console.log(`catch of Sale Outstanding ${e}
@@ -180,45 +209,6 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
 
 
-                    ///////////////////////////////////////////
-                    //3- update Outstandig in the user profile
-                    //////////////////////////////////////////
-                    // console.log({currentUser})
-                    // console.log(`current invoice outstanting = ${currentUser.outstanding}`);
-                    // var vUser = {
-                    //     outstanding: parseInt(currentUser.outstanding) -
-                    //         parseInt(cashPayment) -
-                    //         parseInt(bankPayment)
-                    // }
-                    // console.log(`current invoice outstanting after = ${vUser.outstanding}`);
-                    // user.update(currentUser.id, vUser)
-                    //     .then(res => {
-                    //         setMessage("Update User Outstanding completed successfully.....")
-                    //         console.log("Update User Outstanding completed successfully.....")
-
-                    //         setLoading(false);
-                    //         //console.log(currentItem)
-                    //         setSInvoice([]);
-                    //        // setCurrentUser([]);
-
-                    //         // clear and reload the invoice 
-                    //         fetchSaleAR();
-                    //        // fetchSaleByInputStartAsync(currentInvoice.customers.id);
-                    //         setSInvPayDetail([])
-                    //         setCurrentInvoice([]);
-
-                    //     })
-                    //     .catch(e => {
-                    //         console.log(`catch of User Outstanding ${e}
-                    //                         error from server  ${e.message}`);
-                    //     })
-                    // clear and reload the invoice 
-                    fetchSaleAR();
-                    fetchSaleByInputStartAsync(0);
-                    setSInvPayDetail([])
-                    setCurrentInvoice([]);
-                    setCashPayment(0);
-                    setBankPayment(0);
 
                 })
                 .catch(e => {
@@ -236,7 +226,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }
 
     const getPayHist = (custId) => {
-        //console.log(`payment history is called ${custId}`)
+        console.log(`payment history is called ${custId}`)
         fetchSalePayHist(custId);
     }
 
@@ -261,32 +251,32 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     <h1>Accounts Receivable</h1>
                     <div>
                         <div className="form-group row">
-                        <div className="col-sm-2">
+                            <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Customer Name</label>
                             </div>
                             <div className="col-sm-6">
-                            <input
-                                type="text"
-                                name="Name"
-                                id="Name"
-                                placeholder="Customer Name"
-                                value={nameInput}
-                                onChange={handleChange} />
+                                <input
+                                    type="text"
+                                    name="Name"
+                                    id="Name"
+                                    placeholder="Customer Name"
+                                    value={nameInput}
+                                    onChange={handleChange} />
                             </div>
                         </div>
                         <div className="form-group row">
-                        <div className="col-sm-2">
+                            <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Agent Name</label>
                             </div>
                             <div className="col-sm-6">
-                            <input
-                                type="text"
-                                name="agentName"
-                                id="agentName"
-                                placeholder="Agent Name"
-                                value={agentNameInput}
-                                onChange={handleChange} />
-                                </div>
+                                <input
+                                    type="text"
+                                    name="agentName"
+                                    id="agentName"
+                                    placeholder="Agent Name"
+                                    value={agentNameInput}
+                                    onChange={handleChange} />
+                            </div>
                         </div>
                         <div>
                             <ReactHTMLTableToExcel
@@ -310,6 +300,14 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
 
                             <h1>Outstanding Customers</h1>
+                            <div>
+                                <div className="inputFormHeader"><h2>Filtered Summary</h2></div>
+                                <div className="inputForm">
+                                    <div>Total Records = {totalRecord}</div>
+                                    <div>Total Invoice Value = {totalInvoiceValue}</div>
+                                    <div>Total Outstanding = {filterOutstanding}</div>
+                                </div>
+                            </div>
                             <table border="1" id="OutstandingCustomer">
                                 <thead>
                                     <tr>
@@ -345,19 +343,12 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                 <td><button type="button" onClick={() => {
                                                     setSInvPayDetail([]);
                                                     setCurrentInvoice([]);
-                                                    selectSaleInvoice([]);
+                                                    // selectSaleInvoice([]);
                                                     setSInvoice([]);
                                                     getPayHist(item.customerId)
                                                 }
-                                                }>Pyament History</button></td>
-                                                <td><button type="button" onClick={() => {
-                                                    setSInvPayDetail([]);
-                                                    setCurrentInvoice([]);
-                                                    selectSaleInvoice([]);
-                                                    setSInvoice([]);
-                                                    getPayHist(item.customerId)
-                                                }
-                                                }>Return History</button></td>
+                                                }>Payment History</button></td>
+
                                             </tr>)
                                     })}
                                 </tbody>

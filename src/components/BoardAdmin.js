@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { Redirect } from 'react-router-dom';
+import {Accordion} from 'react-bootstrap';
 
 import "../App.css";
 
@@ -53,6 +54,7 @@ const BoardAdmin = (props) => {
         {content.includes("Admin") ? 
         <div >
             <Navigation />
+            
         </div>
         :
         // redirect to login page due to unauthrization
@@ -62,6 +64,9 @@ const BoardAdmin = (props) => {
         : 
         ""
         }
+
+
+
      
     </div>
   );

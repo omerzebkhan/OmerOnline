@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Button, Collapse } from 'react-bootstrap'
 
 //import { fetchStockStartAsync } from '../../redux/stock/stock.action';
 import { fetchItemStartAsync } from '../../redux/item/item.action';
@@ -16,14 +18,31 @@ const StockReport = ({
     const [filter, setFilter] = useState("");
     const [data, setData] = useState("");
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
-    const [totalQuantity,setTotalQuantity] = useState([0]);
-    const [totalRecord,setTotalRecord] = useState([0]);
-    const [totalInventoryValue,setTotalInventoryValue] = useState([0]);
-    const [itemPurchaseHistory,setItemPurchaseHistory] = useState([])
-    const [totalQtyPurchaseHistory,setTotalQtyPurchaseHistory] = useState([0]);
-    const [totalRecordPurchaseHistory,setTotalRecordPurchaseHistory] = useState([0]);
-    const [itemSaleHistory,setItemSaleHistory] = useState([])
-    const [itemReturnHistory,setItemReturnHistory] = useState([])
+    const [totalQuantity, setTotalQuantity] = useState([0]);
+    const [totalRecord, setTotalRecord] = useState([0]);
+    const [totalInventoryValue, setTotalInventoryValue] = useState([0]);
+    const [itemPurchaseHistory, setItemPurchaseHistory] = useState([])
+    const [totalQtyPurchaseHistory, setTotalQtyPurchaseHistory] = useState([0]);
+    const [totalRecordPurchaseHistory, setTotalRecordPurchaseHistory] = useState([0]);
+    const [isVisibleSPH, setIsVisibleSPH] = useState(false);
+    const [itemSaleHistory, setItemSaleHistory] = useState([]);
+    const [totalQtySaleHistory, setTotalQtySaleHistory] = useState([0]);
+    const [totalRecordSaleHistory, setTotalRecordSaleHistory] = useState([0]);
+    const [isVisibleSSH, setIsVisibleSSH] = useState(false);
+    const [itemReturnHistory, setItemReturnHistory] = useState([]);
+    const [totalQtyReturnHistory, setTotalQtyReturnHistory] = useState([0]);
+    const [totalRecordReturnHistory, setTotalRecordReturnHistory] = useState([0]);
+    const [isVisibleSRH, setIsVisibleSRH] = useState(false);
+
+    const invokeCollapseSPH = () => {
+        return setIsVisibleSPH(!isVisibleSPH)
+    }
+    const invokeCollapseSSH = () => {
+        return setIsVisibleSSH(!isVisibleSSH)
+    }
+    const invokeCollapseSRH = () => {
+        return setIsVisibleSRH(!isVisibleSRH)
+    }
 
     useEffect(() => {
         fetchItemStartAsync();
@@ -46,12 +65,12 @@ const StockReport = ({
         var sumQuantity = 0
         var sumRecord = 1
         var sumInventoryValue = 0
-        filteredOptionsItem.map((item, index) =>{
+        filteredOptionsItem.map((item, index) => {
             sumQuantity = sumQuantity + item.quantity
             setTotalQuantity(sumQuantity)
             sumRecord = index + 1
             setTotalRecord(sumRecord)
-            sumInventoryValue = sumInventoryValue + (item.quantity*item.averageprice)
+            sumInventoryValue = sumInventoryValue + (item.quantity * item.averageprice)
             setTotalInventoryValue(parseFloat(sumInventoryValue).toFixed(3))
         })
     }, [filteredOptionsItem])
@@ -59,96 +78,115 @@ const StockReport = ({
     useEffect(() => {
         var sumQuantity = 0
         var sumRecord = 1
-        
-        itemPurchaseHistory.map((item, index) =>{
+        itemPurchaseHistory.map((item, index) => {
             sumQuantity = sumQuantity + item.quantity
             setTotalQtyPurchaseHistory(sumQuantity)
             sumRecord = index + 1
             setTotalRecordPurchaseHistory(sumRecord)
-            
+
         })
     }, [itemPurchaseHistory])
 
+    useEffect(() => {
+        var sumQuantity = 0
+        var sumRecord = 1
+        itemSaleHistory.map((item, index) => {
+            sumQuantity = sumQuantity + item.quantity
+            setTotalQtySaleHistory(sumQuantity)
+            sumRecord = index + 1
+            setTotalRecordSaleHistory(sumRecord)
+
+        })
+    }, [itemSaleHistory])
+
+useEffect(() => {
+        var sumQuantity = 0
+        var sumRecord = 1
+        itemReturnHistory.map((item, index) => {
+            sumQuantity = sumQuantity + item.quantity
+            setTotalQtyReturnHistory(sumQuantity)
+            sumRecord = index + 1
+            setTotalRecordReturnHistory(sumRecord)
+
+        })
+    }, [itemReturnHistory])
 
 
+    const getPurchaseHistory = (itemId) => {
+        invokeCollapseSPH();
 
-    const getPurchaseHistory = (itemId) =>{
         console.log(`item for the purchase history ${itemId}`)
         itemService.getItemPurchaseHistory(itemId)
-        .then(response2 => {  
-            setItemPurchaseHistory(response2.data)
-        })
-        .catch(e => {
-            console.log(`get Purchase History error ${e}`);
-        })    
+            .then(response2 => {
+                setItemPurchaseHistory(response2.data)
+            })
+            .catch(e => {
+                console.log(`get Purchase History error ${e}`);
+            })
     }
 
-    const getSaleHistory = (itemId) =>{
+    const getSaleHistory = (itemId) => {
         //console.log(`item for the purchase history ${itemId}`)
+        invokeCollapseSSH();
         itemService.getItemSaleHistory(itemId)
-        .then(response2 => {
-            //console.log(response2.data)
-            setItemSaleHistory(response2.data)
-        })
-        .catch(e => {
-            console.log(`get Sale History  error ${e}`);
-        })
-      //fetchPurInvPayDetial(invoiceId);
-      // setPInvPayDetail(purInvDetail)
+            .then(response2 => {
+                //console.log(response2.data)
+                setItemSaleHistory(response2.data)
+            })
+            .catch(e => {
+                console.log(`get Sale History  error ${e}`);
+            })
+        //fetchPurInvPayDetial(invoiceId);
+        // setPInvPayDetail(purInvDetail)
 
     }
 
-    const getReturnHistory = (itemId) =>{
+    const getReturnHistory = (itemId) => {
         //console.log(`item for the purchase history ${itemId}`)
+        invokeCollapseSRH();
         itemService.getItemReturnHistory(itemId)
-        .then(response2 => {
-            //console.log(response2.data)
-            setItemReturnHistory(response2.data)
-        })
-        .catch(e => {
-            console.log(`get Sale History  error ${e}`);
-        })
-      //fetchPurInvPayDetial(invoiceId);
-      // setPInvPayDetail(purInvDetail)
+            .then(response2 => {
+                //console.log(response2.data)
+                setItemReturnHistory(response2.data)
+            })
+            .catch(e => {
+                console.log(`get Sale History  error ${e}`);
+            })
+        //fetchPurInvPayDetial(invoiceId);
+        // setPInvPayDetail(purInvDetail)
 
     }
 
 
     const searchHandler = event => {
-      
-        if (filter === "Please Select")
-        {setMessage("Select Filter")}
-        else if (data === "Please Select")
-        {setMessage("Select Data ")}
-        else if ( valueInput === "")
-        {setMessage("Select Data Value ")}
+
+        if (filter === "Please Select") { setMessage("Select Filter") }
+        else if (data === "Please Select") { setMessage("Select Data ") }
+        else if (valueInput === "") { setMessage("Select Data Value ") }
         else {
             //Put filter will 
             var selectedItem = [];
-            if (filter === 'Equal To')
-            {
+            if (filter === 'Equal To') {
                 selectedItem = itemData.filter(
-                    (option) => option[data] === parseFloat(valueInput) 
-              );
+                    (option) => option[data] === parseFloat(valueInput)
+                );
             }
-            else if (filter === 'Greater Than')
-            {
+            else if (filter === 'Greater Than') {
                 selectedItem = itemData.filter(
-                    (option) => option[data] > parseFloat(valueInput) 
-              );
+                    (option) => option[data] > parseFloat(valueInput)
+                );
             }
-            else if (filter === 'Less Than')
-            {
+            else if (filter === 'Less Than') {
                 selectedItem = itemData.filter(
-                    (option) => option[data] < parseFloat(valueInput) 
-              );
+                    (option) => option[data] < parseFloat(valueInput)
+                );
             }
-           
-            
+
+
 
             setFilteredOptionsItem(selectedItem)
         }
-        
+
     }
 
     const handleChange = event => {
@@ -201,7 +239,7 @@ const StockReport = ({
                         <option value="Equal To">Equal To</option>
                         <option value="Greater Than">Greater Than</option>
                         <option value="Less Than">Less Than</option>
-                        </select>
+                    </select>
                     Data
                     <select id="Data" name="Data" onChange={handleChange}>
                         <option selected="Please Select">Please Select</option>
@@ -213,7 +251,7 @@ const StockReport = ({
                         <option value="onlineprice">Online Price</option>
                         <option value="showroomprice">Showroom Price</option>
                         <option value="onlinediscount">Online Discount</option>
-                        </select>
+                    </select>
                     <label htmlFor="Name">Value</label>
                     <input
                         type="text"
@@ -223,29 +261,29 @@ const StockReport = ({
                         value={valueInput}
                         onChange={handleChange} />
                     <button className="btn btn-primary" type="button" onClick={searchHandler}>Search</button>
-                    <div>  
-                                        <ReactHTMLTableToExcel  
-                                                className="btn btn-info"  
-                                                table="stockView"  
-                                                filename="ReportExcel"  
-                                                sheet="Sheet"  
-                                                buttonText="Export excel" />  
-                                </div>  
+                    <div>
+                        <ReactHTMLTableToExcel
+                            className="btn btn-info"
+                            table="stockView"
+                            filename="ReportExcel"
+                            sheet="Sheet"
+                            buttonText="Export excel" />
+                    </div>
                 </div>
 
             </form>
             {isFetching ?
                 <div>"Loading data ....."</div> :
                 ""}
-                <div>
-                 <div className="inputFormHeader"><h2>Summary</h2></div>
-                    <div className="inputForm">
+            <div>
+                <div className="inputFormHeader"><h2>Summary</h2></div>
+                <div className="inputForm">
                     <div>Total Item Quantity = {totalQuantity}</div>
                     <div>Total Records = {totalRecord}</div>
                     <div>Inventory Value = {totalInventoryValue}</div>
-                    </div>
                 </div>
-                
+            </div>
+
             {filteredOptionsItem ?
                 <div>
                     <h3>Stock View</h3>
@@ -286,15 +324,15 @@ const StockReport = ({
                                         <td>{item.onlineprice}</td>
                                         <td>{item.showroomprice}</td>
                                         <td>{item.onlinediscount}</td>
-                                        <td><button type="button" onClick={() =>{
+                                        <td><button type="button" onClick={() => {
                                             getPurchaseHistory(item.id)
                                         }}>Purchase History</button></td>
-                                    <td><button type="button" onClick={()=>{
-                                        getSaleHistory(item.id)
+                                        <td><button type="button" onClick={() => {
+                                            getSaleHistory(item.id)
                                         }}>Sale History </button></td>
-                                     <td><button type="button" onClick={()=>{
-                                        getReturnHistory(item.id)
-                                        }}>Return History </button></td>    
+                                        <td><button type="button" onClick={() => {
+                                            getReturnHistory(item.id)
+                                        }}>Return History </button></td>
                                     </tr>
                                 )
                                 )
@@ -309,12 +347,20 @@ const StockReport = ({
             {itemPurchaseHistory ?
                 <div>
                     <div>
-                    <div className="inputFormHeader"><h2>Summary Purchase History</h2></div>
-                    <div className="inputForm">
-                    <div>Total Item Quantity = {totalQtyPurchaseHistory}</div>
-                    <div>Total Records = {totalRecordPurchaseHistory}</div>
+                        
+                        <Button variant="success" className="mb-4" onClick={invokeCollapseSPH}>
+                            Show Purchase History
+                        </Button>
+                        <Collapse in={isVisibleSPH}>
+                            <div id="collapsePanel">
+                                <div>
+                                <div>
+                        <div className="inputFormHeader"><h2>Summary Purchase History</h2></div>
+                        <div className="inputForm">
+                            <div>Total Item Quantity = {totalQtyPurchaseHistory}</div>
+                            <div>Total Records = {totalRecordPurchaseHistory}</div>
+                        </div>
                     </div>
-                </div>
                     <h3>Purchase History </h3>
                     <table border='1' id="Purchase History">
 
@@ -354,14 +400,32 @@ const StockReport = ({
                             }
                         </tbody>
                     </table>
+                                   
+                                </div>
+                            </div>
+                        </Collapse>
+                    </div>
                 </div>
                 :
                 ""
             }
 
-{itemSaleHistory ?
+            {itemSaleHistory ?
                 <div>
-                    <h3>Sale History </h3>
+                      <Button variant="success" className="mb-4" onClick={invokeCollapseSSH}>
+                            Show Sale History
+                        </Button>
+                        <Collapse in={isVisibleSSH}>
+                            <div id="collapsePanel">
+                                <div>
+                                <div>
+                        <div className="inputFormHeader"><h2>Summary Sale History</h2></div>
+                        <div className="inputForm">
+                            <div>Total Item Quantity = {totalQtySaleHistory}</div>
+                            <div>Total Records = {totalRecordSaleHistory}</div>
+                        </div>
+                    </div>
+                                <h3>Sale History </h3>
                     <table border='1' id="Sale History">
 
                         <thead>
@@ -400,13 +464,31 @@ const StockReport = ({
                             }
                         </tbody>
                     </table>
+
+                                </div>
+                            </div>
+                        </Collapse>
+                   
                 </div>
                 :
                 ""
             }
-        {itemReturnHistory ?
+            {itemReturnHistory ?
                 <div>
-                    <h3>Return History </h3>
+                    <Button variant="success" className="mb-4" onClick={invokeCollapseSRH}>
+                            Show Return History
+                        </Button>
+                        <Collapse in={isVisibleSRH}>
+                            <div id="collapsePanel">
+                                <div>
+                                <div>
+                        <div className="inputFormHeader"><h2>Summary Return History</h2></div>
+                        <div className="inputForm">
+                            <div>Total Item Quantity = {totalQtyReturnHistory}</div>
+                            <div>Total Records = {totalRecordReturnHistory}</div>
+                        </div>
+                    </div>    
+                                <h3>Return History </h3>
                     <table border='1' id="Return History">
 
                         <thead>
@@ -441,10 +523,15 @@ const StockReport = ({
                             }
                         </tbody>
                     </table>
+
+                                </div>
+                            </div>
+                        </Collapse>
+                    
                 </div>
                 :
                 ""
-            }    
+            }
 
         </div>
     )

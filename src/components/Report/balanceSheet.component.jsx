@@ -150,14 +150,14 @@ const BalanceSheet =({}) => {
                 <tbody>
                   {   <tr>
                         <td>{totalRows}</td>
-                        <td>{totalSale}</td>
-                        <td>{totalProfit}</td>
-                        <td>{totalPurchase}</td>
-                        <td>{totalExpense}</td>
-                        <td>{totalCashRec}</td>
-                        <td>{totalBankRec}</td>
-                        <td>{totalCashPaid}</td>
-                        <td>{totalBankPaid}</td>
+                        <td>{parseFloat(totalSale).toFixed(3)}</td>
+                        <td>{parseFloat(totalProfit).toFixed(3)}</td>
+                        <td>{parseFloat(totalPurchase).toFixed(3)}</td>
+                        <td>{parseFloat(totalExpense).toFixed(3)}</td>
+                        <td>{parseFloat(totalCashRec).toFixed(3)}</td>
+                        <td>{parseFloat(totalBankRec).toFixed(3)}</td>
+                        <td>{parseFloat(totalCashPaid).toFixed(3)}</td>
+                        <td>{parseFloat(totalBankPaid).toFixed(3)}</td>
                       </tr>
                   }
                 </tbody>
@@ -186,14 +186,14 @@ const BalanceSheet =({}) => {
                       //   console.log(item);
                       <tr key={index} >
                         <td>{item.date}</td>
-                        <td>{item.totalSale}</td>
-                        <td>{item.totalProfit}</td>
-                        <td>{item.totalPurchase}</td>
-                        <td>{item.totalExpense}</td>
-                        <td>{item.totalCashReceived}</td>
-                        <td>{item.totalBankReceived}</td>
-                        <td>{item.totalCashPaid}</td>
-                        <td>{item.totalBankPaid}</td>
+                        <td>{parseFloat(item.totalSale).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalProfit).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalPurchase).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalExpense).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalCashReceived).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalBankReceived).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalCashPaid).toFixed(3)}</td>
+                        <td>{parseFloat(item.totalBankPaid).toFixed(3)}</td>
                       </tr>
                     ))
                   }
