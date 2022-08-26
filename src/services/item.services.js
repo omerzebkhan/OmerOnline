@@ -26,8 +26,12 @@ class itemDataService {
     return http.get(`/itemReturnHistory/${id}`);
   }
 
-  getItemlimitReport(id){
+  getItemlimitReport(){
     return http.get(`/itemLimitReport/`);
+  }
+
+  getItemTrend(sDate,eDate) {
+    return http.get(`/itemTrend/${sDate}/${eDate}`);
   }
 
   create(data) {

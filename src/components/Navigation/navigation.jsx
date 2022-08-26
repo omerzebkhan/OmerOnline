@@ -52,6 +52,7 @@ const Navigation = (props) => {
                 <NavDropdown.Item href="/SaleReturnReport">Sale Return Report</NavDropdown.Item>
                 <NavDropdown.Item href="/BalanceSheetReport">Balance Sheet</NavDropdown.Item>
                 <NavDropdown.Item href="/ItemLimitReport">Item Limit Report</NavDropdown.Item>
+                <NavDropdown.Item href="/ItemTrendReport">Item Trend Report</NavDropdown.Item>
                 </NavDropdown>    
             </Nav>
           
