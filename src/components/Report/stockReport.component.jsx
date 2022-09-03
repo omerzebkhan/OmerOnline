@@ -301,6 +301,7 @@ useEffect(() => {
                                 <th>Online Price</th>
                                 <th>Showroom Price</th>
                                 <th>Online Discount</th>
+                                <th>Invest 1 Stock</th>
                             </tr>
                         </thead>
 
@@ -324,6 +325,7 @@ useEffect(() => {
                                         <td>{item.onlineprice}</td>
                                         <td>{item.showroomprice}</td>
                                         <td>{item.onlinediscount}</td>
+                                        <td>{item.investone}</td>
                                         <td><button type="button" onClick={() => {
                                             getPurchaseHistory(item.id)
                                         }}>Purchase History</button></td>
