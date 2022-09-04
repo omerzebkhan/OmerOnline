@@ -118,6 +118,7 @@ const SellingItemTrend = () => {
                                 <th onClick={() => requestSort('profit','Float')}>Profit</th>
                                 <th onClick={() => requestSort('name','Text')}>Name</th>
                                 <th onClick={() => requestSort('averageprice','Float')}>Average Price</th>
+                                <th onClick={() => requestSort('quantity','Float')}>Quantity</th>
 
                             </tr>
                         </thead>
@@ -139,6 +140,7 @@ const SellingItemTrend = () => {
                                         <td>{parseFloat(item.profit).toFixed(3)}</td>
                                         <td>{item.name}</td>
                                         <td>{item.averageprice}</td>
+                                        <td>{item.quantity}</td>
                                     </tr>
                                 )
                                 )

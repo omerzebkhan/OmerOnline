@@ -317,7 +317,7 @@ useEffect(() => {
                                     >
                                         <td>{item.id}</td>
                                         <td>{item.name}</td>
-                                        <td>{item.averageprice}</td>
+                                        <td>{parseFloat(item.averageprice).toFixed(3)}</td>
                                         <td>{item.quantity}</td>
                                         <td>{item.online}</td>
                                         <td>{item.showroom}</td>
