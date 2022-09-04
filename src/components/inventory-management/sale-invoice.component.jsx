@@ -166,10 +166,10 @@ const SaleInvoice = ({
         {setMessage('Select Item and Enter Quantity & Price')}
 
         else{
-        // if (cItem[0].showroom < parseInt(quantity)) {
-        //     setMessage('Quantity is greated than Stock');
-        // } 
-        // else {
+        if (cItem[0].showroom < parseInt(quantity)) {
+            setMessage('Quantity is greated than Stock');
+        } 
+        else {
             setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
             var total = parseFloat(price).toFixed(3);
             var qty = parseInt(quantity);
@@ -192,7 +192,7 @@ const SaleInvoice = ({
                 setTotalInvoiceCost(totalInvoiceCost + (cost * qty));
                 setTotalInvoiceProfit(totalInvoiceProfit + ((price * quantity) - (cItem[0].averageprice * quantity)));
 
-            //}
+            }
         }
 
     }
