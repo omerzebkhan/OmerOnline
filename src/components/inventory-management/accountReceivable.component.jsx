@@ -80,7 +80,22 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [filteredOptionsName])
 
     useEffect(() => {
-        setSInvoice(saleInvoice);
+        //order the array and assign it to sInvoice
+        if (saleInvoice){
+
+        var arr = saleInvoice;
+
+        function sortByKey(a, b) {
+            //console.log(`sorting array ${a.Outstanding}`)
+                return parseFloat(a.Outstanding) > parseFloat(b.Outstanding) ? -1 : parseFloat(a.Outstanding) < parseFloat(b.Outstanding) ? 1 : 0;
+        }
+          
+          const sorted = arr.sort(sortByKey);
+          //        console.log(sorted);
+        console.log(sorted)
+          
+        setSInvoice(sorted);
+    }
     }, [saleInvoice])
 
     useEffect(() => {
