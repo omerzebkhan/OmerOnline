@@ -13,6 +13,7 @@ const ItemLimitReport = () => {
     const [itemLimit,setItemLimit]= useState([])
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
     const [filter, setFilter] = useState("");
+    const [sortConfig, setSortConfig] = useState();
 
     useEffect(() => {
         getItemLimit();
@@ -40,21 +41,57 @@ const ItemLimitReport = () => {
         })
     }
 
+
+    const  requestSort = async (key,type) => {
+   
+        console.log('sorting function')
+        console.log(type)
+        if (sortConfig === 'ascending' ) {
+          setSortConfig('descending');
+        }
+        else
+        {
+            setSortConfig('ascending');
+        }
+        //sort base on the key and sortcofig
+
+        var arr = itemLimit;
+
+        function sortByKey(a, b) {
+
+            if ((type ==='Float' ? parseFloat(a[key]) : a[key])  < (type ==='Float' ? parseFloat(b[key]): b[key])) {
+                return sortConfig === 'ascending' ? -1 : 1;
+              }
+              if ((type ==='Float' ? parseFloat(a[key]): a[key]) > (type ==='Float' ? parseFloat(b[key]): b[key])) {
+                return sortConfig === 'ascending' ? 1 : -1;
+              }
+              return 0;
+            }
+            
+  
+          const sorted = arr.sort(sortByKey);
+          //        console.log(sorted);
+        console.log(sorted)
+          setFilteredOptionsItem(sorted);
+
+
+      };
+
     
-    const handleChange = event => {
-        console.log(event.target.value);
-        if (event.target.value === 'lowerlimit') {
-            setFilteredOptionsItem(itemLimit.filter(
-                (option) => option.quantity <= option.lowerlimit
-            ));
-        }
-        else if (event.target.value === 'higherlimit') {
-            setFilteredOptionsItem( itemLimit.filter(
-                (option) => option.quantity >= option.higherlimit
-            ));
-        }
+    // const handleChange = event => {
+    //     console.log(event.target.value);
+    //     if (event.target.value === 'lowerlimit') {
+    //         setFilteredOptionsItem(itemLimit.filter(
+    //             (option) => option.quantity <= option.lowerlimit
+    //         ));
+    //     }
+    //     else if (event.target.value === 'higherlimit') {
+    //         setFilteredOptionsItem( itemLimit.filter(
+    //             (option) => option.quantity >= option.higherlimit
+    //         ));
+    //     }
         
-    }
+    // }
 
   
   
@@ -63,12 +100,12 @@ const ItemLimitReport = () => {
         <div className="submit-form container">
 
             <h1>Item Limit Report</h1>
-            Filter
+            {/* Filter
                     <select id="Filter" name="Filter" onChange={handleChange}>
                         <option selected="Please Select">Please Select</option>
                         <option value="lowerlimit">less than lower limit</option>
                         <option value="higherlimit">More than higher limit</option>
-                    </select>
+                    </select> */}
                     <div>
                         <ReactHTMLTableToExcel
                             className="btn btn-info"
@@ -85,33 +122,33 @@ const ItemLimitReport = () => {
 
                         <thead>
                             <tr>
-                                <th>Id</th>
-                                <th>Item Name</th>
-                                <th>Quantity</th>
-                                <th>Lower Limit</th>
-                                <th>Higher Limit</th>
+                            <th onClick={() => requestSort('id','Float')}>Id</th>
+                            <th onClick={() => requestSort('name','Text')}>Item Name</th>
+                            <th onClick={() => requestSort('quantity','Text')}>Quantity</th>
+                            <th onClick={() => requestSort('totalsale','Text')}>Total Sale</th>
+                            <th onClick={() => requestSort('totalsale30days','Text')}>30 Days</th>
+                            <th onClick={() => requestSort('totalsale90days','Text')}>90 Days</th>
+                            <th onClick={() => requestSort('totalsale180days','Text')}>180 Days</th>
+                            <th onClick={() => requestSort('totalsale365days','Text')}>365 Days</th>
                             </tr>
                         </thead>
-
                         <tbody>
-
-
                             {
                                 filteredOptionsItem.map((item, index) => (
                                     //   console.log(item);
-
                                     <tr key={index}
                                     //onClick={() => setActiveBrand(item, index)}
                                     >
                                         <td>{item.id}</td>
                                         <td>{item.name}</td>
                                         <td>{item.quantity}</td>
-                                        <td>{item.lowerlimit}</td>
-                                        <td>{item.higherlimit}</td>
+                                        <td>{item.totalsale}</td>
+                                        <td>{item.totalsale30days}</td>
+                                        <td>{item.totalsale90days}</td>
+                                        <td>{item.totalsale180days}</td>
+                                        <td>{item.totalsale365days}</td>
                                     </tr>
-                                )
-                                )
-
+                                ))
                             }
                         </tbody>
                     </table>
@@ -119,8 +156,6 @@ const ItemLimitReport = () => {
                 :
                 ""
             }
-          
-       
         </div>
     )
 }

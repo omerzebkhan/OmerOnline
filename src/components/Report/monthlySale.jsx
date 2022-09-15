@@ -1,19 +1,15 @@
 import React, { useState, useEffect } from 'react';
-//import { connect } from 'react-redux';
 
-//import { fetchStockStartAsync } from '../../redux/stock/stock.action';
-//import { fetchItemStartAsync } from '../../redux/item/item.action';
-//import { setMessage } from '../../redux/user/user.action';
 import itemService from "../../services/item.services";
 import DatePicker from "react-datepicker";
-import {sortTable } from "../../helper/commonFunctions";
+import inventoryService from '../../services/inventory.service';
+
 
 //import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
-const SellingItemTrend = () => {
+const MonthlySale = () => {
 
-
-    const [itemTrend, setItemTrend] = useState([])
+    const [saleMonthly, setSaleMonthly] = useState([])
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [sortConfig, setSortConfig] = useState();
@@ -27,7 +23,7 @@ const SellingItemTrend = () => {
     const handleEndDTPicker = (date) => { setEndDate(date); }
     const handleSubmit = event => {
         event.preventDefault();
-        getItemTrend();
+        getMonthlySale();
 
     }
 
@@ -44,7 +40,7 @@ const SellingItemTrend = () => {
         }
         //sort base on the key and sortcofig
 
-        var arr = itemTrend;
+        var arr = saleMonthly;
 
         function sortByKey(a, b) {
 
@@ -69,11 +65,11 @@ const SellingItemTrend = () => {
      
 
 
-    const getItemTrend = () => {
+    const getMonthlySale = () => {
 
-        itemService.getItemTrend(startDate.toDateString(), endDate.toDateString())
+        inventoryService.getMonthlySale(startDate.toDateString(), endDate.toDateString())
             .then(response2 => {
-                setItemTrend(response2.data)
+                saleMonthly(response2.data)
                 setFilteredOptionsItem(response2.data)
             })
             .catch(e => {
@@ -82,20 +78,7 @@ const SellingItemTrend = () => {
     }
 
 
-    const handleChange = event => {
-        //console.log(event);
-        if (event.target.id === "Name") {
-            setItemInput(event.target.value);
-                
-                if (event.target.value === "") {    
-                    setFilteredOptionsItem(itemTrend);
-                }
-                else {
-                setFilteredOptionsItem(itemTrend.filter(
-                    (option) => option.name.toLowerCase().indexOf(itemInput.toLowerCase()) > -1
-                ));
-            }
-        }}
+   
 
 
 
@@ -103,7 +86,7 @@ const SellingItemTrend = () => {
     return (
         <div className="submit-form container">
 
-            <h1>Item Trend Report</h1>
+            <h1>Monthly Sale Report</h1>
             <form onSubmit={handleSubmit}>
                 <div>
 
@@ -188,4 +171,4 @@ const SellingItemTrend = () => {
 
 
 
-export default (SellingItemTrend);
+export default (MonthlySale);
