@@ -133,6 +133,11 @@ class inventoryDataService {
      return http.get(`/saleMonthly/${sDate}/${eDate}`);
    }
 
+   getSaleAgentTrend(sDate,eDate) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/saleAgentTrend/${sDate}/${eDate}`);
+   }
+
    getSaleByLatestDate(itemId,customerId) {
     // console.log(`dates are ${sDate} ${eDate}`)
      return http.get(`/saleByLatestDate/${itemId}/${customerId}`);
@@ -177,6 +182,9 @@ class inventoryDataService {
   getAllSaleDetailByInvoice(id) {
     return http.get(`/saleDetailById/${id}`);
   }
+
+ 
+
 
   createSaleDetail(data) {
     // console.log(data);

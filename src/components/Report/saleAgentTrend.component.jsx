@@ -14,11 +14,11 @@ ChartJS.register(...registerables);
 
 
 
-const MonthlySale = () => {
+const SaleAgentTrend = () => {
 
     
 
-    const [saleMonthly, setSaleMonthly] = useState([])
+    const [saleAgentTrend, setSaleAgentTrend] = useState([])
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [sortConfig, setSortConfig] = useState();
@@ -77,7 +77,7 @@ const [barOptions, setBarOptions] = useState({
     const handleEndDTPicker = (date) => { setEndDate(date); }
     const handleSubmit = event => {
         event.preventDefault();
-        getMonthlySale();
+        getSaleAgentTrend();
 
     }
 
@@ -94,7 +94,7 @@ const [barOptions, setBarOptions] = useState({
         }
         //sort base on the key and sortcofig
 
-        var arr = saleMonthly;
+        var arr = saleAgentTrend;
 
         function sortByKey(a, b) {
 
@@ -119,16 +119,16 @@ const [barOptions, setBarOptions] = useState({
      
 
 
-    const getMonthlySale = () => {
+    const getSaleAgentTrend = () => {
 
-        inventoryService.getMonthlySale(startDate.toDateString(), endDate.toDateString())
+        inventoryService.getSaleAgentTrend(startDate.toDateString(), endDate.toDateString())
             .then(response2 => {
-                setSaleMonthly(response2.data)
+                setSaleAgentTrend(response2.data)
                 setFilteredOptionsItem(response2.data)
                 // Graph data
                 console.log(response2.data) 
-                const header = Object.keys(response2.data).map((index,key) => response2.data[index].month);
-                const result = Object.keys(response2.data).map((index,key) => response2.data[index].totalsale);
+                const header = Object.keys(response2.data).map((index,key) => response2.data[index].name);
+                const result = Object.keys(response2.data).map((index,key) => response2.data[index].count);
                 console.log(result)
                 setBarData({
                     labels: header,
@@ -149,14 +149,14 @@ const [barOptions, setBarOptions] = useState({
                 /////////////////////////////////////////////////
             })
             .catch(e => {
-                console.log(`get monthly sale Report error ${e}`);
+                console.log(`get sale agent Report error ${e}`);
             })
     }
 
     return (
         <div className="submit-form container">
 
-            <h1>Monthly Sale Report</h1>
+            <h1>Monthly Sale Agent Trend Report</h1>
             <form onSubmit={handleSubmit}>
                 <div>
 
@@ -179,11 +179,11 @@ const [barOptions, setBarOptions] = useState({
             {filteredOptionsItem.length >0 ?
                 <div>
 
-                    <table border='1' id="itemLimitView">
+                    <table border='1' id="SaleAgentTrendView">
 
                         <thead>
                             <tr>
-                                <th onClick={() => requestSort('month','Float')}>Month</th>
+                                <th onClick={() => requestSort('month','Float')}>Agent</th>
                                 <th onClick={() => requestSort('totalSale','Float')}>Total Sale</th>
                                 
                             </tr>
@@ -199,8 +199,8 @@ const [barOptions, setBarOptions] = useState({
                                     <tr key={index}
                                     //onClick={() => setActiveBrand(item, index)}
                                     >
-                                        <td>{item.month}</td>
-                                        <td>{item.totalsale}</td>
+                                        <td>{item.name}</td>
+                                        <td>{item.count}</td>
                                     </tr>
                                 )
                                 )
@@ -225,4 +225,4 @@ const [barOptions, setBarOptions] = useState({
 
 
 
-export default (MonthlySale);
+export default (SaleAgentTrend);
