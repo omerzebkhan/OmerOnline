@@ -16,7 +16,11 @@ const LandingPage =() =>{
         <CategoryCard />
         <div onClick={()=>{
                 //console.log("calling item list");
-                <ListItem />
+                
+                   <ListItem />
+
+                
+               
                 }}>
         </div>
         

@@ -29,6 +29,7 @@ const CategoryCard = ({
                 onClick={()=>{
                 console.log("calling item list");
                 setCurrentCategory(item.id);
+                localStorage.setItem("localCategory",item.id);
                 history.push('/ItemList')
                 }}>
                   <Card.Img 

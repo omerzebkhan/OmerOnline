@@ -63,7 +63,7 @@ const EditSale = ({
         fetchItemStartAsync();
     }, [fetchItemStartAsync])
 
-    
+
     useEffect(() => {
         ////// load current invoice detail in Invoice Item from saleInvoiceDetailData
         //setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, quantity, price, cItem[0].averageprice, (price * quantity) - (cItem[0].averageprice * quantity), cItem[0].id]]);
@@ -95,10 +95,10 @@ const EditSale = ({
         event.preventDefault();
         console.log(cCustomer.length)
         if (cCustomer.length > 0) {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,"0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0");
         }
         else {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0");
         }
 
     }
@@ -139,97 +139,140 @@ const EditSale = ({
         console.log('edit sale invoice.....')
         if (sdId === "") {
             console.log(`new sale details should be added....${saleInvoice}`)
-            setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, sdQuantity, sdPrice, cItem[0].averageprice, (sdPrice * sdQuantity) - (cItem[0].averageprice * sdQuantity), cItem[0].id, '', saleInvoice]]);
+            console.log(`showroom = ${cItem[0].showroom}  :: Sale Detail Qty = ${sdQuantity} `)
+            if (cItem[0].showroom >= sdQuantity) {
+                setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, sdQuantity, sdPrice, cItem[0].averageprice, (sdPrice * sdQuantity) - (cItem[0].averageprice * sdQuantity), cItem[0].id, '', saleInvoice]]);
+            }
+            else {
+                setMessage("Entered Quantity is greater than available showroom stock in add item")
+            }
         }
         else {
             ////////////////////////////////// update invoce detail
             var idData = { price: sdPrice, quantity: sdQuantity };
 
-            inventoryService.updateSaleDetail(sdId, idData)
-                .then(resUpdateBalance => {
-                    setMessage("Sale Details updated .......");
-                    console.log("Sale Details updated .......");
+            //////////////////////calaulate the value diff between old and new value
+            //console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
+            var priceDiff = 0;
+            var quantityDiff = 0;
+            var amountDiff = 0;
 
-                    ////////////////////////////////////////////////////////////
+            priceDiff = sdOldPrice - sdPrice;
 
-                    ////////////////////////////////// update invoce Detail outstanding amount 
-                    // call new service to recalculate the invoice value of given invoice no
-                    inventoryService.getSaleRecalculate(sInvoiceId)
-                        .then(res => {
-                            setMessage("Sale Recalculated .......");
-                            console.log(`Sale Recalculated .......`);
-                        })
-                        .catch(error => {
-                            setMessage(`catch of Recalculated ${error.response.request.response.message}`)
-                            console.log(`catch of Recalculated ${error.response.request.response.message}`);
-                        })
-
-                    //////////////////////calaulate the value diff between old and new value
-                    //console.log(`sdoldprice = ${sdOldPrice}  sdprice = ${sdPrice}`)
-                    var priceDiff = 0;
-                    var quantityDiff = 0;
-                    var amountDiff = 0;
-
-                    priceDiff = sdOldPrice - sdPrice;
-
-                    quantityDiff = sdOldQuantity - sdQuantity;
+            quantityDiff = sdOldQuantity - sdQuantity;
 
 
-                    if (priceDiff !== 0 && quantityDiff !== 0) {
-                        amountDiff = priceDiff * amountDiff;
-                    }
-                    else if (priceDiff === 0 && quantityDiff !== 0) {
-                        amountDiff = sdOldPrice * quantityDiff;
-                    }
-                    else if (priceDiff !== 0 && quantityDiff === 0) {
-                        amountDiff = priceDiff * sdOldQuantity;
-                    }
-                    console.log(`
+            if (priceDiff !== 0 && quantityDiff !== 0) {
+                amountDiff = priceDiff * amountDiff;
+            }
+            else if (priceDiff === 0 && quantityDiff !== 0) {
+                amountDiff = sdOldPrice * quantityDiff;
+            }
+            else if (priceDiff !== 0 && quantityDiff === 0) {
+                amountDiff = priceDiff * sdOldQuantity;
+            }
+            console.log(`
                 Price Diff = ${sdOldPrice} - ${sdPrice} =  ${priceDiff}
                 Quanity Diff = ${sdOldQuantity} - ${sdQuantity} = ${quantityDiff} = ${quantityDiff}
                 Amount Diff = ${amountDiff * -1}
                 `)
 
-                    ///////////////////////////update item value for the stock management
+           
+                // -ive value mean to reduce the stock so check this value with the showroom quantity
+                 ///////////////////////////update item value for the stock management
                     //                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
                     //if (quantityDiff > 0) {
-                        //get current customer values 
-                        console.log(`item id = ${sdItemId}`)
-                        itemService.get(sdItemId)
-                            .then(res => {
-                                var iData = {
-                                    quantity: res.data.quantity + (quantityDiff),
-                                    showroom: res.data.showroom + (quantityDiff)
-                                }
-                                console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......
+                    //get current customer values 
+                    console.log(`item id = ${sdItemId}`)
+                    itemService.get(sdItemId)
+                        .then(res => {
+                            var iData = {
+                                quantity: res.data.quantity + (quantityDiff),
+                                showroom: res.data.showroom + (quantityDiff)
+                            }
+                            console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......
                                  quantity update value = ${iData.quantity}
                                 `);
-                                itemService.update(sdItemId, iData)
-                                    .then(res => {
-                                        console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
-                                    })
-                                    .catch(error => {
-                                        setMessage(`catch of Item update ${error.response.request.response.message}`)
-                                        console.log(`catch of Item update ${error.response.request.response.message}`);
-                                    })
+
+                            if (iData.showroom<0)
+                            {
+                                // stock value will become -ive
+                                setMessage("Entered value is greater than available showroom value in Update Item")
+                            }
+                            else 
+                            {
+
+                                inventoryService.updateSaleDetail(sdId, idData)
+                                .then(resUpdateBalance => {
+                                    setMessage("Sale Details updated .......");
+                                    console.log("Sale Details updated .......");
+                
+                                    ////////////////////////////////////////////////////////////
+                
+                                    ////////////////////////////////// update invoce Detail outstanding amount 
+                                    // call new service to recalculate the invoice value of given invoice no
+                                    inventoryService.getSaleRecalculate(sInvoiceId)
+                                        .then(res => {
+                                            setMessage("Sale Recalculated .......");
+                                            console.log(`Sale Recalculated .......`);
+                                        })
+                                        .catch(error => {
+                                            setMessage(`catch of Recalculated ${error.response.request.response.message}`)
+                                            console.log(`catch of Recalculated ${error.response.request.response.message}`);
+                                        })
+                
+                
+                                    ///////////////////////////update item value for the stock management
+                                    //                console.log(`sdoldQuantity = ${sdOldQuantity}  sdprice = ${sdQuantity}`)
+                                    //if (quantityDiff > 0) {
+                                    //get current customer values 
+                                    // console.log(`item id = ${sdItemId}`)
+                                    // itemService.get(sdItemId)
+                                    //     .then(res => {
+                                    //         var iData = {
+                                    //             quantity: res.data.quantity + (quantityDiff),
+                                    //             showroom: res.data.showroom + (quantityDiff)
+                                    //         }
+                                    //         console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......
+                                    //              quantity update value = ${iData.quantity}
+                                    //             `);
+                                            itemService.update(sdItemId, iData)
+                                                .then(res => {
+                                                    console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
+                                                })
+                                                .catch(error => {
+                                                    setMessage(`catch of Item update ${error.response.request.response.message}`)
+                                                    console.log(`catch of Item update ${error.response.request.response.message}`);
+                                                })
+                                        
+                                        // .catch(error => {
+                                        //     setMessage(`catch of Item ${error.response.request.response.message}`)
+                                        //     console.log(`catch of Item ${error.response.request.response.message}`);
+                                        // })
+                
+                                    // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
+                                    // }
+                
+                                    ////////////////////////////////////////////////////////////
+                
+                                })
+                                .catch(error => {
+                                    setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
+                                    console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
+                                })
+                            }
                             })
-                            .catch(error => {
-                                setMessage(`catch of Item ${error.response.request.response.message}`)
-                                console.log(`catch of Item ${error.response.request.response.message}`);
-                            })
+                        .catch(error => {
+                                    setMessage(`catch of Item ${error.response.request.response.message}`)
+                                    console.log(`catch of Item ${error.response.request.response.message}`);
+                                })
 
-                        // console.log(`update item quantity & showroom with current quantity - ${sdOldPrice - sdPrice} `)
-                   // }
+            }
 
-                    ////////////////////////////////////////////////////////////
 
-                })
-                .catch(error => {
-                    setMessage(`catch of updateSaleDetail ${error.response.request.response.message}`)
-                    console.log(`catch of updateSaleDetail ${error.response.request.response.message}`);
-                })
+           
 
-        }
+        
         /////should refresh the screen
         ////hide edit screen
         setEdit("False")
@@ -327,58 +370,82 @@ const EditSale = ({
                 });
 
                 console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
+                //1- check if the entered quantity is available in the stock
 
-                inventoryService.createSaleDetail(sDetailData)
-                    .then(response1 => {
-                        setMessage("Sale Detail Entered");
-                        console.log("Sale Detail Entered")
-                        console.log(response1.data);
+                itemService.get(item[6])
+                    .then(response2 => {
+                        console.log("get specific Item detail")
+                        console.log(response2.data);
+                        const { id, quantity, showroom, averagePrice } = response2.data;
+                        // console.log(`item id = ${id}
+                        // item Quantity = ${quantity}
+                        // Item showroom = ${showroom}
+                        // Item averagePrice = ${averagePrice}
+                        // `);
+                        // update quantity and showroom  of item
+                        var itemUpdated = {
+                            quantity: parseInt(quantity) - parseInt(item[2]),
+                            showroom: parseInt(showroom) - parseInt(item[2])
+                        }
+                        // if updted showroom quantity is >= 0 mean greater than available stock
+                        if (itemUpdated.showroom >= 0) {
 
-                        ////////////////////////////////// update invoce Detail outstanding,tatalitem,invoice value 
-                        // call new service to recalculate the invoice value of given invoice no
-                        inventoryService.getSaleRecalculate(sDetailData.saleInvoiceId)
-                            .then(res => {
-                                setMessage("Sale Recalculated .......");
-                                console.log(`Sale Recalculated .......`);
-                            })
-                            .catch(error => {
-                                setMessage(`catch of Recalculated ${error.response.request.response.message}`)
-                                console.log(`catch of Recalculated ${error.response.request.response.message}`);
-                            })
-                        ////////////////////////////////////////////////////////////////
+                            inventoryService.createSaleDetail(sDetailData)
+                                .then(response1 => {
+                                    setMessage("Sale Detail Entered");
+                                    console.log("Sale Detail Entered")
+                                    console.log(response1.data);
+
+                                    ////////////////////////////////// update invoce Detail outstanding,tatalitem,invoice value 
+                                    // call new service to recalculate the invoice value of given invoice no
+                                    inventoryService.getSaleRecalculate(sDetailData.saleInvoiceId)
+                                        .then(res => {
+                                            setMessage("Sale Recalculated .......");
+                                            console.log(`Sale Recalculated .......`);
+                                        })
+                                        .catch(error => {
+                                            setMessage(`catch of Recalculated ${error.response.request.response.message}`)
+                                            console.log(`catch of Recalculated ${error.response.request.response.message}`);
+                                        })
+                                    ////////////////////////////////////////////////////////////////
 
 
-                        //Updating Item Stock
-                        // get quantity and averageprice of an item
-                        itemService.get(item[6])
-                            .then(response2 => {
-                                console.log("get specific Item detail")
-                                console.log(response2.data);
-                                const { id, quantity, showroom, averagePrice } = response2.data;
-                                // console.log(`item id = ${id}
-                                // item Quantity = ${quantity}
-                                // Item showroom = ${showroom}
-                                // Item averagePrice = ${averagePrice}
-                                // `);
-                                console.log(`invoice quantity = ${parseInt(item[2])} `)
-                                // update quantity and showroom  of item
-                                var itemUpdated = {
-                                    quantity: parseInt(quantity) - parseInt(item[2]),
-                                    showroom: parseInt(showroom) - parseInt(item[2])
-                                }
-                                itemService.update(id, itemUpdated)
-                                    .then(response4 => {setMessage(`Updated Stock value successfully`); })
-                                    .catch(e => {console.log(`catch of update Stock ${e} error from server  ${e.message}`); })
-                            })
-                            .catch(e => {console.log(`catch of specific item detail ${e} error from server  ${e.message}`); })
+                                    //Updating Item Stock
+                                    // get quantity and averageprice of an item
+                                    // itemService.get(item[6])
+                                    //     .then(response2 => {
+                                    //         console.log("get specific Item detail")
+                                    //         console.log(response2.data);
+                                    //         const { id, quantity, showroom, averagePrice } = response2.data;
+                                    // console.log(`item id = ${id}
+                                    // item Quantity = ${quantity}
+                                    // Item showroom = ${showroom}
+                                    // Item averagePrice = ${averagePrice}
+                                    // `);
+                                    console.log(`invoice quantity = ${parseInt(item[2])} `)
+                                    // update quantity and showroom  of item
+                                    // var itemUpdated = {
+                                    //     quantity: parseInt(quantity) - parseInt(item[2]),
+                                    //     showroom: parseInt(showroom) - parseInt(item[2])
+                                    // }
+                                    itemService.update(id, itemUpdated)
+                                        .then(response4 => { setMessage(`Updated Stock value successfully`); })
+                                        .catch(e => { console.log(`catch of update Stock ${e} error from server  ${e.message}`); })
+                                    // })
+                                    // .catch(e => { console.log(`catch of specific item detail ${e} error from server  ${e.message}`); })
+                                })
+                                .catch(e => { setMessage(`catch of sale detail ${e} `); console.log(`catch of sale detail ${e} `); })
+
+
+
+                        }
+                        else {
+                            setMessage("Entered Quantity is More than available stock");
+                        }
                     })
-                    .catch(e => {setMessage(`catch of sale detail ${e} `);  console.log(`catch of sale detail ${e} `);})
+                    .catch(e => { setMessage(`catch of sale detail query item ${e} `); console.log(`catch of sale detail ${e} `); })
             }
         })
-
-
-        
-
 
     }
 
@@ -884,7 +951,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    fetchSaleByDate: (sDate, eDate, id,id1) => dispatch(fetchSaleByDate(sDate, eDate, id,id1)),
+    fetchSaleByDate: (sDate, eDate, id, id1) => dispatch(fetchSaleByDate(sDate, eDate, id, id1)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
     fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),

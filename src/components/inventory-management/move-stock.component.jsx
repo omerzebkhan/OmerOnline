@@ -78,7 +78,7 @@ const MoveStock =({
           else{
             const options = itemData;
             setSelectedItem( options.filter(
-                (option) => option.itemName.toLowerCase().includes(userInput.toLowerCase())
+                (option) => option.name.toLowerCase().includes(userInput.toLowerCase())
           ))
 
             setFilteredOptions(filteredOptions);
