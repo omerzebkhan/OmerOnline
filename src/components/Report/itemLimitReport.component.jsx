@@ -124,12 +124,13 @@ const ItemLimitReport = () => {
                             <tr>
                             <th onClick={() => requestSort('id','Float')}>Id</th>
                             <th onClick={() => requestSort('name','Text')}>Item Name</th>
-                            <th onClick={() => requestSort('quantity','Text')}>Quantity</th>
-                            <th onClick={() => requestSort('totalsale','Text')}>Total Sale</th>
-                            <th onClick={() => requestSort('totalsale30days','Text')}>30 Days</th>
-                            <th onClick={() => requestSort('totalsale90days','Text')}>90 Days</th>
-                            <th onClick={() => requestSort('totalsale180days','Text')}>180 Days</th>
-                            <th onClick={() => requestSort('totalsale365days','Text')}>365 Days</th>
+                            <th onClick={() => requestSort('quantity','Float')}>Quantity</th>
+                            <th onClick={() => requestSort('totalsale','Float')}>Total Sale</th>
+                            <th onClick={() => requestSort('totalsale30days','Float')}>30 Days</th>
+                            <th onClick={() => requestSort('totalsale90days','Float')}>90 Days</th>
+                            <th onClick={() => requestSort('totalsale180days','Float')}>180 Days</th>
+                            <th onClick={() => requestSort('totalsale365days','Float')}>365 Days</th>
+                            <th>Order Quantity</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -147,6 +148,7 @@ const ItemLimitReport = () => {
                                         <td>{item.totalsale90days}</td>
                                         <td>{item.totalsale180days}</td>
                                         <td>{item.totalsale365days}</td>
+                                        <td>{item.quantity >= item.totalsale30days ? 0:(item.totalsale30days > 0 && item.quantity<=item.totalsale30days ? item.totalsale30days-item.quantity: (item.totalsale180days>0 && item.quantity<=item.totalsale180days ? item.totalsale180days-item.quantity: (item.totalsale365days>0 && item.quantity<=item.totalsale365days ? item.totalsale365days-item.quantity: 0))) }</td>
                                     </tr>
                                 ))
                             }

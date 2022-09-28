@@ -24,7 +24,7 @@ const CategoryCard = ({
             {CategoryData ?
             CategoryData.map((item,index) => {
             return( 
-                <Card style={{width:"18rem"}} 
+                <Card key={index} style={{width:"18rem"}} 
                 className="box"
                 onClick={()=>{
                 console.log("calling item list");

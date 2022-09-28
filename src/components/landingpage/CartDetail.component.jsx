@@ -18,11 +18,19 @@ const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,i
     
         }, [fetchCartDetailByCust])
 
+
+        const btnAddQty = (item) => {
+            console.log(item)
+        }
+
+        const btnRmvQty = (item) => {
+            console.log(item)
+        }
+
         const btnDeleteItem = (item) => {
           // event.preventDefault();
             console.log(`cart Delete item is clicked =${item.id}`);
-            if (item.quantity===1)
-            {
+            
                 //if quantity of the cart id =1 then remove the update the cart as delete
                 //update Cart Detail
                 var data = {
@@ -32,6 +40,7 @@ const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,i
                 cartService.updateCartDetail(item.cartid,data)
                 .then(res =>{
                     setMessage("Your Cart has been updated")
+                    fetchCartDetailByCust(currentUser.id);
                     
                 })
                 .catch((error) => {
@@ -42,10 +51,7 @@ const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,i
 
 
                 
-            }
-            else{
-                //if quantity of the cart id >1 then update the quantity of the cartdetails
-            }
+           
             
             
             
@@ -67,7 +73,7 @@ const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,i
                         //    <BrandList brands={this.props.brandData} masterComp={this.props.masterComp}/>
                         //console.log(this.props.itemData)
                         <div>
-                            <h3>Item View</h3>
+                            <h3>Cart View</h3>
                             <table border='1'>
 
                                 <thead>
@@ -93,7 +99,13 @@ const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,i
                                                 <td>{item.id}</td>
                                                 <td>{item.name}</td>
                                                 <td>{item.description}</td>
-                                                <td>{item.quantity}</td>
+                                                <td><button className="btn btn-primary" type="button" onClick={()=>{
+                                                     btnAddQty(item)
+                                                }}>+</button>
+                                                {item.quantity}
+                                                <button className="btn btn-primary" type="button" onClick={()=>{
+                                                     btnRmvQty(item)
+                                                }}>-</button></td>
                                                 <td>{item.createdAt}</td>
                                                 <td><img src={`${process.env.REACT_APP_MIDDLEWARE}/itemsImages/${item.imageUrl}`} alt="no data" width="100" height="100" /></td>
                                                 <button className="btn btn-primary deleteButton" type="button" onClick={()=>{
