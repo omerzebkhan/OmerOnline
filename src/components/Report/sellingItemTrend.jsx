@@ -48,7 +48,7 @@ const SellingItemTrend = () => {
 
         function sortByKey(a, b) {
 
-            if ((type ==='Float' ? parseFloat(a[key]) : a[key])  < (type ==='Float' ? parseFloat(b[key]): [key])) {
+            if ((type ==='Float' ? parseFloat(a[key]) : a[key])  < (type ==='Float' ? parseFloat(b[key]): b[key])) {
                 return sortConfig === 'ascending' ? -1 : 1;
               }
               if ((type ==='Float' ? parseFloat(a[key]): a[key]) > (type ==='Float' ? parseFloat(b[key]): b[key])) {
