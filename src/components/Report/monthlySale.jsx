@@ -125,17 +125,30 @@ const [barOptions, setBarOptions] = useState({
             .then(response2 => {
                 setSaleMonthly(response2.data)
                 setFilteredOptionsItem(response2.data)
+                console.log(response2.data)
                 // Graph data
                 console.log(response2.data) 
                 const header = Object.keys(response2.data).map((index,key) => response2.data[index].month);
                 const result = Object.keys(response2.data).map((index,key) => response2.data[index].totalsale);
+                const result1 = Object.keys(response2.data).map((index,key) => response2.data[index].profit);
                 console.log(result)
                 setBarData({
                     labels: header,
                     datasets: [
                         {
-                            label: 'test label',
+                            label: 'Total Sale',
                             data: result,
+                            backgroundColor: [
+                                'rgba(255, 99, 132, 0.6)',
+                                'rgba(54, 162, 235, 0.6)',
+                                'rgba(255, 206, 86, 0.6)',
+                                'rgba(75, 192, 192, 0.6)'
+                            ],
+                            borderWidth: 3
+                        },
+                        {
+                            label: 'Total profit',
+                            data: result1,
                             backgroundColor: [
                                 'rgba(255, 99, 132, 0.6)',
                                 'rgba(54, 162, 235, 0.6)',
@@ -185,6 +198,8 @@ const [barOptions, setBarOptions] = useState({
                             <tr>
                                 <th onClick={() => requestSort('month','Float')}>Month</th>
                                 <th onClick={() => requestSort('totalSale','Float')}>Total Sale</th>
+                                <th onClick={() => requestSort('totalItem','Float')}>Total Items</th>
+                                <th onClick={() => requestSort('profit','Float')}>Total Profit</th>
                                 
                             </tr>
                         </thead>
@@ -201,6 +216,8 @@ const [barOptions, setBarOptions] = useState({
                                     >
                                         <td>{item.month}</td>
                                         <td>{item.totalsale}</td>
+                                        <td>{item.totalitem}</td>
+                                        <td>{item.profit}</td>
                                     </tr>
                                 )
                                 )

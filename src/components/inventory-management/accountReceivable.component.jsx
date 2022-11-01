@@ -33,8 +33,10 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [totalOutStanding, setTotalOutStanding] = useState(0);
     const [totalInvoiceOutStanding, setTotalInvoiceOutStanding] = useState(0);
     const [nameInput, setNameInput] = useState("");
+    const [reffInput, setReffInput] = useState("");
     const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
+    const [filteredOptionsReff, setFilteredOptionsReff] = useState([]);
     const [totalInvoiceValue, setTotalInvoiceValue] = useState([0]);
     const [filterOutstanding, setFilterOutstanding] = useState([0]);
     const [totalRecord, setTotalRecord] = useState([0]);
@@ -64,6 +66,20 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         }
     }, [saleArData])
 
+    useEffect(() => {
+        
+        if (sInvoice) {
+            setFilteredOptionsReff(sInvoice)
+        }
+    }, [sInvoice])
+
+    useEffect(() => {
+        
+        if (filteredOptionsReff===0) {
+            setFilteredOptionsReff(sInvoice)
+        }
+    }, [filteredOptionsReff])
+    
     useEffect(() => {
         var sumInvoiceValue = 0
         var sumOutstanding = 0
@@ -155,6 +171,19 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+        }
+        else if (event.target.id === "reff") {
+            setReffInput(event.target.value);
+            if (event.target.value === "") {
+                setFilteredOptionsReff(sInvoice)
+            }
+            else if (event.target.value !== "") {
+                setFilteredOptionsReff(sInvoice.filter(
+                    option => {
+                        return option.id == event.target.value
                     }
                 ));
             }
@@ -375,9 +404,23 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
 
 
-                    {sInvoice && sInvoice.length > 0 ?
+                    {filteredOptionsReff ?
                         <div>
                             <h1>Outstaning Invoices</h1>
+                            <div className="form-group row">
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Reff Invoice</label>
+                            </div>
+                            <div className="col-sm-6">
+                                <input
+                                    type="text"
+                                    name="reff"
+                                    id="reff"
+                                    placeholder="Reff Invoice"
+                                    value={reffInput}
+                                    onChange={handleChange} />
+                            </div>
+                        </div>
                             <table border="1">
                                 <thead>
                                     <tr>
@@ -390,7 +433,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {sInvoice.map((item, index) => {
+                                    {filteredOptionsReff.map((item, index) => {
                                         //console.log(index)
                                         //if (item.Outstanding!==0){
                                         return (
