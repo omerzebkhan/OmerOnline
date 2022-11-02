@@ -1,5 +1,5 @@
 import StockActionType from './stock.types';
-import {firestore,convertStockSnapshotToMap} from '../../firebase/firebase.util';
+//import {firestore,convertStockSnapshotToMap} from '../../firebase/firebase.util';
 
 export const fetchStockStart = () =>({
     type:StockActionType.FETCH_STOCK_START

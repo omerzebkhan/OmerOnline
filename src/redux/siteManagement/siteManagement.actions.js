@@ -1,5 +1,5 @@
 import SiteManagementActionType from './siteManagement.types';
-import {firestore,convertSiteHeaderSnapshotToMap} from '../../firebase/firebase.util';
+//import {firestore,convertSiteHeaderSnapshotToMap} from '../../firebase/firebase.util';
 
 export const fetchSiteManagementStart = () =>({
     type:SiteManagementActionType.FETCH_SITEMANAGEMENT_START

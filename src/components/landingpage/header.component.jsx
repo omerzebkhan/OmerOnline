@@ -1,3 +1,4 @@
+import React from 'react'
 import header from './header.jpg';
 import { Image } from 'react-bootstrap';
 //import {fetchSiteStartAsync} from '../redux/siteManagement/siteManagement.actions';
