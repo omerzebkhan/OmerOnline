@@ -6,10 +6,10 @@ import authHeader from "./auth-header";
 //const API_URL = "http://localhost:8080/api/test/";
 
 //Heroku
-const API_URL = "http://localhost:5000/api/test/";
+//const API_URL = "http://localhost:5000/api/test/";
 
 //Heruko remote test
-//const API_URL ="https://damp-brushlands-21463.herokuapp.com/api/test/"
+const API_URL ="https://damp-brushlands-21463.herokuapp.com/api/test/"
 
 class userDataService {
   getAll(params) {
