@@ -1,5 +1,6 @@
 import PurchaseActionType from './purchase.type';
 import inventoryService from '../../services/inventory.service';
+import dateFormat from 'date-fns/format'
 
 
 export const fetchPurchaseStart = () =>({
@@ -68,13 +69,13 @@ export const fetchPurInvPayDetial = (invoiceId) =>{
 export const fetchPurchaseByDate = (sDate, eDate, customerId) => {
         return dispatch =>{
             if (sDate !== "" && eDate !== "") {
-                var dateFormat = require('dateformat');
-                sDate =dateFormat(sDate, "yyyy-mm-dd");
-                eDate=dateFormat(eDate, "yyyy-mm-dd");
-                var myDate = new Date(eDate);
-                myDate.setDate(myDate.getDate() + 1);
-                myDate=dateFormat(myDate,"yyyy-mm-dd");
-                eDate = myDate;
+               // var dateFormat = require('dateformat');
+               sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+               eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+               var myDate = new Date(eDate);
+               myDate.setDate(myDate.getDate() + 1);
+              myDate = dateFormat(myDate, "yyyy-M-dd");
+               eDate = myDate;
                 // var now = new Date();
                // dateFormat(now, "dddd, mmmm dS, yyyy, h:MM:ss TT");
                console.log(`sDate=${sDate} 

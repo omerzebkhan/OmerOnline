@@ -1,5 +1,6 @@
 import SaleActionType from './sale.type';
 import inventoryService from "../../services/inventory.service";
+import dateFormat from 'date-fns/format'
 
 
 export const fetchSaleStart = () => ({
@@ -95,13 +96,13 @@ export const fetchSaleStartAsync = (sDate, eDate) => {
     return dispatch => {
         //var f = "";
         if (sDate !== "" && eDate !== "") {
-            var dateFormat = require('dateformat');
-            sDate = dateFormat(sDate, "yyyy-mm-dd");
-            eDate = dateFormat(eDate, "yyyy-mm-dd");
-            var myDate = new Date(eDate);
-            myDate.setDate(myDate.getDate() + 1);
-            myDate = dateFormat(myDate, "yyyy-mm-dd");
-            eDate = myDate;
+           // var dateFormat = require('dateformat');
+           sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+           eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+           var myDate = new Date(eDate);
+           myDate.setDate(myDate.getDate() + 1);
+          myDate = dateFormat(myDate, "yyyy-M-dd");
+           eDate = myDate;
             // var now = new Date();
             // dateFormat(now, "dddd, mmmm dS, yyyy, h:MM:ss TT");
             // console.log(`sDate=${sDate} 
@@ -144,17 +145,17 @@ export const fetchSaleByIdAsync = (invoiceId) => {
 export const fetchSaleByDate = (sDate, eDate, customerId,agentId) => {
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
-            var dateFormat = require('dateformat');
-            sDate = dateFormat(sDate, "yyyy-mm-dd");
-            eDate = dateFormat(eDate, "yyyy-mm-dd");
+            //var dateFormat = require('dateformat');
+            sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+            eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
             var myDate = new Date(eDate);
             myDate.setDate(myDate.getDate() + 1);
-            myDate = dateFormat(myDate, "yyyy-mm-dd");
+           myDate = dateFormat(myDate, "yyyy-M-dd");
             eDate = myDate;
 
-            // console.log(`sDate=${sDate} 
-            // edate=${eDate}
-            // customerid =${customerId}`);
+            console.log(`sDate=${sDate} 
+            edate=${eDate}
+            customerid =${customerId}`);
 
             dispatch(fetchSaleStart());
             inventoryService.getAllSaleByDate(sDate, eDate, customerId,agentId)
@@ -171,13 +172,13 @@ export const fetchSaleByDate = (sDate, eDate, customerId,agentId) => {
 export const fetchSaleReturnByDate = (sDate,eDate) =>{
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
-            var dateFormat = require('dateformat');
-            sDate = dateFormat(sDate, "yyyy-mm-dd");
-            eDate = dateFormat(eDate, "yyyy-mm-dd");
-            var myDate = new Date(eDate);
-            myDate.setDate(myDate.getDate() + 1);
-            myDate = dateFormat(myDate, "yyyy-mm-dd");
-            eDate = myDate;
+           // var dateFormat = require('dateformat');
+           sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+           eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+           var myDate = new Date(eDate);
+           myDate.setDate(myDate.getDate() + 1);
+          myDate = dateFormat(myDate, "yyyy-M-dd");
+           eDate = myDate;
             dispatch(fetchSaleReturnStart());
             inventoryService.getAllSaleReturnByDate(sDate, eDate)
                 .then(response => {
@@ -207,14 +208,13 @@ export const fetchSaleReturnDetail = (SaleInvoiceId) => {
 export const fetchSaleByDateSummary = (sDate, eDate) => {
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
-            var dateFormat = require('dateformat');
-            sDate = dateFormat(sDate, "yyyy-mm-dd");
-            eDate = dateFormat(eDate, "yyyy-mm-dd");
-            var myDate = new Date(eDate);
-            myDate.setDate(myDate.getDate() + 1);
-            myDate = dateFormat(myDate, "yyyy-mm-dd");
-            eDate = myDate;
-
+           // var dateFormat = require('dateformat');
+           sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+           eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+           var myDate = new Date(eDate);
+           myDate.setDate(myDate.getDate() + 1);
+          myDate = dateFormat(myDate, "yyyy-M-dd");
+           eDate = myDate;
 
             dispatch(fetchSaleSummaryStart());
             inventoryService.getAllSaleByDateSummary(sDate, eDate)
