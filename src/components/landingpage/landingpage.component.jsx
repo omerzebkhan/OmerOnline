@@ -15,12 +15,8 @@ const LandingPage =() =>{
         <BootstrapCarousel></BootstrapCarousel>  
         <CategoryCard />
         <div onClick={()=>{
-                //console.log("calling item list");
-                
-                   <ListItem />
-
-                
-               
+                console.log("calling item list");
+                 //  <ListItem />
                 }}>
         </div>
         

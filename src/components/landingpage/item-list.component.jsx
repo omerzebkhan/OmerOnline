@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
-import { Card, Button, ListGroup, ListGroupItem } from 'react-bootstrap'
+import { Card, Button } from 'react-bootstrap'
 import { fetchItemByInputAsync } from '../../redux/item/item.action';
 import { useHistory } from "react-router-dom";
 import cartService from '../../services/cart.services';
