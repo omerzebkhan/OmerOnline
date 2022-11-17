@@ -1,10 +1,10 @@
 {
-  "name": "react-curd-postgresql-new",
+  "name": "react-curd-postgresql",
   "version": "0.1.0",
   "private": true,
   "engines": {
     "npm": "8.19.2",
-    "node": "18.12.0"
+    "node": "17.x"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.2.0",

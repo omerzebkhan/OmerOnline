@@ -184,11 +184,15 @@ class inventoryDataService {
   }
 
  
-
+  // createSale(data) {
+  //   // console.log(data);
+  //   return http.post("/sale/",data,{headers: authHeader() });
+  // }
 
   createSaleDetail(data) {
-    // console.log(data);
-    return http.post("/saleDetail/",data,{headers: authHeader() });
+    console.log(data);
+    //return http.post("/saleDetail/",data,{headers: authHeader() });
+    return http.post('/saleDetail/10',data);
   }
 
   deleteSaleDetail(id) {

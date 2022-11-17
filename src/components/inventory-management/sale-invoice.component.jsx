@@ -4,11 +4,11 @@ import { connect } from 'react-redux';
 
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { fetchUserStartAsync } from '../../redux/user/user.action';
-import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
+import { checkAccess } from '../../helper/checkAuthorization';
 
 import inventoryService from "../../services/inventory.service";
 import itemService from "../../services/item.services";
-import userService from "../../services/user.service";
+// import userService from "../../services/user.service";
 
 const SaleInvoice = ({
     fetchItemStartAsync, itemData,
@@ -161,6 +161,9 @@ const SaleInvoice = ({
 
     const handleSubmit = event => {
         event.preventDefault();
+        
+
+
         //To check entered value should be less than showroom quantity
         if (cItem.length ===0  || quantity==="" || price ==="")
         {setMessage('Select Item and Enter Quantity & Price')}
@@ -174,7 +177,8 @@ const SaleInvoice = ({
             var total = parseFloat(price).toFixed(3);
             var qty = parseInt(quantity);
             var cost = parseFloat(cItem[0].averageprice).toFixed(3);
-
+            console.log("Invoice Item")
+            console.log(invoiceItem)
             //console.log(`cost=${cItem[0].averageprice} && qty=${qty} = ${cost*qty}`);
 
             if (invoiceItem.length === 0) {
@@ -214,6 +218,8 @@ const SaleInvoice = ({
 
     const saveSale = () => {
         setLoading(true);
+
+        //console.log(invoiceItem)
         var data = {
             reffInvoice: invoice,
             customerId: cCustomer[0].id,
@@ -224,18 +230,19 @@ const SaleInvoice = ({
             Returned: 0,
             Outstanding: totalInvoiceValue
         };
-
+        
         inventoryService.createSale(data)
             .then(response => {
 
-         //       console.log(`Sale successfully Added Invoice id = ${response.data.id}`);
+               console.log(`Sale successfully Added Invoice id `);
+               console.log(response.data)
                
                 // loop throuhg invoice item 
                 //1-create new sale detail 
                 //2- get each item stock value and update stock value in the item table 
 
                 invoiceItem.map((item,index) => {
-                    var sDetailData = ({
+                    var sDetailData = {
                         saleInvoiceId: response.data.id,
                         srno : index,
                         itemName: item[6],
@@ -243,23 +250,26 @@ const SaleInvoice = ({
                         price: item[3],
                         cost: item[4]
                         // profit should be calculated on run time
+                    };
 
-
-                    });
-
+                    // var sDetailData = {
+                    //     saleInvoiceId: "100"
+                    
+                    // };
+                   // console.log(sDetailData)
            //         console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
 
                     inventoryService.createSaleDetail(sDetailData)
                         .then(response1 => {
                             setMessage("Sale Detail Entered");
              //               console.log("Sale Detail Entered")
-             //               console.log(response1.data);
+                            console.log(response1.data);
                             //Updating Item Stock
                             // get quantity and averageprice of an item
                             itemService.get(item[6])
                                 .then(response2 => {
                                     // console.log("get specific Item detail")
-                                    // console.log(response2.data);
+                                     console.log(response2.data);
                                     const { id, quantity, showroom,averagePrice } = response2.data;
                                     // console.log(`item id = ${id}
                                     // item Quantity = ${quantity}
@@ -323,6 +333,32 @@ const SaleInvoice = ({
        
         saveSale();
 
+        // var data = {
+        //     reffInvoice: 10,
+        //     customerId: 10,
+        //     agentid :10,
+        //     invoicevalue: 10,
+        //     totalitems: 10,
+        //     paid: 0,
+        //     Returned: 0,
+        //     Outstanding: 10
+        // };
+
+                  
+        //            // console.log(sDetailData)
+        //    //         console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
+
+        //             inventoryService.createSale(data)
+        //                 .then(response1 => {
+        //                     setMessage("Sale Detail Entered");
+        //      //               console.log("Sale Detail Entered")
+        //                     console.log(response1.data);
+        //                 })
+        //                 .catch(e => {
+        //                     console.log(`catch of specific item detail ${e}
+        //                         error from server  ${e.message}
+        //                         `);
+        //                 })
 
     }
 
@@ -371,8 +407,8 @@ const SaleInvoice = ({
       else{
        // console.log(`itemId = ${cItem[0].id}
        // customer id = ${cCustomer[0].id}`)
-        console.log(selectedItem)
-        console.log(selectedItem)
+        // console.log(selectedItem)
+        // console.log(selectedItem)
 
         
         inventoryService.getSaleByLatestDate(selectedItem[0].id,cCustomer[0].id)
@@ -486,8 +522,8 @@ const SaleInvoice = ({
     };
     let optionListCustomer;
     if (showOptionsCustomer && customerInput) {
-        console.log(filteredOptionsCustomer);
-        console.log(filteredOptionsCustomer.length)
+        // console.log(filteredOptionsCustomer);
+        // console.log(filteredOptionsCustomer.length)
         if (filteredOptionsCustomer.length) {
             optionListCustomer = (
                 <ul className="options">
@@ -858,7 +894,7 @@ const SaleInvoice = ({
                                 <tbody>
                                     {invoiceItem.length > 0 || reload !== 'False' ? (
                                         invoiceItem.map((item, index) => {
-                                            console.log(editRow)
+                                            //console.log(editRow)
                                             return (<tr key={index}  onClick={() => selectRow(item)}>
                                                 <td>{index + 1}</td>
                                                 <td>{item[0]}</td>
@@ -869,7 +905,7 @@ const SaleInvoice = ({
                                                 <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
                                                 <td>{((parseFloat(item[3]) * parseFloat(item[2])) - (parseFloat(item[4]) * parseFloat(item[2]))).toFixed(3)}</td>
                                                 <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>
-                                                {((parseFloat(item[3])*parseFloat(item[2]))-(parseFloat(item[4])*parseFloat(item[2]))).toFixed(3)<=0?<td style={{'background-color':"#FF0000"}}>Low Price</td>:<td></td>}
+                                                {((parseFloat(item[3])*parseFloat(item[2]))-(parseFloat(item[4])*parseFloat(item[2]))).toFixed(3)<=0?<td style={{'backgroundColor':"#FF0000"}}>Low Price</td>:<td></td>}
                                             </tr>
                                             )
                                         })
