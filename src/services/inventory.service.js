@@ -191,8 +191,8 @@ class inventoryDataService {
 
   createSaleDetail(data) {
     console.log(data);
-    //return http.post("/saleDetail/",data,{headers: authHeader() });
-    return http.post('/saleDetail/10',data);
+    return http.post("/saleDetail/",data,{headers: authHeader() });
+    //return http.post('/saleDetail/',data);
   }
 
   deleteSaleDetail(id) {
