@@ -87,9 +87,12 @@ const SaleInvoice = ({
             setInvoice(event.target.value);
         }
         else if (event.target.id === "itemSearch") {
-            //console.log(`itemdate =${itemData}`);            
+           
+           console.log("Event value"); 
+            console.log(event.target.value) 
+            //console.log()          
             setFilteredOptionsItem(itemData.filter(
-                (option) => option.name.toLowerCase().indexOf(itemInput.toLowerCase()) > -1
+                (option) => option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1
             ));
             setActiveOptionItem(0);
             setShowOptionsItem(true);
@@ -161,7 +164,7 @@ const SaleInvoice = ({
 
     const handleSubmit = event => {
         event.preventDefault();
-        
+        console.log(`handle submit is fired....`)
 
 
         //To check entered value should be less than showroom quantity
@@ -169,7 +172,8 @@ const SaleInvoice = ({
         {setMessage('Select Item and Enter Quantity & Price')}
 
         else{
-        if (cItem[0].showroom < parseInt(quantity)) {
+            console.log(`showromm = ${cItem[0].showroom} and entered valu = ${parseInt(quantity)}`)
+        if (parseInt(cItem[0].showroom) < parseInt(quantity)) {
             setMessage('Quantity is greated than Stock');
         } 
         else {
@@ -230,6 +234,8 @@ const SaleInvoice = ({
             Returned: 0,
             Outstanding: totalInvoiceValue
         };
+
+        //get the total inveventory value for debug purpose
         
         inventoryService.createSale(data)
             .then(response => {
@@ -288,6 +294,14 @@ const SaleInvoice = ({
                                             //     response showroom = ${response4.data.showroom}`)
                                             setMessage(`Updated Stock value successfully`);
                                             setMessage(`Sale successfully Added Invoice id = ${response.data.id}`);
+                                            
+                                            ////////////////// get again the investory value and save it in the db for debug
+
+
+
+
+
+                                            /////////////////////////////////////////////////////////////////////////////////////////
                                             //     //reset all state
                                             setQuantity("");
                                             setPrice("");
@@ -365,9 +379,12 @@ const SaleInvoice = ({
     //////////////////////////////////////////////////////////////////////
     /////////////////////////// Drop down logic for Item 
     const onKeyDownItem = (e) => {
-        //console.log("On change is fired")
+        // console.log("On change is fired")
+        // console.log(e.keyCode)
+        // console.log(itemInput)
         // const { activeOption, filteredOptions } = this.props;
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13 && itemInput!=="")   //Enter key
+         {
             setActiveOptionItem(0);
             setShowOptionsItem(false);
             setItemInput(filteredOptionsItem[activeOptionItem]);
@@ -569,17 +586,20 @@ const SaleInvoice = ({
     const onKeyDownAgent = (e) => {
         //console.log("On change is fired")
         // const { activeOption, filteredOptions } = this.props;
-        if (e.keyCode === 13) {
+        if (e.keyCode === 13)  // Enter
+        {
             setActiveOptionAgent(0);
             setShowOptionsAgent(false);
             setAgentInput(filteredOptionsAgent[activeOptionAgent]);
-        } else if (e.keyCode === 38) {
+        } else if (e.keyCode === 38) //up arrow 
+        {
             if (activeOptionAgent === 0) {
                 //setcCustomer([]);
                 return;
             }
             setActiveOptionAgent(activeOptionAgent - 1)
-        } else if (e.keyCode === 40) {
+        } else if (e.keyCode === 40) //down arrow
+         {
             if (activeOptionAgent - 1 === filteredOptionsAgent.length) {
                 //setcCustomer([]);
                 return;

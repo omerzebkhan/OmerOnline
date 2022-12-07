@@ -19,6 +19,8 @@ const SaleAgentTrend = () => {
     
 
     const [saleAgentTrend, setSaleAgentTrend] = useState([])
+    const [saleAgentClosedInvoices,setSaleAgentClosedInvoices] = useState([])
+    const [filteredOptionsSACI, setFilteredOptionsSACI] = useState([]);
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [sortConfig, setSortConfig] = useState();
@@ -75,9 +77,12 @@ const [barOptions, setBarOptions] = useState({
     const handleStartDTPicker = (date) => { setStartDate(date); }
 
     const handleEndDTPicker = (date) => { setEndDate(date); }
+ 
     const handleSubmit = event => {
         event.preventDefault();
+        // check the value of the filter to call 
         getSaleAgentTrend();
+        getSaleAgentClosedInvoices();
 
     }
 
@@ -116,7 +121,45 @@ const [barOptions, setBarOptions] = useState({
 
       };
     
-     
+     const handleChange = event => {
+        console.log(event.target.value);
+    
+    }
+
+    const getSaleAgentClosedInvoices = () => {
+        inventoryService.getSaleAgentClosedInvoices(startDate.toDateString(), endDate.toDateString())
+        .then(response2 => {
+            console.log(response2.data)
+            setSaleAgentClosedInvoices(response2.data)
+            setFilteredOptionsSACI(response2.data)
+            // Graph data
+            console.log(response2.data) 
+            const header = Object.keys(response2.data).map((index,key) => response2.data[index].name);
+            const result = Object.keys(response2.data).map((index,key) => response2.data[index].sum);
+            console.log(result)
+            setBarData({
+                labels: header,
+                datasets: [
+                    {
+                        label: 'test label',
+                        data: result,
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.6)',
+                            'rgba(54, 162, 235, 0.6)',
+                            'rgba(255, 206, 86, 0.6)',
+                            'rgba(75, 192, 192, 0.6)'
+                        ],
+                        borderWidth: 3
+                    }
+                ]
+            })
+            /////////////////////////////////////////////////
+        })
+        .catch(e => {
+            console.log(`get sale agent Report error ${e}`);
+        })
+
+    }
 
 
     const getSaleAgentTrend = () => {
@@ -171,6 +214,15 @@ const [barOptions, setBarOptions] = useState({
                     <DatePicker id="datePicker" selected={endDate} onChange={handleEndDTPicker}
                         name="startDate" dateFormat="MM/dd/yyyy" />
                 </div>
+                <div>
+                    Filter
+                    <select id="Filter" name="Filter" onChange={handleChange}>
+                        <option selected="Please Select">Please Select</option>
+                        <option value="lowerlimit">less than lower limit</option>
+                        <option value="higherlimit">More than higher limit</option>
+                    </select>
+                </div>
+                 
                 <div >
                     <button className="btn btn-success" type="submit" >Search</button>
                 </div>
@@ -201,6 +253,47 @@ const [barOptions, setBarOptions] = useState({
                                     >
                                         <td>{item.name}</td>
                                         <td>{item.count}</td>
+                                    </tr>
+                                )
+                                )
+
+                            }
+                        </tbody>
+                    </table>
+                    <div className="BarExample">
+                        <Bar
+                            data={barData}
+                            options={barOptions} />
+                    </div>
+                </div>
+                :
+                ""
+            }
+            {filteredOptionsSACI.length >0 ?
+                <div>
+
+                    <table border='1' id="SaleAgentTrendView">
+
+                        <thead>
+                            <tr>
+                                <th onClick={() => requestSort('month','Float')}>Agent</th>
+                                <th onClick={() => requestSort('totalSale','Float')}>Total Sale</th>
+                                
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+
+                            {
+                                filteredOptionsSACI.map((item, index) => (
+                                    //   console.log(item);
+
+                                    <tr key={index}
+                                    //onClick={() => setActiveBrand(item, index)}
+                                    >
+                                        <td>{item.name}</td>
+                                        <td>{item.sum}</td>
                                     </tr>
                                 )
                                 )

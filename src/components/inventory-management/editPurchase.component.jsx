@@ -529,7 +529,7 @@ const EditPurchase = ({
                 setFilteredOptionsCustomer(userData.user.filter(
                     // console.log(userData[0].name)
                     (option) =>
-                        option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
+                        option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "SUPPLIER"
                     //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
                 ));
                 setActiveOptionCustomer(0);

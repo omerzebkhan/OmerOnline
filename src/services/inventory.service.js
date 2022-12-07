@@ -138,6 +138,11 @@ class inventoryDataService {
      return http.get(`/saleAgentTrend/${sDate}/${eDate}`);
    }
 
+   getSaleAgentClosedInvoices(sDate,eDate) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/saleAgentClosedInvoices/${sDate}/${eDate}`);
+   }
+
    getSaleByLatestDate(itemId,customerId) {
     // console.log(`dates are ${sDate} ${eDate}`)
      return http.get(`/saleByLatestDate/${itemId}/${customerId}`);
