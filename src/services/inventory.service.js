@@ -114,6 +114,11 @@ class inventoryDataService {
     return http.get(`/saleAR/`);
   }
 
+  getSaleARByInvoiceId(id) {
+    return http.get(`/saleARByInvoiceId/${id}`);
+  }
+
+
   getSaleRecalculate(id) {
     return http.put(`/getSaleRecalculate/${id}`);
   }

@@ -34,12 +34,15 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [totalInvoiceOutStanding, setTotalInvoiceOutStanding] = useState(0);
     const [nameInput, setNameInput] = useState("");
     const [reffInput, setReffInput] = useState("");
+    const [reffInvoiceInput,setReffInvoiceInput] = useState("");
     const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
     const [filteredOptionsReff, setFilteredOptionsReff] = useState([]);
     const [totalInvoiceValue, setTotalInvoiceValue] = useState([0]);
     const [filterOutstanding, setFilterOutstanding] = useState([0]);
     const [totalRecord, setTotalRecord] = useState([0]);
+
+    const [arInvoiceId,setARInvoiceId] = useState();
 
 
     useLayoutEffect(() => {
@@ -188,6 +191,20 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 ));
             }
         }
+        else if (event.target.id === "reffInvoice") {
+            setReffInvoiceInput(event.target.value);
+            if (event.target.value ==="")
+            {
+                //reset all the values
+                //show all AR
+                setFilteredOptionsName(saleArData)
+                //set customer invoice to blank as in case of refresh
+                setFilteredOptionsReff([]);
+
+            }
+           
+            
+        }
     }
 
     const updatHandler = () => {
@@ -264,6 +281,38 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         setLoading(false)
     }
 
+    const searchInvoiceHandler = () => {
+        // search invoice and print the values.
+        inventoryService.getSaleARByInvoiceId(reffInvoiceInput)
+            .then(response2 => {
+                setARInvoiceId(response2.data)
+                console.log(response2.data)
+                console.log(response2.data[0].name)
+
+                ////get sale by customer name of the invoice.
+                setFilteredOptionsName(saleArData.filter(
+                    (option) => option.name.toLowerCase().indexOf(response2.data[0].name.toLowerCase()) > -1
+                ));
+
+                //show specific invoice 
+
+                //console.log(sInvoice)
+
+                //
+                setFilteredOptionsReff(sInvoice.filter(
+                    option => {
+                        return option.id == reffInvoiceInput
+                    }
+                ));
+
+                //
+            })
+            .catch(e => {
+                console.log(`get sale ar by invoice Report error ${e}`);
+            })
+
+    }
+
     const getPaymentDetail = (invoiceId) => {
         //console.log(`Sale payment Details is called ${invoiceId}`)
         fetchSalInvPayDetial(invoiceId);
@@ -322,6 +371,27 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     onChange={handleChange} />
                             </div>
                         </div>
+
+                        <div className="form-group row">
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Reff Invoice</label>
+                            </div>
+                            <div className="col-sm-6">
+                                <input
+                                    type="text"
+                                    name="reffInvoice"
+                                    id="reffInvoice"
+                                    placeholder="Reff Invoice"
+                                    value={reffInvoiceInput}
+                                    onChange={handleChange} />
+                            </div>
+                            <div className="col-sm-6">
+                                <button className="btn btn-success" type="button" onClick={searchInvoiceHandler} >Search Invoice</button>
+                            </div>
+                        </div>
+    
+
+                        
                         <div>
                             <ReactHTMLTableToExcel
                                 className="btn btn-info"
