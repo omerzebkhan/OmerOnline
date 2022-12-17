@@ -42,6 +42,9 @@ import ItemList from './components/landingpage/item-list.component';
 // import ManageHeader from '../site-management/manage-header.component';
 import ItemDetail from './components/item/itemDetail.component'; //user view
 import MyCart from './components/landingpage/CartDetail.component'; //user view
+import CashFlow from './components/expense/cashFlow.component'
+import CashFlowAR from './components/expense/cashFlowAR.component'
+import CashFlowAP from './components/expense/cashFlowAP.component'
 
 
 import Login from "./components/Login";
@@ -198,6 +201,9 @@ const App = () => {
                     <Route path="/ItemList" render={()=><ItemList />}/> 
                     <Route path="/ItemDetail" render={()=><ItemDetail />}/>
                     <Route path="/myCart" render={()=><MyCart />}/>
+                    <Route path="/AddCashFlow" render={()=><CashFlow />}/>
+                    <Route path="/AR" render={()=><CashFlowAR />}/>
+                    <Route path="/AP" render={()=><CashFlowAP />}/>
 
           </Switch>
         </div>

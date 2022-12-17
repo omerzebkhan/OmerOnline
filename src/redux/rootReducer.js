@@ -16,6 +16,7 @@ import userReducer from './user/user.reducer';
 import roleReducer from './role/roles.reducer';
 import expenseReducer from './expense/expense.reducer'
 import cartReducer from './cart/cart.reducer';
+import cashFlowReducer from './cashFlow/cashFlow.reducer';
 
 const persistConfig = {
     key:'root',
@@ -35,7 +36,8 @@ const rootReducer =combineReducers({
     user:userReducer,
     role:roleReducer,
     expense:expenseReducer,
-    cart:cartReducer
+    cart:cartReducer,
+    cashFlow:cashFlowReducer
 });
 
 export default persistReducer(persistConfig,rootReducer);

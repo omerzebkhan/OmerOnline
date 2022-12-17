@@ -45,6 +45,11 @@ const Navigation = (props) => {
                 <NavDropdown.Item href="/AddRole">Add Role</NavDropdown.Item>
                 <NavDropdown.Item href="/UpdateAccess">Update Access</NavDropdown.Item>
                 </NavDropdown>
+                <NavDropdown title="Cash Management" id="basic-nav-dropdown">
+                <NavDropdown.Item href="/AddCashFlow">Add Cash Flow</NavDropdown.Item>
+                <NavDropdown.Item href="/AR">Account Receivable</NavDropdown.Item>
+                <NavDropdown.Item href="/AP">Account Payable</NavDropdown.Item>
+                </NavDropdown>
                 <NavDropdown title="Reports" id="basic-nav-dropdown">
                 <NavDropdown.Item href="/StockReport">Stock Report</NavDropdown.Item>
                 <NavDropdown.Item href="/PurchaseReport">Purchase Report</NavDropdown.Item>
