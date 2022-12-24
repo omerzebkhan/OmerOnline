@@ -290,9 +290,23 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 console.log(response2.data[0].name)
 
                 ////get sale by customer name of the invoice.
-                setFilteredOptionsName(saleArData.filter(
-                    (option) => option.name.toLowerCase().indexOf(response2.data[0].name.toLowerCase()) > -1
-                ));
+                // it is giving wrong values
+                // setFilteredOptionsName(saleArData.filter(
+                //     (option) => option.name.toLowerCase().indexOf(response2.data[0].name.toLowerCase()) > -1
+                // ));
+                var arr =  [
+                {
+                customerId:response2.data[0].customerId,
+                name: response2.data[0].name,
+                address: response2.data[0].address,
+                agentname:response2.data[0].agentname,
+                saleInvoiceValue:response2.data[0].invoicevalue,
+                salesOutstanding:response2.data[0].Outstanding}
+                ]
+
+                setFilteredOptionsName(arr)
+                //console.log(arr)
+
 
                 //show specific invoice 
 

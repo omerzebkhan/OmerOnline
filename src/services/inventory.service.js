@@ -265,14 +265,23 @@ class inventoryDataService {
 
 
 
+
+
   /////////////////////////
   /////Others/////////////
   ////////////////////////
+
+   
 
   //////Get balance sheet data
   getBalanceSheetByDate(sDate,eDate) {
    // console.log(`dates are ${sDate} ${eDate}`)
     return http.get(`/BalanceSheetByDate/${sDate}/${eDate}`);
+  }
+
+  //get total inventory value
+  getTotalInv() {
+    return http.get(`/getTotalInv/`);
   }
 
   

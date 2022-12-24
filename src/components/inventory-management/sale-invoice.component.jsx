@@ -55,6 +55,10 @@ const SaleInvoice = ({
 
     const [access, setAccess] = useState(false);
 
+    const [invBefore,setInvBefore]=useState();
+    const [invAfter,setInvAfter] = useState();
+    
+
 
 
     useEffect(() => {
@@ -72,9 +76,7 @@ const SaleInvoice = ({
         setAccess(checkAccess("SALE INVOICE", currentUser.rights));
     }, []);
 
-    
-
-    const handleChange = event => {
+      const handleChange = event => {
         //console.log(event);
         if (event.target.id === "Quantity") {
             //console.log(event)
@@ -236,6 +238,13 @@ const SaleInvoice = ({
         };
 
         //get the total inveventory value for debug purpose
+
+        // inventoryService.getTotalInv()
+        // .then(response => {
+
+        //    console.log(`Sale successfully Added Invoice id `);
+        //    console.log(response.data)
+        //    setInvBefore(response.data.sum)
         
         inventoryService.createSale(data)
             .then(response => {
@@ -296,6 +305,24 @@ const SaleInvoice = ({
                                             setMessage(`Sale successfully Added Invoice id = ${response.data.id}`);
                                             
                                             ////////////////// get again the investory value and save it in the db for debug
+                                            // inventoryService.getTotalInv()
+                                            // .then(response => {
+                                    
+                                            //    console.log(`Sale successfully Added Invoice id `);
+                                            //    console.log(response.data)
+                                            //    setInvAfter(response.data.sum)
+
+                                            //    ////////////add all values to the debug table
+
+                                            //    var debugData = {
+                                            //     invbefore: invBefore,
+                                            //     invafter: invAfter,
+                                            //     description:'SaleInvoice',
+                                            //     totalitems : item[2]
+                                            // };
+
+
+                                            // })
 
 
 
@@ -340,6 +367,13 @@ const SaleInvoice = ({
                 setMessage(`catch of purchase detail ${e} error from server  ${e.message}`)
                 console.log(`catch of create purchase${e}`);
             });
+       // })
+
+            // .catch(e => {
+            //     setLoading(false);
+            //     setMessage(`catch of total inventory query ${e} error from server  ${e.message}`)
+            //     console.log(`catch of total inventory query${e}`);
+            // });
     }
 
 
