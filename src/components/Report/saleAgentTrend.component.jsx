@@ -135,7 +135,8 @@ const [barOptions, setBarOptions] = useState({
             // Graph data
             console.log(response2.data) 
             const header = Object.keys(response2.data).map((index,key) => response2.data[index].name);
-            const result = Object.keys(response2.data).map((index,key) => response2.data[index].sum);
+            const result = Object.keys(response2.data).map((index,key) => response2.data[index].invoicevalue);
+            const profit = Object.keys(response2.data).map((index,key) => response2.data[index].profit);
             console.log(result)
             setBarData({
                 labels: header,
@@ -277,7 +278,9 @@ const [barOptions, setBarOptions] = useState({
                         <thead>
                             <tr>
                                 <th onClick={() => requestSort('month','Float')}>Agent</th>
-                                <th onClick={() => requestSort('totalSale','Float')}>Total Sale</th>
+                                <th onClick={() => requestSort('invoicevalue','Float')}>Total Sale</th>
+                                <th onClick={() => requestSort('invoicedetailvalue','Float')}>Total detail Sale</th>
+                                <th onClick={() => requestSort('profit','Float')}>Total Profit</th>
                                 
                             </tr>
                         </thead>
@@ -293,7 +296,9 @@ const [barOptions, setBarOptions] = useState({
                                     //onClick={() => setActiveBrand(item, index)}
                                     >
                                         <td>{item.name}</td>
-                                        <td>{item.sum}</td>
+                                        <td>{item.invoicevalue}</td>
+                                        <td>{item.invoicedetailvalue}</td>
+                                        <td>{item.profit}</td>
                                     </tr>
                                 )
                                 )

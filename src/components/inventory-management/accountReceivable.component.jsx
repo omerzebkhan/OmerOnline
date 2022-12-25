@@ -43,6 +43,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [totalRecord, setTotalRecord] = useState([0]);
 
     const [arInvoiceId,setARInvoiceId] = useState();
+    const [addressInput,setAddressInput] = useState();
 
 
     useLayoutEffect(() => {
@@ -140,10 +141,27 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         }
         else if (event.target.id === "Name") {
             setNameInput(event.target.value);
-            if (event.target.value === "") {
+            if (event.target.value === "" && agentNameInput==="" && addressInput==="")  {
                 setFilteredOptionsName(saleArData)
             }
-            else if (agentNameInput !== "") {
+            else if (agentNameInput !== "" && addressInput!=="") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
+                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+            else if (agentNameInput === "" && addressInput!=="") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
+                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+            else if (agentNameInput !== "" && addressInput==="") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
@@ -151,29 +169,87 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            else {
-                setFilteredOptionsName(saleArData.filter(
-                    (option) => option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
-                ));
+            else if (agentNameInput === "" && addressInput==="") {
+                 setFilteredOptionsName(saleArData.filter(
+                     (option) => option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
+                 ));
             }
         }
         else if (event.target.id === "agentName") {
             setAgentNameInput(event.target.value);
-            if (event.target.value === "") {
+            if (event.target.value === "" && addressInput==="" && nameInput==="") {
                 setFilteredOptionsName(saleArData)
             }
-            else if (nameInput !== "") {
+            else if (nameInput !== "" && addressInput!== "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
+                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+            else if (nameInput === "" && addressInput!== "") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                               option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+            else if (nameInput !== "" && addressInput=== "") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 
+                    }
+                ));
+            }
+            else if (nameInput === "" && addressInput === "") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+            
+        }
+        else if (event.target.id === "address") {
+            setAddressInput(event.target.value);
+            if (event.target.value === "") {
+                setFilteredOptionsName(saleArData)
+            }
+            else if (nameInput !== "" && agentNameInput!=="") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
+                            option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                    }
+                ));
+            }
+            else if (nameInput !== "" && agentNameInput==="") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
                             option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
+                            
+                    }
+                ));
+            }
+            else if (nameInput === "" && agentNameInput!=="") {
+                setFilteredOptionsName(saleArData.filter(
+                    option => {
+                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
+                            option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                            
                     }
                 ));
             }
             else {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
+                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
                     }
                 ));
             }
@@ -382,6 +458,20 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     id="agentName"
                                     placeholder="Agent Name"
                                     value={agentNameInput}
+                                    onChange={handleChange} />
+                            </div>
+                        </div>
+                        <div className="form-group row">
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Address</label>
+                            </div>
+                            <div className="col-sm-6">
+                                <input
+                                    type="text"
+                                    name="address"
+                                    id="address"
+                                    placeholder="Address"
+                                    value={addressInput}
                                     onChange={handleChange} />
                             </div>
                         </div>
