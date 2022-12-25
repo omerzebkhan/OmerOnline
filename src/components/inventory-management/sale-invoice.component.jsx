@@ -167,12 +167,21 @@ const SaleInvoice = ({
     const handleSubmit = event => {
         event.preventDefault();
         console.log(`handle submit is fired....`)
-
-
+        //if same item is available in the array before adding
+        console.log(cItem[0].name)
+        console.log(invoiceItem)
+        var checkItem =  (invoiceItem.filter(
+                 (option) => option[0].toLowerCase().indexOf(cItem[0].name.toLowerCase()) > -1
+             ));
+        if (checkItem.length>0)
+        {
+            setMessage('Item already in the Invoice')   
+        }
+        else{
         //To check entered value should be less than showroom quantity
         if (cItem.length ===0  || quantity==="" || price ==="")
-        {setMessage('Select Item and Enter Quantity & Price')}
-
+        {setMessage('Select Item and Enter Quantity & Price')
+        }
         else{
             console.log(`showromm = ${cItem[0].showroom} and entered valu = ${parseInt(quantity)}`)
         if (parseInt(cItem[0].showroom) < parseInt(quantity)) {
@@ -186,7 +195,7 @@ const SaleInvoice = ({
             console.log("Invoice Item")
             console.log(invoiceItem)
             //console.log(`cost=${cItem[0].averageprice} && qty=${qty} = ${cost*qty}`);
-
+            setMessage("");
             if (invoiceItem.length === 0) {
               //  console.log("no value in the invoice item")
                 setTotalInvoiceValue(total * qty);
@@ -205,7 +214,7 @@ const SaleInvoice = ({
             }
         }
 
-    }
+    }}
     }
 
     const removeItem = (item, index) => {
