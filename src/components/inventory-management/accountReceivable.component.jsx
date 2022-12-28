@@ -34,7 +34,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [totalInvoiceOutStanding, setTotalInvoiceOutStanding] = useState(0);
     const [nameInput, setNameInput] = useState("");
     const [reffInput, setReffInput] = useState("");
-    const [reffInvoiceInput,setReffInvoiceInput] = useState("");
+    const [reffInvoiceInput, setReffInvoiceInput] = useState("");
     const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
     const [filteredOptionsReff, setFilteredOptionsReff] = useState([]);
@@ -42,8 +42,10 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [filterOutstanding, setFilterOutstanding] = useState([0]);
     const [totalRecord, setTotalRecord] = useState([0]);
 
-    const [arInvoiceId,setARInvoiceId] = useState();
-    const [addressInput,setAddressInput] = useState();
+    const [arInvoiceId, setARInvoiceId] = useState();
+    const [addressInput, setAddressInput] = useState("");
+    const [amountInput, setAmountInput] = useState("");
+    const [filter, setFilter] = useState("");
 
 
     useLayoutEffect(() => {
@@ -71,19 +73,19 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [saleArData])
 
     useEffect(() => {
-        
+
         if (sInvoice) {
             setFilteredOptionsReff(sInvoice)
         }
     }, [sInvoice])
 
     useEffect(() => {
-        
-        if (filteredOptionsReff===0) {
+
+        if (filteredOptionsReff === 0) {
             setFilteredOptionsReff(sInvoice)
         }
     }, [filteredOptionsReff])
-    
+
     useEffect(() => {
         var sumInvoiceValue = 0
         var sumOutstanding = 0
@@ -101,21 +103,21 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
     useEffect(() => {
         //order the array and assign it to sInvoice
-        if (saleInvoice){
+        if (saleInvoice) {
 
-        var arr = saleInvoice;
+            var arr = saleInvoice;
 
-        function sortByKey(a, b) {
-            //console.log(`sorting array ${a.Outstanding}`)
+            function sortByKey(a, b) {
+                //console.log(`sorting array ${a.Outstanding}`)
                 return parseFloat(a.Outstanding) > parseFloat(b.Outstanding) ? -1 : parseFloat(a.Outstanding) < parseFloat(b.Outstanding) ? 1 : 0;
+            }
+
+            const sorted = arr.sort(sortByKey);
+            //        console.log(sorted);
+            console.log(sorted)
+
+            setSInvoice(sorted);
         }
-          
-          const sorted = arr.sort(sortByKey);
-          //        console.log(sorted);
-        console.log(sorted)
-          
-        setSInvoice(sorted);
-    }
     }, [saleInvoice])
 
     useEffect(() => {
@@ -133,18 +135,63 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }
 
     const handleChange = event => {
+
         if (event.target.id === "cashPayment") {
             setCashPayment(event.target.value);
         }
         else if (event.target.id === "bankPayment") {
             setBankPayment(event.target.value);
         }
+        else if (event.target.id === "amount") {
+            if (filter==="" || filter==="Please Select")
+            {
+                alert("Select the filter first");
+            }
+            else {
+                setAmountInput(event.target.value);
+                //search base on the filter value
+                var selectedItem = [];
+                if (filter === 'Equal To') {
+                    console.log('Equal To filter is called')
+
+                    selectedItem = saleArData.filter(
+                        (option) => option.salesOutstanding === parseFloat(event.target.value)
+                    );
+                    // setFilteredOptionsName(saleArData.filter(
+                    //     option => {
+                    //         return (option) => option.salesOutstanding == parseInt(event.target.value)
+                    //     }
+                    // ));
+                   
+                }
+                else if (filter === 'Greater Than') {
+                    selectedItem = saleArData.filter(
+                        (option) => option.salesOutstanding > parseFloat(event.target.value)
+                    );
+                }
+                else if (filter === 'Less Than') {
+                    selectedItem = saleArData.filter(
+                        (option) => option.salesOutstanding < parseFloat(event.target.value)
+                    );
+                }
+                
+                setFilteredOptionsName(selectedItem)
+            
+            }
+            
+        }
+        else if (event.target.id === "Filter") {
+                setFilter(event.target.value);
+                // apply the filter on these values
+
+            
+        }
         else if (event.target.id === "Name") {
             setNameInput(event.target.value);
-            if (event.target.value === "" && agentNameInput==="" && addressInput==="")  {
+            if (event.target.value === "" && agentNameInput === "" && addressInput === "") {
                 setFilteredOptionsName(saleArData)
             }
-            else if (agentNameInput !== "" && addressInput!=="") {
+            else if (agentNameInput !== "" && addressInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
@@ -153,7 +200,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            else if (agentNameInput === "" && addressInput!=="") {
+            else if (agentNameInput === "" && addressInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
@@ -161,7 +208,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            else if (agentNameInput !== "" && addressInput==="") {
+            else if (agentNameInput !== "" && addressInput === "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
@@ -169,18 +216,18 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            else if (agentNameInput === "" && addressInput==="") {
-                 setFilteredOptionsName(saleArData.filter(
-                     (option) => option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
-                 ));
+            else if (agentNameInput === "" && addressInput === "") {
+                setFilteredOptionsName(saleArData.filter(
+                    (option) => option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1
+                ));
             }
         }
         else if (event.target.id === "agentName") {
             setAgentNameInput(event.target.value);
-            if (event.target.value === "" && addressInput==="" && nameInput==="") {
+            if (event.target.value === "" && addressInput === "" && nameInput === "") {
                 setFilteredOptionsName(saleArData)
             }
-            else if (nameInput !== "" && addressInput!== "") {
+            else if (nameInput !== "" && addressInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
@@ -189,19 +236,19 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            else if (nameInput === "" && addressInput!== "") {
+            else if (nameInput === "" && addressInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                               option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
+                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
                     }
                 ));
             }
-            else if (nameInput !== "" && addressInput=== "") {
+            else if (nameInput !== "" && addressInput === "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 
+                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
                     }
                 ));
             }
@@ -212,14 +259,15 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            
+
         }
         else if (event.target.id === "address") {
             setAddressInput(event.target.value);
             if (event.target.value === "") {
                 setFilteredOptionsName(saleArData)
             }
-            else if (nameInput !== "" && agentNameInput!=="") {
+            else if (nameInput !== "" && agentNameInput !== "") {
+                
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
@@ -228,21 +276,21 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
                 ));
             }
-            else if (nameInput !== "" && agentNameInput==="") {
+            else if (nameInput !== "" && agentNameInput === "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
                             option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
-                            
+
                     }
                 ));
             }
-            else if (nameInput === "" && agentNameInput!=="") {
+            else if (nameInput === "" && agentNameInput !== "") {
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
                             option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
-                            
+
                     }
                 ));
             }
@@ -269,8 +317,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         }
         else if (event.target.id === "reffInvoice") {
             setReffInvoiceInput(event.target.value);
-            if (event.target.value ==="")
-            {
+            if (event.target.value === "") {
                 //reset all the values
                 //show all AR
                 setFilteredOptionsName(saleArData)
@@ -278,8 +325,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 setFilteredOptionsReff([]);
 
             }
-           
-            
+
+
         }
     }
 
@@ -370,14 +417,15 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 // setFilteredOptionsName(saleArData.filter(
                 //     (option) => option.name.toLowerCase().indexOf(response2.data[0].name.toLowerCase()) > -1
                 // ));
-                var arr =  [
-                {
-                customerId:response2.data[0].customerId,
-                name: response2.data[0].name,
-                address: response2.data[0].address,
-                agentname:response2.data[0].agentname,
-                saleInvoiceValue:response2.data[0].invoicevalue,
-                salesOutstanding:response2.data[0].Outstanding}
+                var arr = [
+                    {
+                        customerId: response2.data[0].customerId,
+                        name: response2.data[0].name,
+                        address: response2.data[0].address,
+                        agentname: response2.data[0].agentname,
+                        saleInvoiceValue: response2.data[0].invoicevalue,
+                        salesOutstanding: response2.data[0].Outstanding
+                    }
                 ]
 
                 setFilteredOptionsName(arr)
@@ -437,7 +485,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Customer Name</label>
                             </div>
-                            <div className="col-sm-6">
+                            <div className="col-sm-2">
                                 <input
                                     type="text"
                                     name="Name"
@@ -446,12 +494,12 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     value={nameInput}
                                     onChange={handleChange} />
                             </div>
-                        </div>
-                        <div className="form-group row">
+                            {/* </div> */}
+                            {/* <div className="form-group row"> */}
                             <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Agent Name</label>
                             </div>
-                            <div className="col-sm-6">
+                            <div className="col-sm-2">
                                 <input
                                     type="text"
                                     name="agentName"
@@ -465,13 +513,31 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Address</label>
                             </div>
-                            <div className="col-sm-6">
+                            <div className="col-sm-2">
                                 <input
                                     type="text"
                                     name="address"
                                     id="address"
                                     placeholder="Address"
                                     value={addressInput}
+                                    onChange={handleChange} />
+                            </div>
+                            <div className="col-sm-2">
+                                Filter
+                                <select id="Filter" name="Filter" onChange={handleChange}>
+                                    <option selected="Please Select" value="Please Select">Please Select</option>
+                                    <option value="Equal To">Equal To</option>
+                                    <option value="Greater Than">Greater Than</option>
+                                    <option value="Less Than">Less Than</option>
+                                </select>
+                            </div>
+                            <div className="col-sm-2">
+                                <input
+                                    type="text"
+                                    name="amount"
+                                    id="amount"
+                                    placeholder="Amount"
+                                    value={amountInput}
                                     onChange={handleChange} />
                             </div>
                         </div>
@@ -493,9 +559,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                 <button className="btn btn-success" type="button" onClick={searchInvoiceHandler} >Search Invoice</button>
                             </div>
                         </div>
-    
 
-                        
+
+
                         <div>
                             <ReactHTMLTableToExcel
                                 className="btn btn-info"
@@ -582,19 +648,19 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         <div>
                             <h1>Outstaning Invoices</h1>
                             <div className="form-group row">
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Reff Invoice</label>
+                                <div className="col-sm-2">
+                                    <label className="col-form-label" htmlFor="Item">Reff Invoice</label>
+                                </div>
+                                <div className="col-sm-6">
+                                    <input
+                                        type="text"
+                                        name="reff"
+                                        id="reff"
+                                        placeholder="Reff Invoice"
+                                        value={reffInput}
+                                        onChange={handleChange} />
+                                </div>
                             </div>
-                            <div className="col-sm-6">
-                                <input
-                                    type="text"
-                                    name="reff"
-                                    id="reff"
-                                    placeholder="Reff Invoice"
-                                    value={reffInput}
-                                    onChange={handleChange} />
-                            </div>
-                        </div>
                             <table border="1">
                                 <thead>
                                     <tr>

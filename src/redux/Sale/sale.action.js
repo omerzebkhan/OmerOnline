@@ -292,7 +292,7 @@ export const fetchSaleInvoiceDetailAsync = (SaleInvoiceId) => {
         inventoryService.getAllSaleDetailByInvoice(SaleInvoiceId)
             .then(response => {
                 const saleMap = response.data;
-                // console.log(saleMap);
+                 console.log(saleMap);
                 dispatch(fetchSaleInvoiceDetail(saleMap));
             })
             .catch(error => dispatch(fetchSaleFailure((error.response.request.response.message))))

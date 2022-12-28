@@ -206,7 +206,7 @@ const InvoiceTableRow = ({items,customer,invoiceNo,date}) => {
       <InvoiceTableHeader />
       </View>
       <View style={styles.row} key={index}>
-      <Text style={styles.R_description}>{item.items.name}</Text>
+      <Text style={styles.R_description}>{item.itemname}</Text>
       <Text style={styles.R_qty}>{item.quantity}</Text>
       <Text style={styles.R_rate}>{item.price}</Text>
       <Text style={styles.R_amount}>{(item.quantity * item.price).toFixed(2)}</Text>
@@ -216,7 +216,7 @@ const InvoiceTableRow = ({items,customer,invoiceNo,date}) => {
     else
     {
       return <View style={styles.row} key={index}>
-      <Text style={styles.R_description}>{item.items.name}</Text>
+      <Text style={styles.R_description}>{item.itemname}</Text>
       <Text style={styles.R_qty}>{item.quantity}</Text>
       <Text style={styles.R_rate}>{item.price}</Text>
       <Text style={styles.R_amount}>{(item.quantity * item.price).toFixed(2)}</Text>
@@ -243,9 +243,10 @@ const BillTo = ({ customer }) => {
 
   const rows = <View style={styles.headerContainer} key={1}>
     <Text style={styles.billTo}>Bill To:</Text>
-    <Text style={styles.R_BillTo}>{customer.name}</Text>
-    <Text style={styles.R_BillTo}>{customer.address}</Text>
-
+    <Text style={styles.R_BillTo}>{customer[0].customername}</Text>
+    <Text style={styles.R_BillTo}>{customer[0].customeraddress}</Text>
+    <Text style={styles.billTo}>Created By:</Text>
+    <Text style={styles.R_BillTo}>{customer[0].agentname}</Text>
   </View>;
 
 
@@ -294,7 +295,7 @@ const InvoiceTableFooter = ({ items }) => {
   )
 };
 
-const MyDoc = ({ data, invoiceNo, date, customer }) => (
+const MyDoc = ({ data, invoiceNo, date }) => (
   <Document>
     <Page size="A4" style={styles.page}>
       <View>
@@ -302,9 +303,9 @@ const MyDoc = ({ data, invoiceNo, date, customer }) => (
         <InvoiceTitle title='Sale Invoice' />
         <InvoiceTitle title='N & M Traders' />
         <InvoiceNo invoiceNo={invoiceNo} date={date} />
-        <BillTo customer={customer} />
+        <BillTo customer={data} />
         <InvoiceTableHeader />
-        <InvoiceTableRow items={data} customer={customer} invoiceNo={invoiceNo} date={date} />
+        <InvoiceTableRow items={data} customer={data} invoiceNo={invoiceNo} date={date} />
         {/* check if the length of data is more than the paga then add header again */}
         <InvoiceTableFooter items={data} />
         <InvoiceThankYouMsg />
@@ -315,9 +316,10 @@ const MyDoc = ({ data, invoiceNo, date, customer }) => (
 );
 
 
-const PrintInvoice = ({ invoice, customer }) => {
+const PrintInvoice = ({invoice}) => {
   console.log(`Print invoice is called called..
-    customer name = ${customer.name}`);
+    customer name = 
+    ${invoice[0].customername}`);
   var invoiceNo = "";
   // var customerName= "";
   var date = "";
@@ -343,9 +345,7 @@ const PrintInvoice = ({ invoice, customer }) => {
         data={invoice}
         invoiceNo={invoiceNo}
         date={date}
-        customer={customer}
-
-      />} fileName={invoiceNo + ".pdf"} >
+       />} fileName={invoiceNo + ".pdf"} >
         {/* fileName="somename.pdf">   */}
         {({ blob, url, loading, error }) => (loading ? 'Loading document...' : 'Sale Invoice Print')}
       </PDFDownloadLink>

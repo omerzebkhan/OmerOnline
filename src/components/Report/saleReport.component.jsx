@@ -31,6 +31,7 @@ const SaleReport = ({
     const [totalSaleItem,setTotalSaleItem] = useState(0);
     const [totalSaleInvVal,setTotalSaleInvVal] = useState(0);
     const [totalSaleProfit,setTotalSaleProfit] = useState(0);
+    const [invoiceNo,setInvoiceNo]=useState("");
 
     const [cCustomer, setcCustomer] = useState([]);
     const [customerInput, setCustomerInput] = useState("");
@@ -44,19 +45,24 @@ const SaleReport = ({
     const [showOptionsAgent, setShowOptionsAgent] = useState(false);
     const [filteredOptionsAgent, setFilteredOptionsAgent] = useState([]);
 
+    const [filteredSale,setFilteredSale]=useState([]);
+
+
+
 
     useEffect(() => {
         fetchUserStartAsync();
     }, [fetchUserStartAsync])
 
   
+
     useEffect(() => {
-        if (saleData){ 
+        if (filteredSale){ 
         var sumQuantity = 0
         var sumRecord = 1
         var sumInvValue = 0
         var sumProfit =0
-        saleData.map((item, index) =>{
+        filteredSale.map((item, index) =>{
             sumQuantity = sumQuantity + parseInt(item.totalitems)
             setTotalSaleItem(sumQuantity)
             sumRecord = index + 1
@@ -66,8 +72,12 @@ const SaleReport = ({
             sumProfit = sumProfit + (item.profit)
             setTotalSaleProfit(parseFloat(sumProfit).toFixed(3))
         })}
-    }, [saleData])
+    }, [filteredSale])
 
+
+    useEffect(() => {
+        setFilteredSale(saleData)
+    }, [saleData])
 
 
     const handleStartDTPicker = (date) => {
@@ -81,8 +91,8 @@ const SaleReport = ({
     const handleSubmit = event => {
         event.preventDefault();
         //console.log(cAgent[0].id)
-
-        if (cCustomer.length > 0 && cAgent.length > 0 ) {
+      if(invoiceNo==""){
+      if (cCustomer.length > 0 && cAgent.length > 0 ) {
             fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,cAgent[0].id);
         }
         else if (cCustomer.length > 0){
@@ -95,7 +105,15 @@ const SaleReport = ({
             fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0");
         }
         fetchSaleByDateSummary(startDate.toDateString(), endDate.toDateString());
+    }
+    else
+    {
+        fetchSaleInvoiceDetailAsync(invoiceNo);  
+        //clear all other options
+        //should be fixed by setting data in array and resetting the array
+        setFilteredSale("")
 
+    }
     }
 
     const selectInvoice = (item) => {
@@ -110,8 +128,6 @@ const SaleReport = ({
 
         
     }
-
-
 
     const handleChange = event => {
         //console.log(event);
@@ -141,10 +157,10 @@ const SaleReport = ({
             //setCustomerInput(customerInput);
             setAgentInput(event.target.value);
         }
+        else if (event.target.id === "invoiceNo"){
+            setInvoiceNo(event.target.value);
+        }
     }
-
-    
-
 
     //////////////////////////////////////////////////////////////////////
     /////////////////////////// Drop down logic for Customer 
@@ -409,6 +425,21 @@ const SaleReport = ({
                             </div>
 
                         </div>
+                        <div className="form-group row">
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Inovce No.</label>
+                            </div>
+                            <div className="col-sm-2">   
+                                <input
+                                    type="text"
+                                    name="invoiceNo"
+                                    id="invoiceNo"
+                                    placeholder="InvoiceNo"
+                                    value={invoiceNo}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        </div>
 
                 <div >
                     <button className="btn btn-success" type="submit" >Search</button>
@@ -416,13 +447,13 @@ const SaleReport = ({
                 </div>
             </form>
 
-            {saleSummary?        
+            {saleSummary && filteredSale?        
             <PrintSaleSummary data={saleSummary} sDate={startDate.toDateString()} eDate={endDate.toDateString()} />
             :
             ""
             }
 
-            { saleData ?
+            { filteredSale ?
                <div>
                    <div>
                     <div className="inputFormHeader"><h2>Summary Sale Data</h2></div>
@@ -450,7 +481,7 @@ const SaleReport = ({
                         </thead>
                         <tbody>
                             {   
-                                saleData.map((item, index) => (
+                                filteredSale.map((item, index) => (
                                     console.log(item),
                                     <tr key={index}
                                         onClick={() => selectInvoice(item)}
@@ -498,7 +529,7 @@ const SaleReport = ({
                                         <td>{item.id}</td>
                                         <td>{item.createdAt}</td>
                                         <td>{item.saleInvoiceId}</td>
-                                        <td>{item.items.name}</td>
+                                        <td>{item.itemname}</td>
                                         <td>{item.price}</td>
                                         <td>{item.quantity}</td>
                                         <td>{item.cost}</td>
@@ -508,7 +539,7 @@ const SaleReport = ({
                             }
                         </tbody>
                     </table>
-                    <PdfInvoice invoice={saleInvoiceDetailData} customer={user} />
+                    <PdfInvoice invoice={saleInvoiceDetailData} />
          
                 </div>
 

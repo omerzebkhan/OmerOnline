@@ -73,7 +73,7 @@ const EditSale = ({
             saleInvoiceDetailData.map((i) => {
                 console.log(i)
                 //setInvoiceItem([...invoiceItem,[i.items.name,i.items.description,i.quantity,i.price,i.cost,i.cost *i.price,i.id]])
-                arr.push([i.items.name, i.items.description, i.quantity, i.price, i.cost, (i.price * i.quantity) - (i.cost * i.quantity), i.itemId, i.id, i.saleInvoiceId]);
+                arr.push([i.itemname, i.itemdescription, i.quantity, i.price, i.cost, (i.price * i.quantity) - (i.cost * i.quantity), i.itemId, i.id, i.saleInvoiceId]);
                 //console.log(invoiceItem)
                 //console.log(invoiceItem.length)
             })

@@ -62,7 +62,7 @@ const SaleReturn = ({
         console.log(saleInvoiceDetailData.length)
         saleInvoiceDetailData.map((item, index) => {
             if (document.getElementById(index).value !== '') {
-            saleReturn.push([item.id,item.items.id,item.price, item.cost, item.saleInvoiceId,parseInt(document.getElementById(index).value),item.quantity]);
+            saleReturn.push([item.id,item.itemid,item.price, item.cost, item.saleInvoiceId,parseInt(document.getElementById(index).value),item.quantity]);
             }
         })
 
@@ -314,7 +314,7 @@ const SaleReturn = ({
                                                     <td>{item.id}</td>
                                                     <td>{item.createdAt}</td>
                                                     <td>{item.saleInvoiceId}</td>
-                                                    <td>{item.items.name}</td>
+                                                    <td>{item.itemname}</td>
                                                     <td>{item.price}</td>
                                                     <td>{item.quantity}</td>
                                                     <td>{item.costPrice}</td>
