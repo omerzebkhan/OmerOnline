@@ -207,7 +207,7 @@ const SaleInvoice = ({
             } else {
 
                 //setTotalInvoiceValue(parse(totalInvoiceValue).toFixed(3) + (total * qty));
-                //setTotalInvoiceValue(totalInvoiceValue + (total * qty));  // fixed by removing parseInt
+                setTotalInvoiceValue(totalInvoiceValue + (total * qty));  // fixed by removing parseInt
 
                 setTotalInvoiceQuantity(parseInt(totalInvoiceQuantity) + qty);
                 setTotalInvoiceCost(totalInvoiceCost + (cost * qty));
