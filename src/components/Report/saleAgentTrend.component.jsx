@@ -236,8 +236,9 @@ const [barOptions, setBarOptions] = useState({
 
                         <thead>
                             <tr>
-                                <th onClick={() => requestSort('month','Float')}>Agent</th>
-                                <th onClick={() => requestSort('totalSale','Float')}>Total Sale</th>
+                                <th onClick={() => requestSort('name','Float')}>Agent</th>
+                                <th onClick={() => requestSort('totalSale','Float')}>Total Sale Count</th>
+                                <th onClick={() => requestSort('invoicevalue','Float')}>Total Sale</th>
                                 
                             </tr>
                         </thead>
@@ -254,6 +255,7 @@ const [barOptions, setBarOptions] = useState({
                                     >
                                         <td>{item.name}</td>
                                         <td>{item.count}</td>
+                                        <td>{item.invoicevalue}</td>
                                     </tr>
                                 )
                                 )
@@ -261,11 +263,11 @@ const [barOptions, setBarOptions] = useState({
                             }
                         </tbody>
                     </table>
-                    <div className="BarExample">
+                    {/* <div className="BarExample">
                         <Bar
                             data={barData}
                             options={barOptions} />
-                    </div>
+                    </div> */}
                 </div>
                 :
                 ""
@@ -278,9 +280,10 @@ const [barOptions, setBarOptions] = useState({
                         <thead>
                             <tr>
                                 <th onClick={() => requestSort('month','Float')}>Agent</th>
-                                <th onClick={() => requestSort('invoicevalue','Float')}>Total Sale</th>
-                                <th onClick={() => requestSort('invoicedetailvalue','Float')}>Total detail Sale</th>
-                                <th onClick={() => requestSort('profit','Float')}>Total Profit</th>
+                                <th onClick={() => requestSort('totalsale','Float')}>Monthly Sale</th>
+                                <th onClick={() => requestSort('invoicevalue','Float')}>Closed Sale</th>
+                                <th onClick={() => requestSort('invoicedetailvalue','Float')}>Closed detail Sale</th>
+                                <th onClick={() => requestSort('profit','Float')}>Closed Profit</th>
                                 
                             </tr>
                         </thead>
@@ -296,9 +299,10 @@ const [barOptions, setBarOptions] = useState({
                                     //onClick={() => setActiveBrand(item, index)}
                                     >
                                         <td>{item.name}</td>
-                                        <td>{item.invoicevalue}</td>
-                                        <td>{item.invoicedetailvalue}</td>
-                                        <td>{item.profit}</td>
+                                        <td>{item.totalsale}</td>
+                                        <td>{parseFloat(item.invoicevalue).toFixed(3)}</td>
+                                        <td>{parseFloat(item.invoicedetailvalue).toFixed(3)}</td>
+                                        <td>{parseFloat(item.profit).toFixed(3)}</td>
                                     </tr>
                                 )
                                 )
@@ -306,11 +310,11 @@ const [barOptions, setBarOptions] = useState({
                             }
                         </tbody>
                     </table>
-                    <div className="BarExample">
+                    {/* <div className="BarExample">
                         <Bar
                             data={barData}
                             options={barOptions} />
-                    </div>
+                    </div> */}
                 </div>
                 :
                 ""
