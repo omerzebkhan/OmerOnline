@@ -6,7 +6,7 @@ import SearchUser from "../user/searchUser.component";
 
 //import { fetchItemStartAsync, setCurrentItem } from '../../redux/item/item.action';
 
-import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR, fetchSalePayHist } from '../../redux/Sale/sale.action';
+import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR, fetchSalePayHist, fetchSaleInvoiceDetail } from '../../redux/Sale/sale.action';
 import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
@@ -25,6 +25,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [payHist, setPayHist] = useState([])
     const [returnHist, setReturnHist] = useState([])
     const [currentInvoice, setCurrentInvoice] = useState([]);
+    const [secInvoice,setSecInvoice]=useState([]);
     const [cashPayment, setCashPayment] = useState(0);
     const [bankPayment, setBankPayment] = useState(0);
     const [message, setMessage] = useState("");
@@ -38,6 +39,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
     const [filteredOptionsReff, setFilteredOptionsReff] = useState([]);
+    const [openInvoices, setOpenInvoices] = useState([]); 
     const [totalInvoiceValue, setTotalInvoiceValue] = useState([0]);
     const [filterOutstanding, setFilterOutstanding] = useState([0]);
     const [totalRecord, setTotalRecord] = useState([0]);
@@ -125,8 +127,31 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [salInvDetail])
 
     useEffect(() => {
+        
+        //check if the invoicevalue is -ive then show invoices with outstanding >0
+        if (currentInvoice.id && currentInvoice.Outstanding<0)
+        {
+            //alert("invoice value is <0 show the outstanding invoices.....")
+        
+        setOpenInvoices(sInvoice.filter(
+            option => {
+                return option.Outstanding >0
+            }
+        ));
+        console.log(openInvoices)
+        }
+        else
+        {
+            setOpenInvoices([])
+        }
+    }, [currentInvoice])
+
+    useEffect(() => {
         setPayHist(salePayHist)
     }, [salePayHist])
+
+
+  
 
     const selectSaleInvoice = (item) => {
         fetchSaleByInputStartAsync(item.customerId);
@@ -154,7 +179,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 if (filter === 'Equal To') {
                     console.log('Equal To filter is called')
 
-                    selectedItem = saleArData.filter(
+                    selectedItem = filteredOptionsName.filter(
                         (option) => option.salesOutstanding === parseFloat(event.target.value)
                     );
                     // setFilteredOptionsName(saleArData.filter(
@@ -165,12 +190,12 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                    
                 }
                 else if (filter === 'Greater Than') {
-                    selectedItem = saleArData.filter(
+                    selectedItem = filteredOptionsName.filter(
                         (option) => option.salesOutstanding > parseFloat(event.target.value)
                     );
                 }
                 else if (filter === 'Less Than') {
-                    selectedItem = saleArData.filter(
+                    selectedItem = filteredOptionsName.filter(
                         (option) => option.salesOutstanding < parseFloat(event.target.value)
                     );
                 }
@@ -330,8 +355,125 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
         }
     }
 
-    const updatHandler = () => {
-        console.log('update is clicked.....')
+    const updateHandler = () => {
+        console.log(`update is clicked.....${currentInvoice.Outstanding}`)
+        if(currentInvoice.Outstanding<0)
+        {
+            // update two invoices.
+            //1- currentInvoice.outstaning = currentInvoince.outstaning + (- secInvoince.InvoiceValue)
+            //2- secInvoice.outstanding = secInvoice.outstanding + currentInvoice.out
+            var cOutStanding = 0
+            var secOutstanding = 0
+            var cpayment = 0
+            var spayment = 0
+            var cComments = `Amount adjusted against =${secInvoice.id}` 
+            var secComments = `Amount adjusted against =${currentInvoice.id}`
+            if (secInvoice.Outstanding+(currentInvoice.Outstanding)>=0)
+            {
+            cOutStanding = 0
+            secOutstanding = secInvoice.Outstanding+(currentInvoice.invoicevalue)
+            cpayment = -(secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.invoicevalue)))    
+            spayment = secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.invoicevalue))    
+            }
+            else if(secInvoice.Outstanding+(currentInvoice.Outstanding)<0)
+            {
+                cOutStanding = currentInvoice.Outstanding + secInvoice.Outstanding
+                secOutstanding = 0 
+                cpayment = -(secInvoice.Outstanding)
+                spayment = secInvoice.Outstanding
+            }
+
+            console.log(`
+            currentOutstanding = ${cOutStanding}
+            secondOutstanding = ${secOutstanding}
+            currentpayment = ${cpayment}
+            secondPayment = ${spayment} 
+            comments for current invoice = ${cComments}
+            comments for secondary invoice = ${secComments}
+            `)
+            // update currentInvoice
+            var cvSaleInvPay = {
+                reffInvoice: currentInvoice.id,
+                cashPayment: cpayment,
+                bankPayment: 0,
+                comments:cComments
+            }
+
+
+            inventoryService.createSaleInvPay(vSaleInvPay)
+                .then(res => {
+                    setMessage("Sale Invoice Payment added successfully.....")
+                    console.log("Sale Invoice Payment added successfully.....")
+
+                    ////////////////////////
+                    //2- Update saleInvoice 
+                    ///////////////////////
+                    var cvSaleInv = {
+                        Outstanding:cOutStanding
+                    }
+                    // console.log(`${parseInt(currentInvoice.Outstanding)} -
+                    // ${parseInt(cashPayment)} -
+                    // ${parseInt(bankPayment)}`)
+
+                    inventoryService.updateSale(currentInvoice.id, cvSaleInv)
+                        .then(res => {
+                            setMessage("Update Sale Outstanding completed successfully.....")
+                            console.log("Update Sale Outstanding completed successfully.....")
+
+                        })
+                        .catch(e => {
+                            console.log(`catch of Sale Outstanding ${e}
+                                          error from server  ${e.message}`);
+                        })
+                })
+                .catch(e => {
+                    console.log(`catch of Create Sale Invoice Payment ${e}
+                error from server  ${e.message}`);
+                })
+
+        //update Second Invoice
+        var svSaleInvPay = {
+            reffInvoice: secInvoice.id,
+            cashPayment: spayment,
+            bankPayment: 0,
+            comments:secComments
+        }
+
+
+        inventoryService.createSaleInvPay(svSaleInvPay)
+            .then(res => {
+                setMessage("Sale Invoice Payment added successfully.....")
+                console.log("Sale Invoice Payment added successfully.....")
+
+                ////////////////////////
+                //2- Update saleInvoice 
+                ///////////////////////
+                var svSaleInv = {
+                    Outstanding:secOutstanding
+                }
+                console.log(`${parseInt(currentInvoice.Outstanding)} -
+                ${parseInt(cashPayment)} -
+                ${parseInt(bankPayment)}`)
+
+                inventoryService.updateSale(secInvoice.id, svSaleInv)
+                    .then(res => {
+                        setMessage("Update Sale Outstanding completed successfully.....")
+                        console.log("Update Sale Outstanding completed successfully.....")
+
+                    })
+                    .catch(e => {
+                        console.log(`catch of Sale Outstanding ${e}
+                                      error from server  ${e.message}`);
+                    })
+            })
+            .catch(e => {
+                console.log(`catch of Create Sale Invoice Payment ${e}
+            error from server  ${e.message}`);
+            })
+
+        }
+        else
+        {
         if (currentInvoice.Outstanding < parseInt(cashPayment) + parseInt(bankPayment)) {
             alert("values are wrong...");
         }
@@ -339,11 +481,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
             // 1-  PurchaseInvoicePayment
             //2- update the PurchaseInvoice
-            // 3- update outstanding in user 
+            
 
             setLoading(true);
-            //var batch = firestore.batch();
-            //////////////////////////////////////////////
             // 1- Add New record in the saleInvoicePayment
             /////////////////////////////////////////////
             var vSaleInvPay = {
@@ -401,6 +541,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 })
 
         }
+    }
         setLoading(false)
     }
 
@@ -454,6 +595,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const getPaymentDetail = (invoiceId) => {
         //console.log(`Sale payment Details is called ${invoiceId}`)
         fetchSalInvPayDetial(invoiceId);
+        // check of the amount is -ive then show the open inovice with the outstanding >0
+
     }
 
     const getPayHist = (custId) => {
@@ -644,7 +787,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
 
 
-                    {filteredOptionsReff ?
+                    {filteredOptionsReff.length>0 ?
                         <div>
                             <h1>Outstaning Invoices</h1>
                             <div className="form-group row">
@@ -689,6 +832,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                     setSInvPayDetail([]);
                                                     setPayHist([]);
                                                     setCurrentInvoice(item)
+                                                    setSecInvoice([]);
                                                 }
                                                 }>Make Payment</button></td>
                                                 <td><button type="button" onClick={() => {
@@ -709,6 +853,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         :
                         ""
                     }
+                   
                     {currentInvoice.id ?
                         <div>
                             <div className="form-group row">
@@ -787,11 +932,54 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                 </div>
                             </div>
                             <div >
-                                <button className="btn btn-success" type="button" onClick={updatHandler} >Update</button>
+                                <button className="btn btn-success" type="button" onClick={updateHandler} >Update</button>
                             </div>
                         </div>
                         :
                         ""}
+                     {openInvoices.length>0 ?
+                    <div>
+                         <table border="1">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Customer id</th>
+                                        <th>Customer Name</th>
+                                        <th>Reff Invoice</th>
+                                        <th>Invoice Value</th>
+                                        <th>OutStanding</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {openInvoices.map((item, index) => {
+                                        //console.log(index)
+                                        //if (item.Outstanding!==0){
+                                        return (
+                                            <tr key={index}>
+                                                <td>{item.createdAt}</td>
+                                                <td>{item.customerId}</td>
+                                                <td>{item.customers.name}</td>
+                                                <td>{item.id}</td>
+                                                <td>{item.invoicevalue}</td>
+                                                <td>{item.Outstanding}</td>
+                                                {/* <td><button type="button" onClick={() => setCurrentInvoice(item)}>Make Payment</button></td> */}
+                                                <td><button type="button" onClick={() => {
+                                                    setSInvPayDetail([]);
+                                                    setPayHist([]);
+                                                    setSecInvoice(item)
+                                                    setCashPayment(item.invoicevalue)
+                                                }
+                                                }>Select Invoice</button></td>
+                                            </tr>)
+                                    }
+                                        //}
+                                    )}
+                                </tbody>
+                            </table>
+                    </div>    
+                    :
+                    ""
+                    }    
                     {payHist && payHist.length > 0 ?
                         <div>
                             <table border="1">

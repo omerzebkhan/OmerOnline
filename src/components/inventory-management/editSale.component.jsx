@@ -398,6 +398,7 @@ const EditSale = ({
 
                                     ////////////////////////////////// update invoce Detail outstanding,tatalitem,invoice value 
                                     // call new service to recalculate the invoice value of given invoice no
+                                    // need to check if the invoice is having outstanding then dont overide the whole invoice
                                     inventoryService.getSaleRecalculate(sDetailData.saleInvoiceId)
                                         .then(res => {
                                             setMessage("Sale Recalculated .......");

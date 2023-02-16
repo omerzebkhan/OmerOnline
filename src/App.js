@@ -29,6 +29,7 @@ import SaleReport from './components/Report/saleReport.component';
 import BalanceSheetReport from './components/Report/balanceSheet.component'
 import ItemLimitReport from "./components/Report/itemLimitReport.component";
 import ItemTrendReport from "./components/Report/sellingItemTrend";
+import ItemSalePurchaseDateWise from "./components/Report/itemSalePurchaseDateWise";
 import SaleReturnReport from "./components/Report/returnReport.component";
 import MonthlySaleReport from "./components/Report/monthlySale";
 import SaleAgentTrendReport from "./components/Report/saleAgentTrend.component";
@@ -192,6 +193,7 @@ const App = () => {
                     <Route path="/BalanceSheetReport" render={()=><BalanceSheetReport />}/> 
                     <Route path="/ItemLimitReport" render={()=><ItemLimitReport />}/>
                     <Route path="/ItemTrendReport" render={()=><ItemTrendReport />}/>
+                    <Route path="/ItemSalePurchaseDateWise" render={()=><ItemSalePurchaseDateWise />}/>
                     <Route path="/SaleReturnReport" render={()=><SaleReturnReport />}/>
                     <Route path="/MonthlySaleReport" render={()=><MonthlySaleReport />}/>
                     <Route path="/SaleAgentReport" render={()=><SaleAgentTrendReport />}/>

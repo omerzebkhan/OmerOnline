@@ -350,6 +350,10 @@ const SaleInvoice = ({
                                             setTotalInvoiceQuantity(0);
                                             setQty([]);
                                             setLoading(false);
+                                            setcCustomer([]);
+                                            setcAgent([]);
+                                            setcItem([]);
+
 
                                         })
                                         .catch(e => {

@@ -34,6 +34,12 @@ class itemDataService {
     return http.get(`/itemTrend/${sDate}/${eDate}`);
   }
 
+  
+  getSalePurchaseDateWise(sDate,eDate) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/itemSalePurchaseDateWise/${sDate}/${eDate}`);
+   }
+
   create(data) {
     console.log(data);
     return http.post("/item/", data,{headers: authHeader() });
