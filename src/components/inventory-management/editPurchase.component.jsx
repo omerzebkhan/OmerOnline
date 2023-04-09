@@ -169,9 +169,7 @@ const EditPurchase = ({
                     var amountDiff = 0;
 
                     priceDiff = pdOldPrice - pdPrice;
-
                     quantityDiff = pdOldQuantity - pdQuantity;
-
 
                     if (priceDiff !== 0 && quantityDiff !== 0) {
                         amountDiff = priceDiff * amountDiff;
@@ -207,11 +205,20 @@ const EditPurchase = ({
                                 // need to check if the quantity is reduced and price is also changed
                                 // what will be the impact on the average price.
                                 var ap = 0;
+                                var oldAvg = 0;
                                 if (averageprice === 0) {
                                     ap = pdOldPrice;
                                 } else {
-                                    //console.log(`(${parseInt(averageprice)}+${parseInt(item[2])})/2`);
-                                    ap = (parseInt(averageprice) + parseInt(pdOldPrice)) / 2;
+                                   //formulea should be remove the old price from the avg cost n add the new one
+                                   //ap = (averageprice * 2) - pdOldPrice
+                                   // step 1  
+                                   oldAvg =((averageprice*quantity)-(pdOldPrice*pdOldQuantity))/(quantity-pdOldQuantity)  
+                                   console.log("Old Avg Price ="+oldAvg)
+                                   // step 2  
+                                   ap = ((parseFloat(oldAvg).toFixed(3)*(parseFloat(quantity).toFixed(3)-parseFloat(pdQuantity).toFixed(3))) + (parseFloat(pdPrice).toFixed(3)*parseFloat(pdQuantity).toFixed(3)))/(parseInt(quantity)-parseFloat(pdQuantity).toFixed(3)+parseInt(pdQuantity));
+                                    
+                                //    console.log(`(${parseInt(averageprice)}+${parseInt(pdPrice)})/2`);
+                                //    ap = (parseInt(ap) + parseInt(pdPrice)) / 2;
                                 }
                                 console.log(`Average price after calculation = ${ap}`)
 
@@ -223,9 +230,10 @@ const EditPurchase = ({
                                     averageprice: ap
                                 }
                                 console.log(`Item quantity & showroom are ${res.data.quantity} ${res.data.showroom} .......`);
+                                console.log(`Item itemid & data are ${pdItemId} ${iData.averageprice} .......`);
                                 itemService.update(pdItemId, iData)
                                     .then(res => {
-                                        console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
+                                        console.log(`Item data has been updated with ${iData.quantity} ${iData.averageprice}`)
                                     })
                                     .catch(error => {
                                         setMessage(`catch of Item update ${error.response.request.response.message}`)
@@ -389,7 +397,7 @@ const EditPurchase = ({
                                 if (averageprice === 0) {
                                     ap = item[3];
                                 } else {
-                                    //console.log(`(${parseInt(averageprice)}+${parseInt(item[2])})/2`);
+                                    console.log(`(${parseInt(averageprice)}+${parseInt(item[3])})/2`);
                                     ap = (parseInt(averageprice) + parseInt(item[3])) / 2;
                                 }
                                 console.log(`Average price after calculation = ${ap}`)
@@ -404,7 +412,7 @@ const EditPurchase = ({
                                 }
                                 itemService.update(id, itemUpdated)
                                     .then(response4 => {
-                                        // console.log(`response qty =${response4.data.quantity}
+                                         console.log(`response average =${response4.data.averageprice}
                                         //     response showroom = ${response4.data.showroom}`)
                                         setMessage(`Updated Stock value successfully`);
 

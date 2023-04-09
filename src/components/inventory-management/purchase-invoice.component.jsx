@@ -210,6 +210,8 @@ const PurchaseInvoice = ({
                                        //old formulea
                                         // ap = parseInt(averageprice) + parseInt((item[2]*item[1])/item[1]);
                                        // New formulea
+                                       // ap = (currentprice*currentqty)+(newprice*newqty)/ (currentqty+newqty)
+                                       // ap = (avgprice*currentqty)+(newprice*newqty)/ (currentqty+newqty)
                                        ap = ((parseFloat(averageprice).toFixed(3)*parseFloat(quantity).toFixed(3)) + (parseFloat(item[2]).toFixed(3)*parseFloat(item[1]).toFixed(3)))/(parseInt(quantity)+parseInt(item[1]));
                                     }
                                     console.log(`Average price after calculation = ${ap}`)

@@ -357,6 +357,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
     const updateHandler = () => {
         console.log(`update is clicked.....${currentInvoice.Outstanding}`)
+        console.log(`currrent invoice id .....${currentInvoice.id}`)
         if(currentInvoice.Outstanding<0)
         {
             // update two invoices.
@@ -371,9 +372,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
             if (secInvoice.Outstanding+(currentInvoice.Outstanding)>=0)
             {
             cOutStanding = 0
-            secOutstanding = secInvoice.Outstanding+(currentInvoice.invoicevalue)
-            cpayment = -(secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.invoicevalue)))    
-            spayment = secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.invoicevalue))    
+            secOutstanding = secInvoice.Outstanding+(currentInvoice.Outstanding)
+            cpayment = -(secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.Outstanding)))    
+            spayment = secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.Outstanding))    
             }
             else if(secInvoice.Outstanding+(currentInvoice.Outstanding)<0)
             {
@@ -400,7 +401,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
             }
 
 
-            inventoryService.createSaleInvPay(vSaleInvPay)
+            inventoryService.createSaleInvPay(cvSaleInvPay)
                 .then(res => {
                     setMessage("Sale Invoice Payment added successfully.....")
                     console.log("Sale Invoice Payment added successfully.....")
@@ -1021,6 +1022,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                         <th>Reff Inv.</th>
                                         <th>Cash Payment</th>
                                         <th>Bank Payment</th>
+                                        <th>Comments</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -1031,6 +1033,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                             <td>{item.reffInvoice}</td>
                                             <td>{item.cashPayment}</td>
                                             <td>{item.bankPayment}</td>
+                                            <td>{item.comments}</td>
                                         </tr>)
                                     })}
                                 </tbody>
