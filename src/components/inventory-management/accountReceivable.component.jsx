@@ -968,7 +968,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                     setSInvPayDetail([]);
                                                     setPayHist([]);
                                                     setSecInvoice(item)
-                                                    setCashPayment(item.invoicevalue)
+                                                    setCashPayment(item.Outstanding)
                                                 }
                                                 }>Select Invoice</button></td>
                                             </tr>)
