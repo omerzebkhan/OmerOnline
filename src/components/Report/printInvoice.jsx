@@ -197,7 +197,7 @@ const InvoiceTableHeader = () => (
 
 const InvoiceTableRow = ({items,customer,invoiceNo,date}) => {
   const rows = items.map((item, index) => {
-    if (index === 26)
+    if (index === 24)
     {
       return <View >
       <View> 
