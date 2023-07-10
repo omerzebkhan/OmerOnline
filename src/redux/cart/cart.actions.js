@@ -43,9 +43,9 @@ export const fetchCartDetailByCust = (custId) => {
         dispatch (fetchCartStart());
         cartService.getCartDetailByCust(custId)
           .then(response => {
-            const brandMap = response.data;
-            console.log(brandMap);
-            dispatch(fetchCartSuccess(brandMap)); 
+            const cartMap = response.data;
+            console.log(cartMap);
+            dispatch(fetchCartSuccess(cartMap)); 
 
           })
           .catch(error=>dispatch(fetchCartFailure(error.response.request.response.message)));

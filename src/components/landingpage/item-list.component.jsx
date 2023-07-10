@@ -1,18 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { connect, useSelector } from 'react-redux';
+import { connect, useSelector,useDispatch } from 'react-redux';
 import { Card, Button } from 'react-bootstrap'
 import { fetchItemByInputAsync } from '../../redux/item/item.action';
 import { useHistory } from "react-router-dom";
 import cartService from '../../services/cart.services';
 import { fetchCartDetailByCust } from '../../redux/cart/cart.actions';
+//import { logout } from "../../../  /src/redux/user/user.action";
+import { logout } from "../../redux/user/user.action";
 
-
-
-
-import Header from './header.component';
-
-
-
+import Header from './header.component'
 
 const ItemList = ({ fetchItemByInputAsync, itemData,
   currentCategory,
@@ -23,6 +19,7 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
   const refreshCat = localStorage.getItem("localCategory")
   const [message, setMessage] = useState("");
   const [itemInput, setItemInput] = useState("");
+  const dispatch = useDispatch();
   const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
 
 
@@ -59,11 +56,12 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
       //add item to the user cart
       var data = {
         userid: currentUser.id,
-        status: "InProgress",
+        status: "INPROGRESS",
         itemid: item.id,
         quantity: 1,
         cartstatus: 'Add',
-        cartid: ''
+        cartid: '',
+        price:item.onlineprice
       };
 
       console.log(data)
@@ -87,8 +85,12 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
                 console.log(error)
                 console.log(error.response.status)
                 if (error.response.status === 401) {
+                  //PENDING remove the user from the local cache by logging out
+                  //
+                  dispatch(logout());
                   history.push(`/login`)
                 }
+
                 console.log(`error from service cart = ${error.response.request.response.message}`);
               });
 
@@ -117,15 +119,17 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
                   // update the stock value of the online store
                 })
                 .catch(error => { if (error.response.status === 401) {history.push(`/login`)}
+                console.log(`error No = ${error.response.status}`);
                   console.log(`error from service cart = ${error.response.request.response.message}`);
                 });
             }
             else {
               //update old cart quantity
               // then update stock value
+              // PENDING item value should be check in the stock online to check availability
               console.log(`existing cart quantity should be update`)
               var data1 = {
-                quantity: oldCartDetails[0].quantity + 1
+                quantity:   response1.data[0].quantity + 1
               }
 
               console.log(data1.quantity)

@@ -746,6 +746,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                         <th>Agent Name</th>
                                         <th>Invoice Value</th>
                                         <th>OutStanding</th>
+                                        <th>Oldest Invoice</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -761,6 +762,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                 <td>{item.agentname}</td>
                                                 <td>{item.saleInvoiceValue}</td>
                                                 <td>{item.salesOutstanding}</td>
+                                                <td>{item.diff.days}</td>
                                                 <td><button type="button" onClick={() => {
                                                     setSInvPayDetail([]);
                                                     setPayHist([]);
@@ -814,6 +816,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                         <th>Reff Invoice</th>
                                         <th>Invoice Value</th>
                                         <th>OutStanding</th>
+
                                     </tr>
                                 </thead>
                                 <tbody>

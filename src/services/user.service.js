@@ -8,7 +8,7 @@ import authHeader from "./auth-header";
 //Heroku
 //const API_URL = "http://localhost:5000/api/test/";
 
-//Heruko remote test
+//Heruko remote
 const API_URL ="https://damp-brushlands-21463.herokuapp.com/api/test/"
 
 class userDataService {

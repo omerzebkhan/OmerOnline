@@ -19,6 +19,7 @@ const ReturnReport = ({
     const [endDate, setEndDate] = useState(new Date());
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
+    const [nameInput, setNameInput] = useState("");
 
     const [totalSaleRecord,setTotalSaleRecord] = useState([0]);
     const [totalSaleItem,setTotalSaleItem] = useState(0);
@@ -39,6 +40,12 @@ const ReturnReport = ({
     }, [saleReturnData])
 
 
+    const handleChange = event => {
+
+        if (event.target.id === "Name") {
+            setNameInput(event.target.value);
+        }
+    }
 
     const handleStartDTPicker = (date) => {
         setStartDate(date);
@@ -50,7 +57,19 @@ const ReturnReport = ({
 
     const handleSubmit = event => {
         event.preventDefault();
-        fetchSaleReturnByDate(startDate.toDateString(), endDate.toDateString());
+        console.log(startDate)
+        if (nameInput==="" && (startDate!==null||endDate!==null)){
+            fetchSaleReturnByDate("0",startDate.toDateString(), endDate.toDateString());
+        }
+        else if (nameInput!=="" && (startDate===null||endDate===null)){
+            
+            fetchSaleReturnByDate(nameInput,"0", "0");
+        }
+        else if (nameInput!=="" && (startDate!==null||endDate!==null))
+        {
+            fetchSaleReturnByDate(nameInput,startDate.toDateString(), endDate.toDateString());
+        }
+        
     }
 
     const selectInvoice = (item) => {
@@ -74,6 +93,18 @@ const ReturnReport = ({
                         <DatePicker id="datePicker" selected={endDate} onChange={handleEndDTPicker}
                             name="startDate" dateFormat="MM/dd/yyyy" />
                     </div>
+                </div>
+                <div className="form-group row">
+                    <div className="col-sm-12">
+                    <input
+                                    type="text"
+                                    name="Name"
+                                    id="Name"
+                                    placeholder="Customer Name"
+                                    value={nameInput}
+                                    onChange={handleChange} />
+                    </div>
+                    
                 </div>
 
                 <div >
@@ -176,7 +207,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    fetchSaleReturnByDate: (sDate, eDate) => dispatch(fetchSaleReturnByDate(sDate, eDate)),
+    fetchSaleReturnByDate: (custName,sDate,eDate) => dispatch(fetchSaleReturnByDate(custName,sDate, eDate)),
     fetchSaleReturnDetail: (invoiceId) => dispatch(fetchSaleReturnDetail(invoiceId))
     
 

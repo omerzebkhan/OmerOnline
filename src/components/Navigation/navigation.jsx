@@ -61,7 +61,10 @@ const Navigation = (props) => {
                 <NavDropdown.Item href="/MonthlySaleReport">Monthly Sale</NavDropdown.Item>
                 <NavDropdown.Item href="/ItemSalePurchaseDateWise">Item Sale Purchase Datewise</NavDropdown.Item>
                 <NavDropdown.Item href="/SaleAgentReport">Sale Agent Trend</NavDropdown.Item>
-                </NavDropdown>    
+                </NavDropdown>  
+                <NavDropdown title="Carts Management" id="basic-nav-dropdown">
+                  <NavDropdown.Item href="/cartDetails">View Carts</NavDropdown.Item>
+              </NavDropdown>  
             </Nav>
           
           </Navbar.Collapse>

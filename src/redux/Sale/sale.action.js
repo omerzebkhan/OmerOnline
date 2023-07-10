@@ -169,7 +169,7 @@ export const fetchSaleByDate = (sDate, eDate, customerId,agentId) => {
     }
 }
 
-export const fetchSaleReturnByDate = (sDate,eDate) =>{
+export const fetchSaleReturnByDate = (custName,sDate,eDate) =>{
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
            // var dateFormat = require('dateformat');
@@ -180,7 +180,7 @@ export const fetchSaleReturnByDate = (sDate,eDate) =>{
           myDate = dateFormat(myDate, "yyyy-M-dd");
            eDate = myDate;
             dispatch(fetchSaleReturnStart());
-            inventoryService.getAllSaleReturnByDate(sDate, eDate)
+            inventoryService.getAllSaleReturnByDate(custName,sDate, eDate)
                 .then(response => {
                     const saleMap = response.data;
                     dispatch(fetchSaleReturnSuccess(saleMap));

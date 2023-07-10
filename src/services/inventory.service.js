@@ -255,8 +255,8 @@ class inventoryDataService {
     return http.post("/saleReturn/",data,{headers: authHeader() });
   }
 
-  getAllSaleReturnByDate(sDate,eDate) {
-     return http.get(`/saleReturnByDate/${sDate}/${eDate}`);
+  getAllSaleReturnByDate(custName,sDate,eDate) {
+     return http.get(`/saleReturnByDate/${custName}/${sDate}/${eDate}`);
    }
 
    //getSaleReturnDetailByInvoice

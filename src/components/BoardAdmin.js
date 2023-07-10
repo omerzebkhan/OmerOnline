@@ -23,6 +23,8 @@ const BoardAdmin = (props) => {
   useEffect(() => {
     UserService.getAdminBoard().then(
       (response) => {
+        console.log(`get admin board executed `)
+        console.log(response.data)
         setContent(response.data);
       },
       (error) => {
