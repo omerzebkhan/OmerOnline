@@ -566,7 +566,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         address: response2.data[0].address,
                         agentname: response2.data[0].agentname,
                         saleInvoiceValue: response2.data[0].invoicevalue,
-                        salesOutstanding: response2.data[0].Outstanding
+                        salesOutstanding: response2.data[0].Outstanding,
+                        diff:response2.data[0].diff
+
                     }
                 ]
 
