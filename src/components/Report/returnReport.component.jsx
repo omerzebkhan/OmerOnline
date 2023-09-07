@@ -202,7 +202,7 @@ const ReturnReport = ({
 }
 
 const mapStateToProps = state => ({
-    currentUser: state.user.currentUser,
+    currentUser: state.user.user.user,
     user: state.user.users,
     saleReturnData: state.sale.saleReturn,
     saleReturnDetailData: state.sale.saleReturnDetail,

@@ -361,7 +361,7 @@ const PurchaseReport = ({
 }
 
 const mapStateToProps = state => ({
-    currentUser: state.user.currentUser,
+    currentUser: state.user.user.user,
     purchaseData: state.purchase.purchase,
     purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail,
     userData: state.user.users

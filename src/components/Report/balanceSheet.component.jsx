@@ -219,7 +219,7 @@ const BalanceSheet =({currentUser}) => {
   }
 
   const mapStateToProps = state => ({
-    currentUser: state.user.currentUser
+    currentUser: state.user.user.user
 })
 
 export default connect(mapStateToProps)(BalanceSheet);

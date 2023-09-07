@@ -5,6 +5,7 @@ import { Button, Collapse } from 'react-bootstrap'
 
 //import { fetchStockStartAsync } from '../../redux/stock/stock.action';
 import { fetchItemStartAsync } from '../../redux/item/item.action';
+
 import { setMessage } from '../../redux/user/user.action';
 import itemService from "../../services/item.services";
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
@@ -552,7 +553,7 @@ useEffect(() => {
 }
 
 const mapStateToProps = state => ({
-    currentUser: state.user.currentUser,
+    currentUser: state.user.user.user,
     itemData: state.item.items,
     isFetching: state.item.isFetching
 })
