@@ -13,7 +13,7 @@ class inventoryDataService {
   }
 
   getAllPurchase() {
-    return http.get("/purchase/");
+    return http.get("/purchase/",{headers: authHeader() });
   }
 
   getPurchaseRecalculate(id) {
@@ -71,7 +71,7 @@ class inventoryDataService {
 
   updatePurchaseDetail(id, data) {
     //console.log(`update triggred from react .....`)
-    return http.put(`/UpdatePurchaseDetail/${id}`, data);
+    return http.put(`/UpdatePurchaseDetail/${id}`, data,{headers: authHeader() });
   }
 
   deletePurchaseDetail(id) {
@@ -111,7 +111,7 @@ class inventoryDataService {
   }
 
   getSaleAR() {
-    return http.get(`/saleAR/`);
+    return http.get(`/saleAR/`,{headers: authHeader()});
   }
 
   getSaleARByInvoiceId(id) {

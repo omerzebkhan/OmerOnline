@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 //import { Bar, Line, Pie } from 'react-chartjs-2';
 
 
 import itemService from "../../services/item.services";
 import DatePicker from "react-datepicker";
 import inventoryService from '../../services/inventory.service';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
 
 //import ReactHTMLTableToExcel from 'react-html-table-to-excel';
@@ -14,7 +16,7 @@ ChartJS.register(...registerables);
 
 
 
-const MonthlySale = () => {
+const MonthlySale = ({currentUser}) => {
 
     
 
@@ -24,18 +26,21 @@ const MonthlySale = () => {
     const [sortConfig, setSortConfig] = useState();
     const [itemInput, setItemInput] = useState("");
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
+
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("MonthlySale", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
     // set data
 const [barData, setBarData] = useState({
         labels: ['label 1', 'label 2', 'label 3', 'label 4'],
         datasets: [
             {
                 label: 'test label',
-                data: [
-                    48,
-                    35,
-                    73,
-                    82
-                ],
+                data: [48,35,73,82],
                 backgroundColor: [
                     'rgba(255, 99, 132, 0.6)',
                     'rgba(54, 162, 235, 0.6)',
@@ -240,6 +245,11 @@ const [barOptions, setBarOptions] = useState({
     )
 }
 
+const mapStateToProps = state => ({
+    currentUser: state.user.currentUser
+})
 
 
-export default (MonthlySale);
+export default connect(mapStateToProps)(MonthlySale);
+
+

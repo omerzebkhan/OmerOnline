@@ -1,12 +1,14 @@
-import React,{ useState, useEffect } from 'react';
+import React,{ useState, useEffect,useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
 import itemServices from '../../services/item.services';
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
 //class BalanceSheet extends React.Component {
-const ItemSalePurchaseDateWise =({}) => {
+const ItemSalePurchaseDateWise =({currentUser}) => {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [message, setMessage] = useState("");
@@ -24,7 +26,13 @@ const ItemSalePurchaseDateWise =({}) => {
     const [itemInput, setItemInput] = useState("");
     const [itemList, setItemList] = useState([])
 
-   
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("MonthlySale", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
     
     useEffect(() => {
       var sumRecord = 1
@@ -254,5 +262,10 @@ const ItemSalePurchaseDateWise =({}) => {
     )
   }
 
+  const mapStateToProps = state => ({
+    currentUser: state.user.currentUser
+})
 
-export default ItemSalePurchaseDateWise;
+
+export default connect(mapStateToProps)(ItemSalePurchaseDateWise);
+

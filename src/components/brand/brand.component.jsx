@@ -123,8 +123,10 @@ const Brand = () => {
                 // upload image
                 upload(response.data.id);
             })
-            .catch(error => {
-                console.log(error.response.request.response.message);
+            .catch(e => {
+                //console.log(error.response.request.response.message);
+                console.log(e.response.data.message);
+                setMessage(`Add Brand ${e} Server error:  ${e.response.data.message} `);
             });
     }
 
@@ -161,7 +163,7 @@ const Brand = () => {
                     <div className="inputForm">
                         {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
                         {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-
+                        <div className="inputForm">
                         <form onSubmit={handleSubmit}>
                             <div className="form-group row">
                                 <label className="col-sm-2 col-form-label" htmlFor="Name">Name</label>
@@ -212,7 +214,7 @@ const Brand = () => {
 
                             </div>
                         </form>
-
+                        </div>
                     </div>
                 </div>
                 :

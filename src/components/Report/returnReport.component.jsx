@@ -1,18 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
-// import inventoryService from "../../services/inventory.service";
-// import userService from "../../services/user.service";
-// import itemService from "../../services/item.services";
-//import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { fetchSaleReturnByDate,fetchSaleReturnDetail } from '../../redux/Sale/sale.action';
-//import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 
 const ReturnReport = ({
     fetchSaleReturnByDate,saleReturnData,
-    fetchSaleReturnDetail,saleReturnDetailData
+    fetchSaleReturnDetail,saleReturnDetailData,currentUser
 }) => {
 
     const [startDate, setStartDate] = useState(new Date());
@@ -24,7 +20,13 @@ const ReturnReport = ({
     const [totalSaleRecord,setTotalSaleRecord] = useState([0]);
     const [totalSaleItem,setTotalSaleItem] = useState(0);
     
-
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("SALERETURN REPORT", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
     
   
     useEffect(() => {
@@ -200,6 +202,7 @@ const ReturnReport = ({
 }
 
 const mapStateToProps = state => ({
+    currentUser: state.user.currentUser,
     user: state.user.users,
     saleReturnData: state.sale.saleReturn,
     saleReturnDetailData: state.sale.saleReturnDetail,

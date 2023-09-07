@@ -36,7 +36,7 @@ const CashFlowAP = ({
 
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
-        setAccess(checkAccess("ACCOUNT RECEIVABLE", currentUser1.rights));
+        setAccess(checkAccess("CASHFLOW AP", currentUser1.rights));
         console.log(`access value = ${access}`)
     }
         , []);

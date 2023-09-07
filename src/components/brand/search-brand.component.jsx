@@ -86,7 +86,7 @@ class SearchBrand extends React.Component {
            { this.props.brandData?
            <BrandList brands={this.props.brandData} masterComp={this.props.masterComp}/>
            :
-           ""
+           <div>{this.props.errorMsg}</div>
            }
         </div>
         </div>
@@ -100,6 +100,7 @@ class SearchBrand extends React.Component {
 const mapStateToProps = state => ({
   brandData: state.brand.brands,
   isFetching : state.brand.isFetching,
+  errorMsg : state.brand.errorMessage,
   currentUser: state.user.user.user  
 })
 

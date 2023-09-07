@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
 import inventoryService from "../../services/inventory.service";
+import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
 import userService from "../../services/user.service";
 import itemService from "../../services/item.services";
 import { fetchItemStartAsync } from '../../redux/item/item.action';
@@ -55,6 +56,15 @@ const EditPurchase = ({
     const [activeOptionItem, setActiveOptionItem] = useState("");
     const [showOptionsItem, setShowOptionsItem] = useState(false);
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
+
+    const [content, setContent] = useState("");
+    const [access,setAccess] = useState(false);
+
+    useLayoutEffect(() => {
+        checkAdmin().then((r) => { setContent(r);});
+        setAccess(checkAccess("UPDATE PURCHASE",currentUser.rights));
+         }
+    , []);
 
     useEffect(() => {
         fetchUserStartAsync();
@@ -252,8 +262,9 @@ const EditPurchase = ({
 
                 })
                 .catch(error => {
-                    setMessage(`catch of updatePurchaseDetail ${error.response.request.response.message}`)
-                    console.log(`catch of updatePurchaseDetail ${error.response.request.response.message}`);
+                    setMessage(`catch of updatePurchseDetail ${error.response.data.message}`)
+                    //console.log(`catch of updatePurchaseDetail ${error.response.request.response.message}`);
+                    console.log(`catch of updatePurchseDetail ${error.response.data.message}`);
                 })
 
         }

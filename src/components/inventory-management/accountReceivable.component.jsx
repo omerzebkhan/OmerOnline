@@ -421,6 +421,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             setMessage("Update Sale Outstanding completed successfully.....")
                             console.log("Update Sale Outstanding completed successfully.....")
 
+                            
                         })
                         .catch(e => {
                             console.log(`catch of Sale Outstanding ${e}

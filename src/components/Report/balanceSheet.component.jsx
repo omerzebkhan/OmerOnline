@@ -1,10 +1,12 @@
-import React,{ useState, useEffect } from 'react';
+import React,{ useState, useEffect,useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import inventoryService from '../../services/inventory.service';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
 //class BalanceSheet extends React.Component {
-const BalanceSheet =({}) => {
+const BalanceSheet =({currentUser}) => {
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
     const [message, setMessage] = useState("");
@@ -19,6 +21,14 @@ const BalanceSheet =({}) => {
     const [totalCashPaid,setTotalCashPaid] = useState(0);
     const [totalBankPaid,setTotalBankPaid] = useState(0);
     const [BalanceSheet,setBalanceSheet] = useState(0);
+
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("BALANCESHEET", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
     
     useEffect(() => {
       var sumRecord = 1
@@ -208,5 +218,9 @@ const BalanceSheet =({}) => {
     )
   }
 
+  const mapStateToProps = state => ({
+    currentUser: state.user.currentUser
+})
 
-export default BalanceSheet;
+export default connect(mapStateToProps)(BalanceSheet);
+

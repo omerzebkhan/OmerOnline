@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect} from 'react';
 import { connect } from 'react-redux';
 
 import inventoryService from "../../services/inventory.service";
 import userService from "../../services/user.service";
+import { checkAccess } from '../../helper/checkAuthorization';
 import itemService from "../../services/item.services";
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { fetchSaleByDate, fetchSaleInvoiceDetailAsync } from '../../redux/Sale/sale.action';
@@ -54,6 +55,16 @@ const EditSale = ({
     const [activeOptionItem, setActiveOptionItem] = useState("");
     const [showOptionsItem, setShowOptionsItem] = useState(false);
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
+
+    const [access, setAccess] = useState(false);
+
+
+    useLayoutEffect(() => {
+        // setMessage("");
+         //checkAdmin().then((r) => { setContent(r); });
+         setAccess(checkAccess("UPDATE SALE", currentUser.rights));
+     }, []);
+
 
     useEffect(() => {
         fetchUserStartAsync();

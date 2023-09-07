@@ -2,10 +2,11 @@ import React from 'react';
 import {connect} from 'react-redux';
 
 import {fetchCategoryStartAsync} from '../../redux/cateogry/category.actions';
+import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
 
 import categoryService from "../../services/category.services";
 import CategoryList from './list-category.component';
-import { checkAccess } from '../../helper/checkAuthorization';
+
 
 class SearchCategory extends React.Component { 
     constructor(props) {
@@ -18,6 +19,10 @@ class SearchCategory extends React.Component {
       }
 
       componentDidMount() {
+        checkAdmin().then((r) => {
+            //console.log(`check admin return ....${r}`)
+            this.setState({content:r});
+        });
         this.setState({access:checkAccess("SEARCH CATEGORY",this.props.currentUser.rights) });
         
     }

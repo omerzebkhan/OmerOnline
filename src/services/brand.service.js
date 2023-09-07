@@ -3,7 +3,7 @@ import authHeader from "./auth-header";
 
 class brandDataService {
   getAll() {
-    return http.get("/brand/");
+    return http.get("/brand/",{headers: authHeader()});
   }
 
   get(id) {
@@ -12,7 +12,7 @@ class brandDataService {
 
   create(data) {
    console.log(authHeader());
-    return http.post("/brand/",data,{headers: authHeader() });
+    return http.post("/brand/",data,{headers: authHeader()});
   }
 
   update(id, data) {

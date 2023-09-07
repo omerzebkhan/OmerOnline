@@ -53,7 +53,7 @@ const BoardAdmin = (props) => {
   return (
     <div className="container">
     
-        {content.includes("Admin") ? 
+        {content.includes("Admin") || content.includes("SaleAgent")  ? 
         <div >
             <Navigation />
             

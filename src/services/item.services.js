@@ -3,11 +3,11 @@ import authHeader from "./auth-header";
 
 class itemDataService {
   getAll() {
-    return http.get("/item/");
+    return http.get("/item/",{headers: authHeader() });
   }
 
   get(id) {
-    return http.get(`/item/${id}`);
+    return http.get(`/item/${id}`,{headers: authHeader() });
   }
 
   getItemByCat(id) {
@@ -47,22 +47,13 @@ class itemDataService {
 
   update(id, data) {
     console.log(`update triggred from react .....`)
-    return http.put(`/item/${id}`, data);
+    return http.put(`/item/${id}`);
   }
-
-  
- 
-
- 
 
   updateStockValue(id,data){
    // console.log(`update Stock triggred from react .....`)
     return http.put(`/itemUpdateStockValue/${id}`, data);
   }
-
-  
-
-
 
   delete(id) {
     return http.delete(`/item/${id}`);

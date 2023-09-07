@@ -21,6 +21,8 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
   const [itemInput, setItemInput] = useState("");
   const dispatch = useDispatch();
   const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
+  const [statusValue, setStatusValue] = useState();
+    const [selectOptions,setSelectOptions]=useState();
 
 
 
@@ -35,7 +37,17 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
     setFilteredOptionsItem(itemData);
   }, [itemData])
 
+  useEffect(() => {
+    const Status = [
+        { value: "0", text: "Select" },
+        { value: "1", text: "Active" },
+        { value: "2", text: "DeActive" }
+    ]
+    setSelectOptions(Status.map((option) => {
+        return <option value={option.value}>{option.text}</option>
+    }))
 
+}, [])
 
   const viewDetail = (item) => {
     console.log(`calling item Details `)
@@ -194,7 +206,7 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
         {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
 
         <div>
-          Selected Category :: {currentCategory} {refreshCat}
+          {/* Selected Category :: {currentCategory} {refreshCat} */}
         </div>
         <div>
           <div className="row">
@@ -209,6 +221,15 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
                   placeholder="Name"
                   value={itemInput}
                   onChange={handleChange} />
+              </div>
+              <div className="form-group">
+                <label htmlFor="Name">Brand List</label>
+                <div>
+                                        <label>Status:</label>
+                                        <select value={statusValue} onChange={(e) => setStatusValue(e.target.value)}>
+                                            {selectOptions}
+                                        </select>
+                                    </div>
               </div>
             </div>
             <div className="col-sm-10" style={{ backgroundColor: "pink" }}>

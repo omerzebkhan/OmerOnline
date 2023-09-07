@@ -24,6 +24,10 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
     const [errorMsg, setErrorMsg] = useState("");
     const [isValid, setIsValid] = useState("true");
     const [error, setError] = useState({});
+    const [status, setStatus] = useState("DeActive");
+    const [statusValue, setStatusValue] = useState();
+    const [selectOptions,setSelectOptions]=useState();
+
 
     const [cRole, setcRole] = useState([]);
     const [roleInput, setRoleInput] = useState("");
@@ -43,6 +47,18 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
     }
         , []);
 
+        useEffect(() => {
+            const Status = [
+                { value: "0", text: "Select" },
+                { value: "1", text: "Active" },
+                { value: "2", text: "DeActive" }
+            ]
+            setSelectOptions(Status.map((option) => {
+                return <option value={option.value}>{option.text}</option>
+            }))
+    
+        }, [])
+
     useEffect(() => {
         fetchRoleStartAsync();
 
@@ -59,6 +75,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
             setPassword(selectedUser.password)
             setDescription(selectedUser.description)
             setComments(selectedUser.comments)
+            setStatus(selectedUser.status)
         }
 
     }, [selectedUser])
@@ -80,13 +97,33 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                 setcRole([]);
             }
 
+            //////set the status of the selected user in the HTML Select
+            if(selectedUser.status==="Active")
+            {
+                setStatusValue(1)
+            }
+            else
+            {
+                setStatusValue(2)
+            }
+            
+
         }
-        
-   // }, [roleData,selectedUser.roles])
-}, [roleData,selectedUser])
+
+        // }, [roleData,selectedUser.roles])
+    }, [roleData, selectedUser])
 
 
-
+    // const SelectedOption = () => {
+    //     const Status = [
+    //         { value: "0", text: "Select" },
+    //         { value: "1", text: "Active" },
+    //         { value: "2", text: "DeActive" }
+    //     ]
+    //     const selectOptions = Status.map((option) => {
+    //         return <option value={option.value}>{option.text}</option>
+    //     })
+    // }
 
     const handleSubmit = async event => {
         event.preventDefault();
@@ -121,7 +158,8 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
             description: description,
             totalamount: 0.0,
             Outstanding: 0.0,
-            comments: comments
+            comments: comments,
+            status: statusValue == 1 ?"Active":"DeActive"
         };
         console.log(`data to be sent ${data}`);
         userService.create(data)
@@ -184,6 +222,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                 setEmail("");
                 setDescription("");
                 setComments("");
+                setStatus("");
 
             })
             .catch(error => {
@@ -227,10 +266,11 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
             password: password,
             ph: ph,
             description: description,
-            comments: comments
+            comments: comments,
+            status: statusValue == 1 ?"Active":"DeActive"
         };
         console.log(`data to be sent ${selectedUser.id}`);
-        userService.update(selectedUser.id,data)
+        userService.update(selectedUser.id, data)
             .then(response => {
 
                 /////////////////////////////// Associate role with the id//////////////
@@ -239,15 +279,13 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                 const data = {
                     roleId: cRole[0].id
                 }
-                userService.updateUserRole  (selectedUser.id,data)
+                userService.updateUserRole(selectedUser.id, data)
                     .then(res => {
                         console.log("Role successfully added .....")
                         setMessage("Role successfully added .....")
                     })
                     .catch(error => {
                         //console.log(`${e}   error message =   ${e.message} error response =   ${e.response.message}`);
-
-
                         if (error.response) {
                             const obj = JSON.parse(error.response.request.response);
                             setIsValid(false);
@@ -271,8 +309,8 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
 
                 //////////////////////////////////////////////////////////////////////
 
-               
-              
+
+
                 //setLoading(false);
                 setName("");
                 setMobile("");
@@ -282,6 +320,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                 setEmail("");
                 setDescription("");
                 setComments("");
+                setStatus("");
 
             })
             .catch(error => {
@@ -366,7 +405,10 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
             setShowOptionsRole(true);
             //setCustomerInput(customerInput);
             setRoleInput(event.target.value);
-           // console.log(`role event :::::${event.target.value}`)
+            // console.log(`role event :::::${event.target.value}`)
+        }
+        else if (event.target.id === "status") {
+            setStatus(event.target.value)
         }
     }
 
@@ -435,7 +477,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
         setRoleInput(selectedRole[0].name);
         setcRole(selectedRole);
 
-        // console.log(cItem[0].name)
+       //  console.log(selectedRole[0].id)
     };
     let optionListRole;
     if (showOptionsRole && roleInput) {
@@ -476,7 +518,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
             );
         }
     }
-
+    /////////////////////////////////////////////////////////////////////////
 
 
 
@@ -495,7 +537,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                                 {errorMsg ? <div className="alert alert-warning" role="alert">{errorMsg}</div> : ""}
                                 <form onSubmit={handleSubmit}>
                                     <div className="form-group row">
-                                        <label className="col-sm-2 col-form-label" htmlFor="Name">Name</label>
+                                    <label className="col-sm-2 col-form-label" htmlFor="Name">Name</label>
                                         <div className="col-sm-10">
                                             <input
                                                 type="text"
@@ -653,15 +695,23 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
                                                 onChange={handleChange} />
                                         </div>
                                     </div>
+                                   
+                                   
+                                    <div>
+                                        <label>Status:</label>
+                                        <select value={statusValue} onChange={(e) => setStatusValue(e.target.value)}>
+                                            {selectOptions}
+                                        </select>
+                                    </div>
                                     {selectedUser ?
                                         <div>
                                             <button
-                                                   type="button"
-                                                   className="btn btn-primary"
-                                                   onClick={updateUser}
+                                                type="button"
+                                                className="btn btn-primary"
+                                                onClick={updateUser}
                                             >
                                                 Update
-             </button>
+                                            </button>
                                         </div>
                                         :
                                         <div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -7,12 +7,13 @@ import { Button, Collapse } from 'react-bootstrap'
 import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { setMessage } from '../../redux/user/user.action';
 import itemService from "../../services/item.services";
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
 const StockReport = ({
     fetchItemStartAsync, itemData,
-    isFetching }) => {
+    isFetching,currentUser }) => {
     const [itemInput, setItemInput] = useState("");
     const [valueInput, setValueInput] = useState("");
     const [filter, setFilter] = useState("");
@@ -34,6 +35,15 @@ const StockReport = ({
     const [totalRecordReturnHistory, setTotalRecordReturnHistory] = useState([0]);
     const [isVisibleSRH, setIsVisibleSRH] = useState(false);
 
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("STOCK REPORT", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
+
+
     const invokeCollapseSPH = () => {
         return setIsVisibleSPH(!isVisibleSPH)
     }
@@ -43,6 +53,8 @@ const StockReport = ({
     const invokeCollapseSRH = () => {
         return setIsVisibleSRH(!isVisibleSRH)
     }
+
+
 
     useEffect(() => {
         fetchItemStartAsync();
@@ -539,8 +551,8 @@ useEffect(() => {
     )
 }
 
-
 const mapStateToProps = state => ({
+    currentUser: state.user.currentUser,
     itemData: state.item.items,
     isFetching: state.item.isFetching
 })

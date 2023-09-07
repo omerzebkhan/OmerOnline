@@ -30,6 +30,7 @@ const brandReducer = (state = INITIAL_STATE,action) =>{
         case BrandActionType.FETCH_BRANDS_FAILURE:
             return{
                 ...state,
+                isFetching:false,
                 errorMessage:action.payload
             }    
         default:

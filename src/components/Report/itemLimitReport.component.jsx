@@ -1,19 +1,25 @@
-import React, { useState, useEffect } from 'react';
-//import { connect } from 'react-redux';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 
-//import { fetchStockStartAsync } from '../../redux/stock/stock.action';
-//import { fetchItemStartAsync } from '../../redux/item/item.action';
-//import { setMessage } from '../../redux/user/user.action';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 import itemService from "../../services/item.services";
 import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
 
-const ItemLimitReport = () => {
+const ItemLimitReport = ({currentUser}) => {
 
     const [itemLimit, setItemLimit] = useState([])
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
     const [filter, setFilter] = useState("");
     const [sortConfig, setSortConfig] = useState();
+
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("ITEMLIMIT REPORT", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
 
     useEffect(() => {
         getItemLimit();
@@ -168,6 +174,9 @@ const ItemLimitReport = () => {
     )
 }
 
+const mapStateToProps = state => ({
+    currentUser: state.user.currentUser
+})
 
 
-export default (ItemLimitReport);
+export default connect(mapStateToProps)(ItemLimitReport);

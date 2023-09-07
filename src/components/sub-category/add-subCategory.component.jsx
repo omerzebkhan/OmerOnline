@@ -100,7 +100,7 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
       description: description,
       category: selCat
     };
-
+    console.log(data)
     subCategoryService.create(data)
       .then(response => {
         // this.setState({
@@ -189,11 +189,13 @@ const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
     else if (event.target.id === "Category") {
       const options = CategoryData;
       const userInput = event.currentTarget.value;
-      const filteredOptions = options.filter(
+
+      setFilteredOptions(CategoryData.filter(
         (option) => option.name.toLowerCase().indexOf(userInput.toLowerCase()) > -1
-      );
+    ));
+      
       setActiveOption(0);
-      setFilteredOptions(filteredOptions);
+     // setFilteredOptions(filteredOptions);
       setShowOptions(true);
       setUserInput(userInput);
     }

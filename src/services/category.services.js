@@ -3,7 +3,7 @@ import authHeader from "./auth-header";
 
 class categoryDataService {
   getAll() {
-    return http.get("/category/");
+    return http.get("/category/",{headers: authHeader() });
   }
 
   get(id) {

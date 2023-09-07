@@ -1,16 +1,14 @@
-import React, { useState, useEffect } from 'react';
-//import { connect } from 'react-redux';
+import React, { useState, useEffect,useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 
-//import { fetchStockStartAsync } from '../../redux/stock/stock.action';
-//import { fetchItemStartAsync } from '../../redux/item/item.action';
-//import { setMessage } from '../../redux/user/user.action';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 import itemService from "../../services/item.services";
 import DatePicker from "react-datepicker";
 import {sortTable } from "../../helper/commonFunctions";
 
 //import ReactHTMLTableToExcel from 'react-html-table-to-excel';
 
-const SellingItemTrend = () => {
+const SellingItemTrend = ({currentUser}) => {
 
 
     const [itemTrend, setItemTrend] = useState([])
@@ -19,7 +17,13 @@ const SellingItemTrend = () => {
     const [sortConfig, setSortConfig] = useState();
     const [itemInput, setItemInput] = useState("");
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
-
+    const [access, setAccess] = useState(false);
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("ITEMTREND REPORT", currentUser.rights));
+        //console.log(`access value = ${access}`)
+    }
+        , []);
 
 
     const handleStartDTPicker = (date) => { setStartDate(date); }
@@ -187,5 +191,10 @@ const SellingItemTrend = () => {
 }
 
 
+const mapStateToProps = state => ({
+    currentUser: state.user.currentUser
+})
 
-export default (SellingItemTrend);
+
+export default connect(mapStateToProps)(SellingItemTrend);
+

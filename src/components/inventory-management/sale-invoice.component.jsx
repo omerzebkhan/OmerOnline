@@ -379,8 +379,8 @@ const SaleInvoice = ({
             })
             .catch(e => {
                 setLoading(false);
-                setMessage(`catch of purchase detail ${e} error from server  ${e.message}`)
-                console.log(`catch of create purchase${e}`);
+                setMessage(`catch of Create Sale ${e.response.data.message} `)
+                console.log(`catch of Create Sale ${e.response.data.message} `);
             });
        // })
 
@@ -396,33 +396,7 @@ const SaleInvoice = ({
        
         saveSale();
 
-        // var data = {
-        //     reffInvoice: 10,
-        //     customerId: 10,
-        //     agentid :10,
-        //     invoicevalue: 10,
-        //     totalitems: 10,
-        //     paid: 0,
-        //     Returned: 0,
-        //     Outstanding: 10
-        // };
-
-                  
-        //            // console.log(sDetailData)
-        //    //         console.log(`sale invoice = ${sDetailData.saleInvoiceId}`)
-
-        //             inventoryService.createSale(data)
-        //                 .then(response1 => {
-        //                     setMessage("Sale Detail Entered");
-        //      //               console.log("Sale Detail Entered")
-        //                     console.log(response1.data);
-        //                 })
-        //                 .catch(e => {
-        //                     console.log(`catch of specific item detail ${e}
-        //                         error from server  ${e.message}
-        //                         `);
-        //                 })
-
+        
     }
 
     //////////////////////////////////////////////////////////////////////
@@ -571,8 +545,8 @@ const SaleInvoice = ({
         setFilteredOptionsCustomer([]);
         setShowOptionsCustomer(false);
 
-        console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
-        console.log(`user data${userData.user[0].id}`);
+        // console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
+        // console.log(`user data${userData.user[0].id}`);
         const selectedCustomer = userData.user.filter(
             (option) => option.id == e.currentTarget.dataset.id
         );
@@ -605,12 +579,15 @@ const SaleInvoice = ({
                                         <tr>
                                             <th className="th-sm">Name</th>
                                             <th>Addresss</th>
+                                            <th>OutStanding</th>
+
                                         </tr>
                                     </thead>
                                     <tbody>
                                         <tr>
                                             <td>{optionName.name}</td>
                                             <td>{optionName.address}</td>
+                                            <td>{optionName.sum}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -723,7 +700,7 @@ const SaleInvoice = ({
                     <h1>Sale Invoice</h1>
                     {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
                     {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-                   
+                    
 
 
                     <form onSubmit={handleSubmit}>
@@ -752,13 +729,22 @@ const SaleInvoice = ({
                                     value={cCustomer[0] ? cCustomer[0].id : ""}
                                     disabled />
                             </div>
-                            <div className="col-sm-4">
+                            <div className="col-sm-2">
                             <input
                                     type="text"
                                     name="Customer Address"
                                     id="customerAddress"
                                     placeholder="Address"
                                     value={cCustomer[0] ? cCustomer[0].address : ""}
+                                    disabled />
+                            </div>
+                            <div className="col-sm-2">
+                            <input
+                                    type="text"
+                                    name="Customer OutStanding"
+                                    id="customerOutStanding"
+                                    placeholder="OutStanding"
+                                    value={cCustomer[0] ? cCustomer[0].sum : ""}
                                     disabled />
                             </div>
                             <div>
@@ -874,9 +860,15 @@ const SaleInvoice = ({
                             <div className="col-sm-3">
                                 Total Cost = {parseFloat(totalInvoiceCost).toFixed(3)}
                             </div>
+                            
+                            {currentUser.roles=="ROLE_ADMIN" ?
                             <div className="col-sm-3">
-                                Total Profit = {parseFloat(totalInvoiceProfit).toFixed(3)}
-                            </div>
+                            Total Profit = {parseFloat(totalInvoiceProfit).toFixed(3)}
+                        </div>
+                        :
+                        ""
+                            }
+                            
                             <div className="col-sm-1">
                                 <button className="btn btn-primary" type="submit">Add Item</button>
 
@@ -957,7 +949,7 @@ const SaleInvoice = ({
                                         <th>Price</th>
                                         <th>Total Price</th>
                                         <th>Cost</th>
-                                        <th>Profit</th>
+                                        {currentUser.roles=="ROLE_ADMIN" ?<th>Profit</th>:""}
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -972,7 +964,9 @@ const SaleInvoice = ({
                                                 <td>{item[3]}</td>
                                                 <td>{(parseFloat(item[3]) * parseFloat(item[2])).toFixed(3)}</td>
                                                 <td>{(parseFloat(item[4]) * parseFloat(item[2])).toFixed(3)}</td>
+                                                {currentUser.roles=="ROLE_ADMIN" ?
                                                 <td>{((parseFloat(item[3]) * parseFloat(item[2])) - (parseFloat(item[4]) * parseFloat(item[2]))).toFixed(3)}</td>
+                                                :""}
                                                 <td><button type="button" onClick={() => removeItem(item, index)}>Remove item</button></td>
                                                 {((parseFloat(item[3])*parseFloat(item[2]))-(parseFloat(item[4])*parseFloat(item[2]))).toFixed(3)<=0?<td style={{'backgroundColor':"#FF0000"}}>Low Price</td>:<td></td>}
                                             </tr>

@@ -17,7 +17,7 @@ const SearchUser = ({
     const [count, setCount] = useState(0);
     const [pageSize, setPageSize] = useState(3);
 
-    const pageSizes = [3, 6, 9];
+    const pageSizes = [50, 100, 200];
 
    const getRequestParams = (page, pageSize) => {
        
@@ -150,6 +150,7 @@ const SearchUser = ({
                                                 <th>OutStanding</th>
                                                 <th>Description</th>
                                                 <th>Comments</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
 
@@ -175,6 +176,7 @@ const SearchUser = ({
                                                             <td>{user.outstanding}</td>
                                                             <td>{user.desctiption}</td>
                                                             <td>{user.comments}</td>
+                                                            <td>{user.status}</td>
                                                         </tr>))
                                                 :
                                                 "no data found"
@@ -201,6 +203,7 @@ const SearchUser = ({
                                                 <th>OutStanding</th>
                                                 <th>Description</th>
                                                 <th>Comments</th>
+                                                <th>Status</th>
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -222,6 +225,7 @@ const SearchUser = ({
                                                             <td>{user.outstanding}</td>
                                                             <td>{user.desctiption}</td>
                                                             <td>{user.comments}</td>
+                                                            <td>{user.status}</td>
                                                         </tr>)) :
                                                 "no data found"}
                                         </tbody>
@@ -244,6 +248,7 @@ const SearchUser = ({
                                                     <th>Roles</th>
                                                     <th>Description</th>
                                                     <th>Comments</th>
+                                                    <th>status</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -261,6 +266,7 @@ const SearchUser = ({
                                                             <td>{user.roles}</td>
                                                             <td>{user.desctiption}</td>
                                                             <td>{user.comments}</td>
+                                                            <td>{user.status}</td>
                                                         </tr>))
                                                     :
                                                     "no data found"

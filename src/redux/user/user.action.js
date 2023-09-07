@@ -71,9 +71,6 @@ export const setMessage = (message) => ({
     );
   };
 
-
-
-
   export const login = (username, password) => (dispatch) => {
     return AuthService.login(username, password).then(
       (data) => {

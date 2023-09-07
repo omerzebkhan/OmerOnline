@@ -107,7 +107,8 @@ const Category = () => {
 
             })
             .catch(error => {
-                console.log(error.response.request.response.message);
+                console.log(error.response.data.message);
+                setMessage(error.response.data.message);
             });
     }
 

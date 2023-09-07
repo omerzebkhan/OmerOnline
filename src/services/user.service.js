@@ -25,6 +25,17 @@ class userDataService {
     return http.post("/user/",data,{headers: authHeader() });
   }
 
+  //Create Online Customer
+  createOnlineCust(data) {
+    // console.log(data);
+     return http.post("/createOnlineCustomer/",data);
+   }
+
+  //Verify Online Customer
+  verifyOnlineCust(data) {
+    // console.log(data);
+     return http.post("/verifyOnlineCust/",data);
+   }
   
 
   update(id, data) {
@@ -44,9 +55,26 @@ createRole(data) {
     return http.get("/role/",{headers: authHeader() });
   }
 
+  getRoleAccess(id) {
+    return http.get(`/roleAccess/${id}`);
+  }
+
+  //update Access to the role
+updateRoleAccess(id, data) {
+  //console.log(`update triggred from react .....`)
+  return http.put(`/updateRoleAccess/${id}`, data);
+}
+
+
+
   //add the line link to the user and role
   createUserRole(data){
     return http.post("/userRole/",data,{headers: authHeader() });
+  }
+
+   //add the line link to the user and role
+   createUserRoleOnline(data){
+    return http.post("/userRoleOnline/",data);
   }
 
 //update link to the user and role

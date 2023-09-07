@@ -31,8 +31,9 @@ export const fetchBrandStartAsync = () => {
             dispatch(fetchBrandSuccess(brandMap)); 
 
           })
-          .catch(error=>dispatch(fetchBrandFailure(error.response.request.response.message)));
-        
+          //.catch(error=>dispatch(fetchBrandFailure(error.response.request.response.message)));
+          //.catch(error=>dispatch(fetchBrandFailure(error.response.data.message)));
+          .catch(error=>dispatch(fetchBrandFailure(error.response.data.message)));
 
     }
 }

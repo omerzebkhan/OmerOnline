@@ -1,13 +1,24 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
+import { connect } from 'react-redux';
 import cashFlowService from "../../services/cashFlow.services";
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
-const CashFlow = () => {
+const CashFlow = ({
+    currentUser
+}) => {
     const [amount, setAmount] = useState();
     const [comments, setComments] = useState();
     const [mode,setMode] = useState();
     const [type,setType] = useState();
     const [message,setMessage] = useState();
+    const [access, setAccess] = useState(false);
 
+    useLayoutEffect(() => {
+        // checkAdmin().then((r) => { setContent(r); });
+        setAccess(checkAccess("ADD CASHFLOW", currentUser.rights));
+        // console.log(`access value = ${access}`)
+    }
+        , []);
 
     const addHandler = () => {
 
@@ -113,4 +124,10 @@ const CashFlow = () => {
     )
 }
 
-export default (CashFlow);
+const mapStateToProps = state => ({
+    itemData: state.item.items,
+    currentUser: state.user.user.user,
+    currentItem: state.item.currentItem
+})
+
+export default connect(mapStateToProps)(CashFlow);

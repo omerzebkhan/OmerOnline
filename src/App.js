@@ -52,7 +52,9 @@ import CashFlowAP from './components/expense/cashFlowAP.component'
 import Login from "./components/Login";
 import Home from "./components/Home";
 import Profile from "./components/Profile";
+import SignUp from "./components/SignUp";
 import BoardUser from "./components/BoardUser";
+import verifyUser from "./components/VerifyUser";
 //import BoardModerator from "./components/BoardModerator";
 import BoardAdmin from "./components/BoardAdmin";
 
@@ -65,6 +67,8 @@ const App = () => {
   const [showPurchaseAgent, setShowPurchaseAgent] = useState(false);
   const [showAdminBoard, setShowAdminBoard] = useState(false);
   const [showUserBoard, setShowUserBoard] = useState(false);
+  const [showSaleAgentBoard, setShowSaleAgentBoard] = useState(false);
+
   const { user: currentUser } = useSelector((state) => state.user.user);
   const dispatch = useDispatch();
 
@@ -80,6 +84,7 @@ const App = () => {
     setShowPurchaseAgent(currentUser.roles.includes("ROLE_PURCHASEAGENT"));
     setShowAdminBoard(currentUser.roles.includes("ROLE_ADMIN"));
     setShowUserBoard(currentUser.roles.includes("ROLE_USER"));
+    setShowSaleAgentBoard(currentUser.roles.includes("ROLE_SALEAGENT"));
 
     }
   }, [currentUser]);
@@ -101,7 +106,16 @@ const App = () => {
                 Home
               </Link>
             </li>
-
+            <li className="nav-item">
+              <Link to={"/signup"} className="nav-link">
+                Sign Up
+              </Link>
+            </li>
+            <li className="nav-item">
+              <Link to={"/verifyUser"} className="nav-link">
+                Verify
+              </Link>
+            </li>
             {showPurchaseAgent && (
               <li className="nav-item">
                 <Link to={"/aPa"} className="nav-link">
@@ -114,6 +128,14 @@ const App = () => {
               <li className="nav-item">
                 <Link to={"/admin"} className="nav-link">
                   Admin Board
+                </Link>
+              </li>
+            )}
+
+          {showSaleAgentBoard && (
+              <li className="nav-item">
+                <Link to={"/admin"} className="nav-link">
+                  SaleAgent Board
                 </Link>
               </li>
             )}
@@ -163,7 +185,9 @@ const App = () => {
           <Switch>
             <Route exact path={["/", "/home"]} component={Home} />
             <Route exact path="/login" component={Login} />
-             <Route exact path="/profile" component={Profile} />
+            <Route exact path="/profile" component={Profile} />
+            <Route exact path="/signUp" component={SignUp} />
+            <Route exact path="/verifyUser" component={verifyUser} />
             <Route path="/user" component={BoardUser} />
             <Route path="/admin" component={BoardAdmin} />
             <Route path="/aPa" component={BoardAdmin} />
