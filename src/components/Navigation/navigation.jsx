@@ -41,7 +41,7 @@ const Navigation = (props) => {
   const [balSheet, setBalSheet] = useState();
   const [iLmtRep, setILmtRep] = useState();
   const [iTrendRep, setITrendRep] = useState();
-  const [MonthlySale, setMonthlySale] = useState();
+  const [monthlySale, setMonthlySale] = useState();
   const [iSPD, setISPD] = useState();
   const [saleAT, setSaleAT] = useState();
 
