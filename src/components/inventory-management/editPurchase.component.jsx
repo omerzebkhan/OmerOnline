@@ -972,7 +972,9 @@ const mapStateToProps = state => ({
     user: state.user.users,
     purchaseData: state.purchase.purchase,
     purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail,
-    userData: state.user.users
+    userData: state.user.users,
+    currentUser: state.user.user.user
+
 })
 
 const mapDispatchToProps = dispatch => ({

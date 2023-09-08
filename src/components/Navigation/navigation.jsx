@@ -77,6 +77,7 @@ const Navigation = (props) => {
       else if (str[0] ==  "CASHFLOW AP" && str[1] ==  "TRUE") { setCashAP("TRUE") }
       else if (str[0] ==  "STOCK REPORT" && str[1] ==  "TRUE") { setStkRep("TRUE") }
       else if (str[0] ==  "PURCHASE REPORT" && str[1] ==  "TRUE") { setPurRep("TRUE") }
+      else if (str[0] ==  "SALE REPORT" && str[1] ==  "TRUE") { setSaleRep("TRUE") }
       else if (str[0] ==  "SALERETURN REPORT" && str[1] ==  "TRUE") { setSaleRRep("TRUE") }
       else if (str[0] ==  "BALANCESHEET" && str[1] ==  "TRUE") { setBalSheet("TRUE") }
       else if (str[0] ==  "ITEMLIMIT REPORT" && str[1] ==  "TRUE") { setILmtRep("TRUE") }

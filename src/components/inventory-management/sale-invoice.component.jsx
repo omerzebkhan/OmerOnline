@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, {useState, useEffect,useLayoutEffect,useRef} from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { connect } from 'react-redux';
 
@@ -6,15 +6,18 @@ import { fetchItemStartAsync } from '../../redux/item/item.action';
 import { fetchUserStartAsync } from '../../redux/user/user.action';
 import { checkAccess } from '../../helper/checkAuthorization';
 
+
 import inventoryService from "../../services/inventory.service";
 import itemService from "../../services/item.services";
 // import userService from "../../services/user.service";
+
 
 const SaleInvoice = ({
     fetchItemStartAsync, itemData,
     fetchUserStartAsync, userData,
     currentUser
 }) => {
+
 
     const [quantity, setQuantity] = useState("");
     const [price, setPrice] = useState("");
@@ -157,6 +160,8 @@ const SaleInvoice = ({
         }
     }
 
+   
+
     const selectRow = (item) => {
         //console.log("Select Invoice clicked");
         setEditRow([]);
@@ -164,8 +169,12 @@ const SaleInvoice = ({
         
     }
 
+    
+
     const handleSubmit = event => {
         event.preventDefault();
+      
+
         console.log(`handle submit is fired....`)
         //if same item is available in the array before adding
         console.log(cItem[0].name)
@@ -183,7 +192,7 @@ const SaleInvoice = ({
         {setMessage('Select Item and Enter Quantity & Price')
         }
         else{
-            console.log(`showromm = ${cItem[0].showroom} and entered valu = ${parseInt(quantity)}`)
+            console.log(`showromm = ${cItem[0].showroom} and entered value = ${parseInt(quantity)}`)
         if (parseInt(cItem[0].showroom) < parseInt(quantity)) {
             setMessage('Quantity is greated than Stock');
         } 
@@ -393,9 +402,13 @@ const SaleInvoice = ({
 
 
     const submitInvoceHandler = async () => {
-       
+        if (invoiceItem.length===0)
+        {
+            setMessage('Enter Invoice Details')   
+        }
+        else{
         saveSale();
-
+        }
         
     }
 
@@ -703,7 +716,7 @@ const SaleInvoice = ({
                     
 
 
-                    <form onSubmit={handleSubmit}>
+                    <form onSubmit={handleSubmit} >
                         <div className="form-group row">
                             <div className="col-sm-2">
                                 <label className="col-form-label" htmlFor="Item">Customer Name</label>
@@ -717,6 +730,7 @@ const SaleInvoice = ({
                                     value={customerInput}
                                     onChange={handleChange}
                                     onKeyDown={onKeyDownCustomer}
+                                    
                                 />
                                 
                             </div>
@@ -727,7 +741,8 @@ const SaleInvoice = ({
                                     id="Customer"
                                     placeholder="Customer Id"
                                     value={cCustomer[0] ? cCustomer[0].id : ""}
-                                    disabled />
+                                    disabled 
+                                    />
                             </div>
                             <div className="col-sm-2">
                             <input
@@ -980,7 +995,7 @@ const SaleInvoice = ({
                                 </tbody>
                             </table>
                         </div>
-
+                       
 
                     </form>
 

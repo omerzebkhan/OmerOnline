@@ -237,6 +237,7 @@ const UpdateAccess = ({ currentUser,
                     else if (item.screenName === "CashFlow AP" && item.status === "true") { setCashAP("1") }
                     else if (item.screenName === "Stock Report" && item.status === "true") {setStkRep("1") }
                     else if (item.screenName === "Purchase Report" && item.status === "true") {setPurRep("1") }
+                    else if (item.screenName === "Sale Report" && item.status === "true") {setSaleRep("1") }
                     else if (item.screenName === "SaleReturn Report" && item.status === "true") {setSaleRRep("1") }
                     else if (item.screenName === "BalanceSheet" && item.status === "true") {setBalSheet("1") }
                     else if (item.screenName === "ItemLimit Report" && item.status === "true") {setILmtRep("1") }

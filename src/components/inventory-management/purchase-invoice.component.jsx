@@ -226,6 +226,26 @@ const PurchaseInvoice = ({
                                         .then(response4 => {
                                             setMessage(`Updated Stock value successfully`);
                                             setMessage(`Updating stock of item id = ${item[3]}`);
+                                       
+                                       
+                                            /////////////////////////////////////////////////////////////////////////////////////////
+                                            //     //reset all state to block duplicate entry
+                                            setQuantity("");
+                                            setPrice("");
+                                            setInvoice("");
+                                            //setBtnItem("Show");
+                                            setInvoiceItem([]);
+                                            setTotalInvoiceValue(0);
+                                            setTotalInvoiceQuantity(0);
+                                            setQty([]);
+                                            setLoading(false);
+                                            //setcCustomer([]);
+                                            //setcAgent([]);
+                                            setcItem([]);
+                                       
+                                       
+                                       
+                                       
                                         })
                                         .catch(e => {
                                             console.log(`catch of update Stock ${e} error from server  ${e.message}`);
