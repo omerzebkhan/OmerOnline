@@ -144,6 +144,7 @@ const PurchaseInvoice = ({
 
     const savePurchase = () => {
        // setLoading('True');
+
         console.log(`save purchase is clicked....'
         ${invoice}
         ${cSupplier[0].id}
@@ -274,8 +275,13 @@ const PurchaseInvoice = ({
 
     const submitInvoceHandler = async () => {
         //setMessage(`Invoice has been Sumited`);
+        if (invoiceItem.length===0)
+        {
+            setMessage('Enter Invoice Details')   
+        }
+        else{
         savePurchase();
-
+        }
 
     }
 
