@@ -47,7 +47,7 @@ class itemDataService {
 
   update(id, data) {
     console.log(`update triggred from react .....`)
-    return http.put(`/item/${id}`);
+    return http.put(`/item/${id}`,data);
   }
 
   updateStockValue(id,data){
