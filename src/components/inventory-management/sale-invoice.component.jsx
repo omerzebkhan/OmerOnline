@@ -297,7 +297,7 @@ const SaleInvoice = ({
                     inventoryService.createSaleDetail(sDetailData)
                         .then(response1 => {
                             setMessage("Sale Detail Entered");
-             //               console.log("Sale Detail Entered")
+                            console.log("Sale Detail Entered")
                             console.log(response1.data);
                             //Updating Item Stock
                             // get quantity and averageprice of an item

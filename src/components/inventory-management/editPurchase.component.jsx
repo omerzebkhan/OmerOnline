@@ -146,6 +146,11 @@ const EditPurchase = ({
 
     const updateInvoceHandler = () => {
         // console.log('edit sale invoice.....')
+        if (pdId === "Null")
+        {
+            setMessage("Select the Item to Edit")
+        }
+        else{
         if (pdId === "") {
             console.log(`new purchase details should be added....${purchaseInvoice}`)
             setInvoiceItem([...invoiceItem, [cItem[0].name, cItem[0].description, pdQuantity, pdPrice, (cItem[0].averageprice * pdQuantity), cItem[0].id, '', purchaseInvoice]]);
@@ -221,12 +226,35 @@ const EditPurchase = ({
                                 } else {
                                    //formulea should be remove the old price from the avg cost n add the new one
                                    //ap = (averageprice * 2) - pdOldPrice
-                                   // step 1  
-                                   oldAvg =((averageprice*quantity)-(pdOldPrice*pdOldQuantity))/(quantity-pdOldQuantity)  
-                                   console.log("Old Avg Price ="+oldAvg)
+                                   // step 1
+                                   console.log(`((${averageprice}*${quantity})-(${pdOldPrice}*${pdOldQuantity}))/(${quantity}-${pdOldQuantity})`)  
+                                   oldAvg =((averageprice*quantity)-(pdOldPrice*pdOldQuantity))/(quantity-pdOldQuantity) 
+                                   console.log(`oldAvg =${oldAvg}`)
+                                   // case 1 oldAvg === NaN means oldavg is same as current so old Avg and ap is same
+                                   //if (isNaN(oldAvg) || oldAvg=== -Infinity)
+                                   if (!isFinite(oldAvg))
+                                   { console.log(`Entered the If condition.....`)
+                                  // If there is no change in the quantity and only change in cost after adding invoice first time
+                                   if(quantityDiff==0 && priceDiff!=0 )
+                                  {
+                                    console.log(`If quantityDiff ==0 and priceDiff != 0 averagePrice =${pdPrice}`)
+                                    ap= pdPrice
+
+                                  }
+                                  else{
+                                    oldAvg=averageprice
+                                    ap = averageprice
+                                  }
+                                } 
+                                   else
+                                   {console.log(`Entered the else condition.....`)
+                                    ap = ((parseFloat(oldAvg).toFixed(3)*(parseFloat(quantity).toFixed(3)-parseFloat(pdQuantity).toFixed(3))) + (parseFloat(pdPrice).toFixed(3)*parseFloat(pdQuantity).toFixed(3)))/(parseInt(quantity)-parseFloat(pdQuantity).toFixed(3)+parseInt(pdQuantity));
+                                   }
                                    // step 2  
-                                   ap = ((parseFloat(oldAvg).toFixed(3)*(parseFloat(quantity).toFixed(3)-parseFloat(pdQuantity).toFixed(3))) + (parseFloat(pdPrice).toFixed(3)*parseFloat(pdQuantity).toFixed(3)))/(parseInt(quantity)-parseFloat(pdQuantity).toFixed(3)+parseInt(pdQuantity));
-                                    
+                                   
+                                   
+                                   console.log(`Old Avg Price =${oldAvg} averageprice = ${ap}` )
+
                                 //    console.log(`(${parseInt(averageprice)}+${parseInt(pdPrice)})/2`);
                                 //    ap = (parseInt(ap) + parseInt(pdPrice)) / 2;
                                 }
@@ -244,6 +272,24 @@ const EditPurchase = ({
                                 itemService.update(pdItemId, iData)
                                     .then(res => {
                                         console.log(`Item data has been updated with ${iData.quantity} ${iData.averageprice}`)
+                                        // reset the screen.
+                                        setEdit("False");
+                                        setPDId("Null");
+
+                                        // refresh purchase view
+                                        if (cCustomer.length > 0) {
+                                            fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
+                                        }
+                                        else {
+                                            fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), "0");
+                                        }
+
+                                        //invoiceItem
+                                        setInvoiceItem([])
+                                        
+
+
+
                                     })
                                     .catch(error => {
                                         setMessage(`catch of Item update ${error.response.request.response.message}`)
@@ -268,6 +314,7 @@ const EditPurchase = ({
                 })
 
         }
+    }
     }
 
     const deleteRecordHandler = () => {

@@ -70,6 +70,7 @@ const Navigation = (props) => {
       else if (str[0] ==  "ACCOUNT PAYABLE" && str[1] ==  "TRUE") { setAP("TRUE") }
       else if (str[0] ==  "ADD EXPENSE" && str[1] ==  "TRUE") { setAddExpense("TRUE") }
       else if (str[0] ==  "ADD USER" && str[1] ==  "TRUE") { setAddUser("TRUE") }
+      else if (str[0] ==  "SEARCH USER" && str[1] ==  "TRUE") { setSearchUser("TRUE") }
       else if (str[0] ==  "ADD ROLE" && str[1] ==  "TRUE") { setAddRole("TRUE") }
       else if (str[0] ==  "UPDATE ACCESS" && str[1] ==  "TRUE") { setUpdateAccess("TRUE") }
       else if (str[0] ==  "ADD CASHFLOW" && str[1] ==  "TRUE") { setAddCashFlow("TRUE") }
