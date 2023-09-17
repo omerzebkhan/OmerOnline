@@ -197,6 +197,9 @@ const SaleReturn = ({
                         setMessage("Successfully Updated............")
 
                         // clear the profiles.
+                        // To refreash the screen saleData value should be resetted to blank
+                        //saleData
+                        //Refesh the valus in the screen
                         fetchSaleByIdAsync(invoiceNo);
                         fetchSaleInvoiceDetailAsync(invoiceNo);
                         saleInvoiceDetailData.map((item, index) => {

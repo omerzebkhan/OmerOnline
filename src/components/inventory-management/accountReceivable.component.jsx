@@ -462,6 +462,15 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         setMessage("Update Sale Outstanding completed successfully.....")
                         console.log("Update Sale Outstanding completed successfully.....")
 
+                        ///refresh the data 
+                        // clear and reload the invoice 
+                        fetchSaleAR();
+                        fetchSaleByInputStartAsync(0);
+                        setSInvPayDetail([])
+                        setCurrentInvoice([]);
+                        setCashPayment(0);
+                        setBankPayment(0);
+
                     })
                     .catch(e => {
                         console.log(`catch of Sale Outstanding ${e}
