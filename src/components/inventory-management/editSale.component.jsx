@@ -250,6 +250,19 @@ const EditSale = ({
                                             itemService.update(sdItemId, iData)
                                                 .then(res => {
                                                     console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
+
+                                                     // reset screen
+                                        setEdit("False");
+                                        
+                                        if (cCustomer.length > 0) {
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0");
+                                        }
+                                        else {
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0");
+                                        }
+
+                                        setInvoiceItem([])
+
                                                 })
                                                 .catch(error => {
                                                     setMessage(`catch of Item update ${error.response.request.response.message}`)
@@ -441,7 +454,23 @@ const EditSale = ({
                                     //     showroom: parseInt(showroom) - parseInt(item[2])
                                     // }
                                     itemService.update(id, itemUpdated)
-                                        .then(response4 => { setMessage(`Updated Stock value successfully`); })
+                                        .then(response4 => { 
+                                            setMessage(`Updated Stock value successfully`); 
+                                        
+                                        // reset screen
+                                        setEdit("False");
+                                        
+                                        if (cCustomer.length > 0) {
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0");
+                                        }
+                                        else {
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0");
+                                        }
+
+                                        setInvoiceItem([])
+
+
+                                        })
                                         .catch(e => { console.log(`catch of update Stock ${e} error from server  ${e.message}`); })
                                     // })
                                     // .catch(e => { console.log(`catch of specific item detail ${e} error from server  ${e.message}`); })
