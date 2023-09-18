@@ -17,13 +17,16 @@ const SearchUser = ({
     const [count, setCount] = useState(0);
     const [pageSize, setPageSize] = useState(3);
 
-    const pageSizes = [50, 100, 200];
+    const pageSizes = [50, 100, 200,3000];
 
-   const getRequestParams = (page, pageSize) => {
-       
+    useEffect(() => {
+        if (userData){
+            setCount(userData.totalPages)
+            console.log(`total pages are ${userData.totalPages}`)
+            }
+    }, [userData])
+   const getRequestParams = (page, pageSize) => {    
         let params = {};
-
-       
         if (page) {
             params["page"] = page - 1;
         }
@@ -50,14 +53,18 @@ const SearchUser = ({
         }
         else{
             const params = getRequestParams(page, pageSize);
+            console.log(params)
         fetchUserStartAsync(params);
         if (userData){
         setCount(userData.totalPages)
+        console.log(`total pages are ${userData.totalPages}`)
         }
         }
      
         /////////////////////////////////////////////////////////
     }
+
+
 
     const handlePageChange = (event, value) => {
         setPage(value);
