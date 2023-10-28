@@ -8,6 +8,7 @@ import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
 
 import inventoryService from "../../services/inventory.service";
 import itemService from "../../services/item.services";
+import ownerStockService from "../../services/ownerStock.services"
 import userService from "../../services/user.service";
 
 
@@ -41,6 +42,13 @@ const PurchaseInvoice = ({
     const [activeOptionSupplier, setActiveOptionSupplier] = useState("");
     const [showOptionsSupplier, setShowOptionsSupplier] = useState(false);
     const [filteredOptionsSupplier, setFilteredOptionsSupplier] = useState([]);
+
+    const [cOwner, setcOwner] = useState([]);
+    const [ownerInput, setOwnerInput] = useState("");
+    const [activeOptionOwner, setActiveOptionOwner] = useState("");
+    const [showOptionsOwner, setShowOptionsOwner] = useState(false);
+    const [filteredOptionsOwner, setFilteredOptionsOwner] = useState([]);
+
 
     useLayoutEffect(() => {
         checkAdmin().then((r) => { setContent(r); });
@@ -102,6 +110,21 @@ const PurchaseInvoice = ({
             setSupplierInput(event.target.value);}
             else{setMessage(`No data for customer search...`)}
         }
+        else if (event.target.id === "ownerSearch") {  
+            console.log(event.target.value) 
+            if(userData.user){
+             setFilteredOptionsOwner(userData.user.filter(
+                 // console.log(userData[0].name)
+                 (option) =>
+                     option.name.toLowerCase().indexOf(ownerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "OWNER"
+                    //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
+             ));
+             setActiveOptionOwner(0);
+             setShowOptionsOwner(true);
+             //setCustomerInput(customerInput);
+             setOwnerInput(event.target.value);}
+             else{setMessage(`No data for customer search...`)}
+         }
     }
 
     const handleSubmit = event => {
@@ -143,9 +166,13 @@ const PurchaseInvoice = ({
     }
 
     const savePurchase = () => {
-       // setLoading('True');
+       // check if the owner is null then follow the normal procedure.
+       // If owner is not null then make entery in the ownerStock table.
 
-        console.log(`save purchase is clicked....'
+       console.log(cOwner.length)
+       if (cOwner.length === 0)
+       {
+        console.log(`Save purchase is clicked without owner....'
         ${invoice}
         ${cSupplier[0].id}
         ${totalInvoiceValue}
@@ -271,6 +298,172 @@ const PurchaseInvoice = ({
                 console.log(`catch of create purchase${e}`);
                 setMessage(`catch of create purchase${e}`);
             });
+        }
+        else {
+            
+                console.log(`New Flow should be called`)
+                setMessage("New Flow should be called")
+                
+                console.log(`Save purchase is clicked Owner Id....'
+                ${invoice}
+                ${cSupplier[0].id}
+                ${totalInvoiceValue}
+                ${totalInvoiceQuantity}
+                ${totalInvoiceValue}
+                ${cOwner[0].id}
+                `)
+                var data = {
+                    reffInvoice: invoice,
+                    supplierId: cSupplier[0].id ,
+                    invoicevalue: totalInvoiceValue,
+                    totalitems: totalInvoiceQuantity,
+                    paid: 0,
+                    Returned: 0,
+                    Outstanding: totalInvoiceValue,
+                    ownerid: cOwner[0].id
+                };
+                
+                console.log(data)
+        
+                inventoryService.createPurchase(data)
+                    .then(response => {
+                        setMessage(`Purchase successfully Added Invoice id = ${response.data.id}`);
+                       
+                        // loop throuhg invoice item 
+                        //1-create new purchase detail 
+                        //2- get each item with owner id from ownerstock and update quantity and avgcost value in the ownerstock table 
+        
+                        invoiceItem.map((item) => {
+                            var pDetailData = ({
+                                PurchaseInvoiceId: response.data.id,
+                                // itemName: item[0],
+                                itemName: item[3],
+                                quantity: item[1],
+                                price: item[2]
+                            });
+        
+        
+        
+                            inventoryService.createPurchaseDetail(pDetailData)
+                                .then(response1 => {
+                                    setMessage("Purchase Detail Entered");
+                                    console.log("Purchase Detail Entered")
+                                    console.log(response1.data);
+                                    //Updating Item Stock
+                                    // get quantity and averageprice of an item
+                                    //call new owner Stock table to if item is not there then add new id.
+                                    ownerStockService.getOwnerStockByOwnerAndItem(cOwner[0].id,item[3])
+                                    //itemService.get(item[3])
+                                        .then(response2 => {
+                                            //check if the response2 is empty then add new item with quantity in the owner stock
+                                            if (response2.data.length==0)
+                                            {
+                                                console.log("Create new entry in owner Stock")  
+                                                var os = {
+                                                   ownerid:cOwner[0].id,
+                                                   itemid:item[3],
+                                                   avgcost:item[2],
+                                                   quantity:parseInt(item[1])
+                                                };
+                                                ///create new enty in the ownerStock table
+                                                //ownerStockService
+                                                ownerStockService.create(os)
+                                                .then(response1 => {
+                                                    console.log(`New owner stock entry created successfully`)
+                                               
+                                                })
+                                                .catch(e => {
+                                                    console.log(`catch of Create ownerStock ${e} error from server  ${e.message}`);
+                                                    setMessage(`catch of Create ownerStock ${e} error from server  ${e.message}`);
+                                                })
+
+
+
+                                            }
+                                            else
+                                            {
+                                            console.log("owner Stock value exits")
+                                            console.log(response2.data[0]);
+                                            const {id,itemid,quantity,avgcost } = response2.data[0];
+                                            //based on the id we can update the avgcost and quantity because there should be only one entry for one owner and one item
+                                            console.log(` id = ${id}
+                                            item id = ${itemid}
+                                            item Quantity = ${quantity}
+                                            Item avgcost = ${avgcost}
+                                            `);
+                                           
+                                         //average price calculation
+                                         var ap = 0;
+                                         if (avgcost === 0  || quantity ===0) {
+                                             ap = item[2];
+                                         } else {
+                                            ap = ((parseFloat(avgcost).toFixed(3)*parseFloat(quantity).toFixed(3)) + (parseFloat(item[2]).toFixed(3)*parseFloat(item[1]).toFixed(3)))/(parseInt(quantity)+parseInt(item[1]));
+                                         }
+                                         console.log(`Average price after calculation = ${ap}`)
+     
+                                          // update quantity and average price of item
+                                          var osUpdated = {
+                                            quantity: parseInt(quantity) + parseInt(item[1]),
+                                            avgcost: ap
+                                        }
+                                        //update the owner Stock new quantity and avgcost value
+                                        ownerStockService.update(id, osUpdated)
+                                        .then(response4 => {
+                                            setMessage(`Updated ownerStock value successfully`);
+                                            setMessage(`Updating ownerStock of item id = ${item[3]}`);
+                                       
+                                       
+                                            /////////////////////////////////////////////////////////////////////////////////////////
+                                            //     //reset all state to block duplicate entry
+                                            setQuantity("");
+                                            setPrice("");
+                                            setInvoice("");
+                                            //setBtnItem("Show");
+                                            setInvoiceItem([]);
+                                            setTotalInvoiceValue(0);
+                                            setTotalInvoiceQuantity(0);
+                                            setQty([]);
+                                            setLoading(false);
+                                            //setcCustomer([]);
+                                            //setcAgent([]);
+                                            setcItem([]);
+                                       
+                                       
+                                       
+                                       
+                                        })
+                                        .catch(e => {
+                                            console.log(`catch of update Stock ${e} error from server  ${e.message}`);
+                                            setMessage(`catch of update Stock ${e} error from server  ${e.message}`);
+                                        })
+
+                                        }
+                                            
+                                           
+                                           
+                                      
+                                        })
+                                        .catch(e => {
+                                            console.log(`catch of getOwnerStockByOwnerAndItem ${e} error from server  ${e.message}`);
+                                            setMessage(`catch of getOwnerStockByOwnerAndItem ${e} error from server  ${e.message}`);
+                                        })
+        
+        
+                                })
+                                .catch(e => {
+                                    console.log(`catch of purchase detail ${e} error from server  ${e.message} `);
+                                    setMessage(`catch of purchase detail ${e} error from server  ${e.message} `);
+                                })
+        
+                        })
+                    })
+                    .catch(e => {
+                        console.log(`catch of create purchase${e}`);
+                        setMessage(`catch of create purchase${e}`);
+                    }); 
+        
+
+        }
     }
 
     const submitInvoceHandler = async () => {
@@ -456,6 +649,85 @@ const PurchaseInvoice = ({
     }
     //////////////////////////////////////////////////////////////////////
 
+      //////////////////////////////////////////////////////////////////////
+    /////////////////////////// Drop down logic for Owner 
+    const onKeyDownOwner = (e) => {
+        //console.log("On change is fired")
+        // const { activeOption, filteredOptions } = this.props;
+        if (e.keyCode === 13) {
+            setActiveOptionOwner(0);
+            setShowOptionsOwner(false);
+            setSupplierInput(filteredOptionsOwner[activeOptionOwner]);
+        } else if (e.keyCode === 38) {
+            if (activeOptionOwner === 0) {
+                //setcCustomer([]);
+                return;
+            }
+            setActiveOptionOwner(activeOptionOwner - 1)
+        } else if (e.keyCode === 40) {
+            if (activeOptionOwner - 1 === filteredOptionsOwner.length) {
+                //setcCustomer([]);
+                return;
+            }
+            setActiveOptionOwner(activeOptionOwner + 1)
+        }
+    };
+    const onClickOwner = (e) => {
+        setActiveOptionOwner(0);
+        setFilteredOptionsOwner([]);
+        setShowOptionsOwner(false);
+
+        console.log(`selecte Owner id = ${e.currentTarget.dataset.id}`);
+        console.log(`user data${userData.user[0].id}`);
+        const selectedOwner = userData.user.filter(
+            (option) => option.id == e.currentTarget.dataset.id
+        );
+        setOwnerInput(selectedOwner[0].name);
+        setcOwner(selectedOwner);
+    };
+    let optionListOwner;
+    if (showOptionsOwner && ownerInput) {
+        console.log(filteredOptionsOwner);
+        console.log(filteredOptionsOwner.length)
+        if (filteredOptionsOwner.length) {
+            optionListOwner = (
+                <ul className="options">
+                    {filteredOptionsOwner.map((optionName, index) => {
+                        let className;
+                        if (index === activeOptionOwner) {
+                            className = 'option-active';
+                        }
+                        return (
+                            <li key={optionName.id} className={className} data-id={optionName.id} onClick={onClickOwner}>
+                                <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
+                                    <thead>
+                                        <tr>
+                                            <th className="th-sm">Name</th>
+                                            <th>Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>{optionName.name}</td>
+                                            <td>{optionName.address}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+
+                            </li>
+                        );
+                    })}
+                </ul>
+            );
+        } else {
+            optionListOwner = (
+                <div className="no-options">
+                    <em>No Option!</em>
+                </div>
+            );
+        }
+    }
+    //////////////////////////////////////////////////////////////////////
     return (
         <div>
         {access ?
@@ -476,6 +748,51 @@ const PurchaseInvoice = ({
                                     value={invoice}
                                     onChange={handleChange} />
                             </div>
+                        </div>
+                        <div className="form-group row">
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Owner Name</label>
+                                <input
+                                    type="text"
+                                    name="ownerSearch"
+                                    id="ownerSearch"
+                                    placeholder="Select Owner "
+                                    value={ownerInput}
+                                    onChange={handleChange}
+                                    onKeyDown={onKeyDownOwner}
+                                />
+                                {optionListOwner}
+                            </div>
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Owner Id</label>
+                                <input
+                                    type="text"
+                                    name="Owner"
+                                    id="Owner"
+                                    placeholder="Select Owner"
+                                    value={cOwner[0] ?
+                                        cOwner[0].id
+                                        :
+                                        ""
+                                    }
+                                    disabled />
+                            </div>
+
+                            <div className="col-sm-2">
+                                <label className="col-form-label" htmlFor="Item">Address</label>
+                                <input
+                                    type="text"
+                                    name="Owner Address"
+                                    id="ownerAddress"
+                                    placeholder="Address"
+                                    value={cOwner[0] ?
+                                        cOwner[0].address
+                                        :
+                                        ""
+                                    }
+                                    disabled />
+                            </div>
+
                         </div>
                         <div className="form-group row">
                             <div className="col-sm-2">

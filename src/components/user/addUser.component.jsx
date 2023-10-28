@@ -114,16 +114,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
     }, [roleData, selectedUser])
 
 
-    // const SelectedOption = () => {
-    //     const Status = [
-    //         { value: "0", text: "Select" },
-    //         { value: "1", text: "Active" },
-    //         { value: "2", text: "DeActive" }
-    //     ]
-    //     const selectOptions = Status.map((option) => {
-    //         return <option value={option.value}>{option.text}</option>
-    //     })
-    // }
+    
 
     const handleSubmit = async event => {
         event.preventDefault();
@@ -164,15 +155,7 @@ const AddUser = ({ fetchRoleStartAsync, roleData, selectedUser }) => {
         console.log(`data to be sent ${data}`);
         userService.create(data)
             .then(response => {
-                // this.setState({
-                //   id: response.data.id,
-                //   name: response.data.name,
-                //   description: response.data.description,
-                //   url: response.data.url
-                // });
-                // console.log(response.status);
-                // console.log(response.data.id);
-
+              
                 /////////////////////////////// Associate role with the id//////////////
 
                 console.log(`creating role for the user 

@@ -8,8 +8,11 @@ import authHeader from "./auth-header";
 //Heroku
 //const API_URL = "http://localhost:5000/api/test/";
 
-//Heruko remote
-const API_URL ="https://damp-brushlands-21463.herokuapp.com/api/test/"
+//Heruko remote N&M trader
+//const API_URL ="https://damp-brushlands-21463.herokuapp.com/api/test/"
+
+//Heruko remote omerwholesale
+const API_URL ="https://omerwholesale-mv-1d53fab06d42.herokuapp.com/api/test/"
 
 class userDataService {
   getAll(params) {

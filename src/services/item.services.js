@@ -41,7 +41,7 @@ class itemDataService {
    }
 
   create(data) {
-    console.log(data);
+    //console.log(data);
     return http.post("/item/", data,{headers: authHeader() });
   }
 
@@ -55,13 +55,7 @@ class itemDataService {
     return http.put(`/itemUpdateStockValue/${id}`, data);
   }
 
-  delete(id) {
-    return http.delete(`/item/${id}`);
-  }
-
-  deleteAll() {
-    return http.delete(`/items`);
-  }
+  
 
   findByTitle(title) {
     return http.get(`/item?title=${title}`);
