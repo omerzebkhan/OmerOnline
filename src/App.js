@@ -98,7 +98,7 @@ const App = () => {
       <div className="appBackground" >
         <nav className="navbar navbar-expand navbar-dark bg-dark">
           <Link to={"/"} className="navbar-brand">
-            Online Store Invest 1
+            Online Store {process.env.REACT_APP_COMPANYNAME}
           </Link>
           <div className="navbar-nav mr-auto">
             <li className="nav-item">

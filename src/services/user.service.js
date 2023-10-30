@@ -2,6 +2,8 @@ import http from "../http-common";
 import axios from "axios";
 import authHeader from "./auth-header";
 
+
+const API_URL1 =process.env.REACT_APP_API_URL1
 // local
 //const API_URL = "http://localhost:8080/api/test/";
 
@@ -12,7 +14,7 @@ import authHeader from "./auth-header";
 //const API_URL ="https://damp-brushlands-21463.herokuapp.com/api/test/"
 
 //Heruko remote omerwholesale
-const API_URL ="https://omerwholesale-mv-1d53fab06d42.herokuapp.com/api/test/"
+//const API_URL ="https://omerwholesale-mv-1d53fab06d42.herokuapp.com/api/test/"
 
 class userDataService {
   getAll(params) {
@@ -92,19 +94,19 @@ updateUserRole(id, data) {
 
 
   getPublicContent = () => {
-    return axios.get(API_URL + "all");
+    return axios.get(API_URL1 + "all");
   };
   
   getUserBoard = () => {
-    return axios.get(API_URL + "user", { headers: authHeader() });
+    return axios.get(API_URL1 + "user", { headers: authHeader() });
   };
   
   getModeratorBoard = () => {
-    return axios.get(API_URL + "aPa", { headers: authHeader() });
+    return axios.get(API_URL1 + "aPa", { headers: authHeader() });
   };
   
   getAdminBoard = () => {
-    return axios.get(API_URL + "admin", { headers: authHeader() });
+    return axios.get(API_URL1 + "admin", { headers: authHeader() });
   };
   
   

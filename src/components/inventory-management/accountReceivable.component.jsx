@@ -104,14 +104,18 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [filteredOptionsName])
 
     useEffect(() => {
-        //order the array and assign it to sInvoice
+        //order the array and assign it to sInvoice which is Outstaning Invoices when customer id is selected from the list.
         if (saleInvoice) {
 
             var arr = saleInvoice;
 
             function sortByKey(a, b) {
                 //console.log(`sorting array ${a.Outstanding}`)
-                return parseFloat(a.Outstanding) > parseFloat(b.Outstanding) ? -1 : parseFloat(a.Outstanding) < parseFloat(b.Outstanding) ? 1 : 0;
+                //return parseFloat(a.Outstanding) > parseFloat(b.Outstanding) ? -1 : parseFloat(a.Outstanding) < parseFloat(b.Outstanding) ? 1 : 0;
+                //sort as per created date
+                return Date.parse(a.createdAt) < Date.parse(b.createdAt) ? -1 : Date.parse(a.createdAt) > Date.parse(b.createdAt) ? 1 : 0;
+            
+            
             }
 
             const sorted = arr.sort(sortByKey);
@@ -151,6 +155,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [salePayHist])
 
 
+   
   
 
     const selectSaleInvoice = (item) => {
