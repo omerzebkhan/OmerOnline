@@ -33,6 +33,11 @@ class inventoryDataService {
     return http.get(`/purchaseByDate/${sDate}/${eDate}/${customerId}`);
   }
 
+  getAllPurchaseByDateSummary(sDate,eDate) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/purchaseByDateSummary/${sDate}/${eDate}`);
+   }
+
 
   getAllPurchaseByCustId(id) {
     return http.get(`/purchaseByCustId/${id}`);

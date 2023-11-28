@@ -38,6 +38,23 @@ export const setCurrentPurchase= purchase =>({
     payload:purchase
 })
 
+export const fetchPurchaseSummaryStart = () => ({
+    type: PurchaseActionType.FETCH_PURCHASESUMMARY_START
+});
+
+export const fetchPurchaseSummarySuccess = saleMap => ({
+    type: PurchaseActionType.FETCH_PURCHASESUMMARY_SUCCESS,
+    payload: saleMap
+});
+
+export const fetchPurchaseSummaryFailure = errorMessage => ({
+    type: PurchaseActionType.FETCH_PURCHASE_FAILURE,
+    payload: errorMessage
+})
+
+
+
+
 export const fetchPurchaseStartAsync = () => {
     return dispatch =>{
        // const collectionRef = firestore.collection('PurchaseInvoice');
@@ -135,6 +152,29 @@ export const fetchPurchaseAP = () => {
                         dispatch(fetchPurchaseInvoiceDetail(purchaseMap));
                     })
                     .catch(error=> dispatch(fetchPurchaseFailure((error.response.request.response.message))))
+            }
+        }
+
+        export const fetchPurchaseByDateSummary = (sDate, eDate) => {
+            return dispatch => {
+                if (sDate !== "" && eDate !== "") {
+                   // var dateFormat = require('dateformat');
+                   sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+                   eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+                   var myDate = new Date(eDate);
+                   myDate.setDate(myDate.getDate() + 1);
+                  myDate = dateFormat(myDate, "yyyy-M-dd");
+                   eDate = myDate;
+        
+                    dispatch(fetchPurchaseSummaryStart());
+                    inventoryService.getAllPurchaseByDateSummary(sDate, eDate)
+                        .then(response => {
+                            const saleMap = response.data;
+                            dispatch(fetchPurchaseSummarySuccess(saleMap));
+                        })
+                        .catch(error => dispatch(fetchPurchaseSummaryFailure(error.response.request.response.message)))
+                        ;
+                }
             }
         }
 

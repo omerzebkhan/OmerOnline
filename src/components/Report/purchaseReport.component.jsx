@@ -1,12 +1,13 @@
 import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
-import { fetchPurchaseByDate, fetchPurchaseInvoiceDetailAsync } from '../../redux/purchase/purchase.action';
+import { fetchPurchaseByDate, fetchPurchaseInvoiceDetailAsync,fetchPurchaseByDateSummary } from '../../redux/purchase/purchase.action';
 import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
 import PdfInvoice from "./printPurchaseInvoice";
+import PrintPurchaseSummary from './printPurchaseSummary';
 
 //class PurchaseReport extends React.Component {
 const PurchaseReport = ({
@@ -14,7 +15,8 @@ const PurchaseReport = ({
     fetchItemStartAsync, itemData,
     fetchPurchaseByDate, purchaseData,
     fetchPurchaseInvoiceDetailAsync, purchaseInvoiceDetailData,
-    fetchUserByInputAsync, user ,currentUser
+    fetchUserByInputAsync, user ,currentUser,
+    fetchPurchaseByDateSummary,purchaseSummary
 }) => {
 
     const [startDate, setStartDate] = useState(new Date());
@@ -33,6 +35,8 @@ const PurchaseReport = ({
     const [activeOptionCustomer, setActiveOptionCustomer] = useState("");
     const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
     const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
+
+    
 
     const [access, setAccess] = useState(false);
     useLayoutEffect(() => {
@@ -65,7 +69,7 @@ const PurchaseReport = ({
         }
     }, [purchaseData])
 
-
+    
 
     const handleStartDTPicker = (date) => { setStartDate(date); }
 
@@ -83,7 +87,7 @@ const PurchaseReport = ({
         else {
             fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), "0");
         }
-        //fetchPurchaseByDateSummary(startDate.toDateString(), endDate.toDateString());
+        fetchPurchaseByDateSummary(startDate.toDateString(), endDate.toDateString());
     }
 
     const selectInvoice = (item) => {
@@ -272,6 +276,12 @@ const PurchaseReport = ({
                 </div>
             </form>
 
+            {purchaseSummary?        
+            <PrintPurchaseSummary data={purchaseSummary} sDate={startDate.toDateString()} eDate={endDate.toDateString()} />
+            :
+            ""
+            }
+
             {purchaseData ?
                 <div>
                     <div>
@@ -363,12 +373,14 @@ const PurchaseReport = ({
 const mapStateToProps = state => ({
     currentUser: state.user.user.user,
     purchaseData: state.purchase.purchase,
+    purchaseSummary : state.purchase.purchaseSummary,
     purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail,
     userData: state.user.users
 })
 
 const mapDispatchToProps = dispatch => ({
     fetchPurchaseByDate: (sDate, eDate, id) => dispatch(fetchPurchaseByDate(sDate, eDate, id)),
+    fetchPurchaseByDateSummary :(sDate,eDate) => dispatch(fetchPurchaseByDateSummary(sDate, eDate)),
     fetchPurchaseInvoiceDetailAsync: (invoiceId) => dispatch(fetchPurchaseInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
     fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
