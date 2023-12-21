@@ -48,6 +48,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [addressInput, setAddressInput] = useState("");
     const [amountInput, setAmountInput] = useState("");
     const [filter, setFilter] = useState("");
+    const [filterOldestInvoice, setFilterOlderInvoice] = useState("");
+    const [oldestInvoice,setOldestInvoice]= useState("");
 
 
     useLayoutEffect(() => {
@@ -181,12 +183,16 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 setAmountInput(event.target.value);
                 //search base on the filter value
                 var selectedItem = [];
-                if (filter === 'Equal To') {
+                if (event.target.value === "") {
+                    setFilteredOptionsName(saleArData)
+                }
+                else if (filter === 'Equal To') {
                     console.log('Equal To filter is called')
 
                     selectedItem = filteredOptionsName.filter(
                         (option) => option.salesOutstanding === parseFloat(event.target.value)
                     );
+                    setFilteredOptionsName(selectedItem)
                     // setFilteredOptionsName(saleArData.filter(
                     //     option => {
                     //         return (option) => option.salesOutstanding == parseInt(event.target.value)
@@ -198,22 +204,66 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     selectedItem = filteredOptionsName.filter(
                         (option) => option.salesOutstanding > parseFloat(event.target.value)
                     );
+                    setFilteredOptionsName(selectedItem)
                 }
                 else if (filter === 'Less Than') {
-                    selectedItem = filteredOptionsName.filter(
+                    // query is on salesArData which is original because when once the amount value is lower the salesArData the selectedItem will be updated so 
+                    // now we cannot filer already filtered data which is causing issue.
+                    selectedItem = saleArData.filter(
                         (option) => option.salesOutstanding < parseFloat(event.target.value)
                     );
+                    setFilteredOptionsName(selectedItem)
                 }
                 
-                setFilteredOptionsName(selectedItem)
+                //setFilteredOptionsName(selectedItem)
             
             }
             
         }
         else if (event.target.id === "Filter") {
                 setFilter(event.target.value);
-                // apply the filter on these values
+                // apply the filter on these values     
+        }
+        else if (event.target.id === "FilterOldestInv"){
+            setFilterOlderInvoice(event.target.value)
+        }
+        else if (event.target.id === "oldestInvoice") {
+            if (filterOldestInvoice==="" || filterOldestInvoice==="Please Select")
+            {
+                alert("Select the filter first");
+            }
+            else {
+                setOldestInvoice(event.target.value);
+                //search base on the filter value
+                var selectedItem = [];
+                if (event.target.value === "") {
+                    setFilteredOptionsName(saleArData)
+                }
+                else if (filterOldestInvoice === 'Equal To') {
+                    console.log('Equal To filter is called')
 
+                    selectedItem = filteredOptionsName.filter(
+                        (option) => option.diff.days === parseFloat(event.target.value)
+                    );
+                   
+                }
+                else if (filterOldestInvoice === 'Greater Than') {
+                    selectedItem = filteredOptionsName.filter(
+                        (option) => option.diff.days > parseFloat(event.target.value)
+                    );
+                }
+                else if (filterOldestInvoice === 'Less Than') {
+                    // query is on saleArData which is original because when once the amount value is lower the saleArData the selectedItem will be updated so 
+                    // now we cannot filer already filtered data which is causing issue.
+                    selectedItem = saleArData.filter(
+                        (option) => option.diff.days < parseFloat(event.target.value)
+                    );
+                }
+                
+                setFilteredOptionsName(selectedItem)
+                console.log(selectedItem)
+            
+            }
             
         }
         else if (event.target.id === "Name") {
@@ -505,9 +555,10 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
             var vSaleInvPay = {
                 reffInvoice: currentInvoice.id,
                 cashPayment: cashPayment,
-                bankPayment: bankPayment
+                bankPayment: bankPayment,
+                comments:''
             }
-
+            console.log(vSaleInvPay)
 
             inventoryService.createSaleInvPay(vSaleInvPay)
                 .then(res => {
@@ -699,6 +750,24 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     id="amount"
                                     placeholder="Amount"
                                     value={amountInput}
+                                    onChange={handleChange} />
+                            </div>
+                            <div className="col-sm-2">
+                                Filter Oldest Inv
+                                <select id="FilterOldestInv" name="Filter" onChange={handleChange}>
+                                    <option selected="Please Select" value="Please Select">Please Select</option>
+                                    <option value="Equal To">Equal To</option>
+                                    <option value="Greater Than">Greater Than</option>
+                                    <option value="Less Than">Less Than</option>
+                                </select>
+                            </div>
+                            <div className="col-sm-2">
+                                <input
+                                    type="text"
+                                    name="oldestInvoice"
+                                    id="oldestInvoice"
+                                    placeholder="Oldest Invoice"
+                                    value={oldestInvoice}
                                     onChange={handleChange} />
                             </div>
                         </div>

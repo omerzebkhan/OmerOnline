@@ -93,16 +93,16 @@ const SaleReport = ({
         //console.log(cAgent[0].id)
       if(invoiceNo==""){
       if (cCustomer.length > 0 && cAgent.length > 0 ) {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,cAgent[0].id);
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,cAgent[0].id,"0","0");
         }
         else if (cCustomer.length > 0){
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,"0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,"0","0","0");
         }
         else if (cAgent.length > 0){
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", cAgent[0].id);
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", cAgent[0].id,"0","0");
         }
         else {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0","0","0");
         }
         fetchSaleByDateSummary(startDate.toDateString(), endDate.toDateString());
     }

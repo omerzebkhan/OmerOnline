@@ -142,7 +142,7 @@ export const fetchSaleByIdAsync = (invoiceId) => {
     }
 }
 
-export const fetchSaleByDate = (sDate, eDate, customerId,agentId) => {
+export const fetchSaleByDate = (sDate, eDate, customerId,agentId,itemId,invoiceId) => {
     return dispatch => {
         if (sDate !== "" && eDate !== "") {
             //var dateFormat = require('dateformat');
@@ -155,12 +155,17 @@ export const fetchSaleByDate = (sDate, eDate, customerId,agentId) => {
 
             console.log(`sDate=${sDate} 
             edate=${eDate}
-            customerid =${customerId}`);
+            customerid =${customerId}
+            agentid =${agentId}
+            itemid =${itemId}
+            invoiceid =${invoiceId}
+            `);
 
             dispatch(fetchSaleStart());
-            inventoryService.getAllSaleByDate(sDate, eDate, customerId,agentId)
+            inventoryService.getAllSaleByDate(sDate, eDate, customerId,agentId,itemId,invoiceId)
                 .then(response => {
                     const saleMap = response.data;
+                    //console.log(response.data)
                     dispatch(fetchSaleSuccess(saleMap));
                 })
                 .catch(error => dispatch(fetchSaleFailure(error.response.request.response.message)))

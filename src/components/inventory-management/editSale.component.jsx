@@ -106,10 +106,10 @@ const EditSale = ({
         event.preventDefault();
         console.log(cCustomer.length)
         if (cCustomer.length > 0) {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0","0","0");
         }
         else {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0");
+            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0","0","0");
         }
 
     }
@@ -255,10 +255,10 @@ const EditSale = ({
                                         setEdit("False");
                                         
                                         if (cCustomer.length > 0) {
-                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0");
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0","0","0");
                                         }
                                         else {
-                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0");
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0","0","0");
                                         }
 
                                         setInvoiceItem([])
@@ -461,10 +461,10 @@ const EditSale = ({
                                         setEdit("False");
                                         
                                         if (cCustomer.length > 0) {
-                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0");
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0","0","0");
                                         }
                                         else {
-                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0");
+                                            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0","0","0");
                                         }
 
                                         setInvoiceItem([])
@@ -993,7 +993,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    fetchSaleByDate: (sDate, eDate, id, id1) => dispatch(fetchSaleByDate(sDate, eDate, id, id1)),
+    fetchSaleByDate: (sDate, eDate, id, id1,itemId,invoiceId) => dispatch(fetchSaleByDate(sDate, eDate, id,id1,itemId,invoiceId)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
     fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),

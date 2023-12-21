@@ -128,9 +128,9 @@ class inventoryDataService {
     return http.put(`/getSaleRecalculate/${id}`);
   }
 
-  getAllSaleByDate(sDate,eDate,customerId,agentId) {
+  getAllSaleByDate(sDate,eDate,customerId,agentId,itemId,invoiceId) {
    // console.log(`dates are ${sDate} ${eDate}`)
-    return http.get(`/saleByDate/${sDate}/${eDate}/${customerId}/${agentId}`);
+    return http.get(`/saleByDate/${sDate}/${eDate}/${customerId}/${agentId}/${itemId}/${invoiceId}`);
   }
 
   getAllSaleByDateSummary(sDate,eDate) {
