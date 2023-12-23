@@ -561,7 +561,7 @@ const mapStateToProps = state => ({
 })
 
 const mapDispatchToProps = dispatch => ({
-    fetchSaleByDate: (sDate, eDate, id, id1) => dispatch(fetchSaleByDate(sDate, eDate, id,id1)),
+    fetchSaleByDate: (sDate, eDate, id, id1, itemId, invoiceId) => dispatch(fetchSaleByDate(sDate, eDate, id, id1, itemId, invoiceId)),
     fetchSaleByDateSummary :(sDate,eDate) => dispatch(fetchSaleByDateSummary(sDate, eDate)),
     fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
     fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
