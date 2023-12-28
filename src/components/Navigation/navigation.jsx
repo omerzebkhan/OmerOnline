@@ -44,6 +44,8 @@ const Navigation = (props) => {
   const [monthlySale, setMonthlySale] = useState();
   const [iSPD, setISPD] = useState();
   const [saleAT, setSaleAT] = useState();
+  const [saleEditReport,setSaleEditReport] = useState();
+  const [invMismatchReport,setInvMismatchReport] = useState();
 
 
   useEffect(() => {
@@ -85,6 +87,11 @@ const Navigation = (props) => {
       else if (str[0] ==  "ITEMTREND REPORT" && str[1] ==  "TRUE") { setITrendRep("TRUE") }
       else if (str[0] ==  "MONTHLYSALE" && str[1] ==  "TRUE") { setMonthlySale("TRUE") }
       else if (str[0] ==  "ITEMSALEPURDATEWISE" && str[1] ==  "TRUE") { setISPD("TRUE") }
+      else 
+      { setSaleEditReport("TRUE")
+        setInvMismatchReport("TRUE")
+      }
+      
 
     }
     )
@@ -144,6 +151,8 @@ const Navigation = (props) => {
               {purRep == "TRUE" ?<NavDropdown.Item href="/PurchaseReport">Purchase Report</NavDropdown.Item>:""}
               {saleRep == "TRUE" ?<NavDropdown.Item href="/SaleReport">Sale Report</NavDropdown.Item>:""}
               {saleRRep == "TRUE" ?<NavDropdown.Item href="/SaleReturnReport">Sale Return Report</NavDropdown.Item>:""}
+              {saleEditReport == "TRUE" ?<NavDropdown.Item href="/SaleEditReport">Sale Edit Report</NavDropdown.Item>:""}
+              {invMismatchReport == "TRUE" ?<NavDropdown.Item href="/InvMismatchReport">Inventory Mismatch Report</NavDropdown.Item>:""}
               {balSheet == "TRUE" ?<NavDropdown.Item href="/BalanceSheetReport">Balance Sheet</NavDropdown.Item>:""}
               {iLmtRep == "TRUE" ?<NavDropdown.Item href="/ItemLimitReport">Item Limit Report</NavDropdown.Item>:""}
               {iTrendRep == "TRUE" ?<NavDropdown.Item href="/ItemTrendReport">Item Trend Report</NavDropdown.Item>:""}

@@ -2,8 +2,9 @@ import SaleActionType from './sale.type';
 const INITIAL_STATE = {
     salePayHist: null,
     saleReturn: null,
-    saleReturnDetail:null,
+    saleReturnDetail: null,
     sale: null,
+    editSale: null,
     saleSummary: null,
     saleInvoiceDetail: null,
     saleAR: null,
@@ -25,6 +26,33 @@ const saleReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 isFetching: true
             }
+        case SaleActionType.FETCH_SALE_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                sale: action.payload
+            }
+        case SaleActionType.FETCH_SALE_FAILURE:
+            return {
+                ...state,
+                errorMessage: action.payload
+            }
+        case SaleActionType.FETCH_EDITSALE_START:
+            return {
+                ...state,
+                isFetching: true
+            }
+        case SaleActionType.FETCH_EDITSALE_SUCCESS:
+            return {
+                ...state,
+                isFetching: false,
+                editSale: action.payload
+            }
+        case SaleActionType.FETCH_EDITSALE_FAILURE:
+            return {
+                ...state,
+                errorMessage: action.payload
+            }
         case SaleActionType.FETCH_SALEPAYHIST_SUCCESS:
             return {
                 ...state,
@@ -38,17 +66,12 @@ const saleReducer = (state = INITIAL_STATE, action) => {
                 saleReturn: action.payload
             }
         case SaleActionType.FETCH_SALERETURNDETAIL_SUCCESS:
-                return {
-                    ...state,
-                    isFetching: false,
-                    saleReturnDetail: action.payload
-                }    
-        case SaleActionType.FETCH_SALE_SUCCESS:
             return {
                 ...state,
                 isFetching: false,
-                sale: action.payload
+                saleReturnDetail: action.payload
             }
+
         case SaleActionType.FETCH_SALESUMMARY_SUCCESS:
             return {
                 ...state,
@@ -75,11 +98,7 @@ const saleReducer = (state = INITIAL_STATE, action) => {
                 saleAR: action.payload
             }
 
-        case SaleActionType.FETCH_SALE_FAILURE:
-            return {
-                ...state,
-                errorMessage: action.payload
-            }
+
         default:
             return state;
     }

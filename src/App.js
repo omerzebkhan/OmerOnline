@@ -47,6 +47,8 @@ import CartDetails from './components/cartManagement/manageCart.component'; //ad
 import CashFlow from './components/expense/cashFlow.component'
 import CashFlowAR from './components/expense/cashFlowAR.component'
 import CashFlowAP from './components/expense/cashFlowAP.component'
+import SaleEditReport from './components/Report/editSaleReport.component'
+import InventoryMismatchReport from './components/Report/inventoryMismatchReport.component'
 
 
 import Login from "./components/Login";
@@ -232,6 +234,8 @@ const App = () => {
                     <Route path="/AddCashFlow" render={()=><CashFlow />}/>
                     <Route path="/AR" render={()=><CashFlowAR />}/>
                     <Route path="/AP" render={()=><CashFlowAP />}/>
+                    <Route path="/SaleEditReport" render={()=><SaleEditReport />}/>
+                    <Route path="/InvMismatchReport" render={()=><InventoryMismatchReport />}/>
 
           </Switch>
         </div>

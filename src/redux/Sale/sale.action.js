@@ -17,6 +17,20 @@ export const fetchSaleFailure = errorMessage => ({
     payload: errorMessage
 })
 
+export const fetchEditSaleStart = () => ({
+    type: SaleActionType.FETCH_EDITSALE_START
+});
+
+export const fetchEditSaleSuccess = saleMap => ({
+    type: SaleActionType.FETCH_EDITSALE_SUCCESS,
+    payload: saleMap
+});
+
+export const fetchEditSaleFailure = errorMessage => ({
+    type: SaleActionType.FETCH_EDITSALE_FAILURE,
+    payload: errorMessage
+})
+
 export const fetchSaleReturnStart = () => ({
     type: SaleActionType.FETCH_SALERETURN_START
 });
@@ -173,6 +187,38 @@ export const fetchSaleByDate = (sDate, eDate, customerId,agentId,itemId,invoiceI
         }
     }
 }
+
+export const fetchEditSale = (sDate, eDate,itemId,invoiceId) => {
+    return dispatch => {
+        if (sDate !== "" && eDate !== "") {
+            //var dateFormat = require('dateformat');
+            sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+            eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+            var myDate = new Date(eDate);
+            myDate.setDate(myDate.getDate() + 1);
+           myDate = dateFormat(myDate, "yyyy-M-dd");
+            eDate = myDate;
+
+            console.log(`sDate=${sDate} 
+            edate=${eDate}
+            itemid =${itemId}
+            invoiceid =${invoiceId}
+            `);
+
+            dispatch(fetchEditSaleStart());
+            inventoryService.getAllEditSale(sDate, eDate,itemId,invoiceId)
+                .then(response => {
+                    const saleMap = response.data;
+                    //console.log(response.data)
+                    dispatch(fetchEditSaleSuccess(saleMap));
+                })
+                .catch(error => dispatch(fetchEditSaleFailure(error.response.request.response.message)))
+                ;
+        }
+    }
+}
+
+
 
 export const fetchSaleReturnByDate = (custName,sDate,eDate) =>{
     return dispatch => {

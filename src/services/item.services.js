@@ -2,6 +2,14 @@ import http from "../http-common";
 import authHeader from "./auth-header";
 
 class itemDataService {
+  //Get all inventory mismatch
+  getAllInventoryMismatch() {
+    return http.get("/inventoryMismatch/",{headers: authHeader() });
+  }
+
+
+
+//Get all the items from the DB
   getAll() {
     return http.get("/item/",{headers: authHeader() });
   }

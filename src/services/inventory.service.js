@@ -101,6 +101,18 @@ class inventoryDataService {
   }
 
 
+  ////////////////////////
+  ////Edit Sale Record////
+  ///////////////////////
+  createEditSale(data) {
+    // console.log(data);
+    return http.post("/editSale/",data,{headers: authHeader() });
+  }
+
+  getAllEditSale(sDate,eDate,itemId,invoiceId) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/editSale/${sDate}/${eDate}/${itemId}/${invoiceId}`);
+   }
 
 
   //////////////////////

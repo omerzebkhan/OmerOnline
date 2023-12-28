@@ -16,6 +16,20 @@ export const fetchItemFailure = errorMessage => ({
     payload:errorMessage
 })
 
+export const fetchInventoryMismatchStart = () =>({
+    type:ItemActionType.FETCH_INVENTORYMISMATCH_START
+});
+
+export const fetchInventoryMismatchSuccess = itemMap =>({
+    type:ItemActionType.FETCH_INVENTORYMISMATCH_SUCCESS,
+    payload:itemMap
+});
+
+export const fetchInventoryMismatchFailure = errorMessage => ({
+    type:ItemActionType.FETCH_INVENTORYMISMATCH_FAILURE,
+    payload:errorMessage
+})
+
 export const setCurrentItem= item =>({
     type:ItemActionType.SET_CURRENT_ITEM,
     payload:item
@@ -38,6 +52,22 @@ export const fetchItemStartAsync = () => {
         });
 }}
 
+export const fetchInventoryMismatchAsync = () => {
+    
+    return dispatch =>{
+        
+        dispatch (fetchInventoryMismatchStart());
+        itemService.getAllInventoryMismatch()
+        .then(response => {
+          const itemMap = response.data;
+          console.log(itemMap);
+          dispatch(fetchInventoryMismatchSuccess(itemMap)); 
+
+        })
+        .catch(error=>{
+            dispatch(fetchInventoryMismatchFailure(error.response.request.response.message))
+        });
+}}
 
 
 //combine two collections in on new array
