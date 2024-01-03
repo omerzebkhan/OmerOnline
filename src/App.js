@@ -49,6 +49,8 @@ import CashFlowAR from './components/expense/cashFlowAR.component'
 import CashFlowAP from './components/expense/cashFlowAP.component'
 import SaleEditReport from './components/Report/editSaleReport.component'
 import InventoryMismatchReport from './components/Report/inventoryMismatchReport.component'
+import SaleSaleDetailMismatchReport from "./components/Report/saleSaleDetailMismatch.component";
+import ItemCountDailySheetReport from "./components/Report/itemCountDailySheet.component";
 
 
 import Login from "./components/Login";
@@ -64,6 +66,7 @@ import { logout } from "../src/redux/user/user.action";
 import { clearMessage } from "../src/redux/user/user.action";
 
 import { history } from "../src/helper/history";
+import SaleSaleDetailMismatchComponent from "./components/Report/saleSaleDetailMismatch.component";
 
 const App = () => {
   const [showPurchaseAgent, setShowPurchaseAgent] = useState(false);
@@ -236,7 +239,8 @@ const App = () => {
                     <Route path="/AP" render={()=><CashFlowAP />}/>
                     <Route path="/SaleEditReport" render={()=><SaleEditReport />}/>
                     <Route path="/InvMismatchReport" render={()=><InventoryMismatchReport />}/>
-
+                    <Route path="/ItemCountDailyReport" render={()=><ItemCountDailySheetReport />}/>
+                    <Route path="/SaleSaleDetailMismatchReport" render={()=><SaleSaleDetailMismatchReport />}/>
           </Switch>
         </div>
 

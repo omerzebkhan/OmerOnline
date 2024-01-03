@@ -207,6 +207,10 @@ class inventoryDataService {
     return http.get("/saleDetail/");
   }
 
+  getAllSaleSaleDetailMismatch() {
+    return http.get("/saleSaleDetailMismatch/");
+  }
+
   getAllSaleDetailByInvoice(id) {
     return http.get(`/saleDetailById/${id}`);
   }
@@ -241,6 +245,8 @@ class inventoryDataService {
     //console.log(`update triggred from react .....`)
     return http.put(`/UpdateSaleDetail/${id}`, data);
   }
+
+
 
 
 
@@ -302,6 +308,11 @@ class inventoryDataService {
     return http.get(`/getTotalInv/`);
   }
 
+  //////Get item count per sale and purchase daily manual sheet by N&A
+  getItemCountDailyReport(sDate,eDate) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/itemCountDailyReport/${sDate}/${eDate}`);
+   }
   
 
 

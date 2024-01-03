@@ -46,6 +46,8 @@ const Navigation = (props) => {
   const [saleAT, setSaleAT] = useState();
   const [saleEditReport,setSaleEditReport] = useState();
   const [invMismatchReport,setInvMismatchReport] = useState();
+  const [saleSaleDetailMismatchReport,setSaleSaleDetailMismatchReport]=useState();
+  const [itemCountDailySheetReport,setItemCountDailySheetReport]=useState();
 
 
   useEffect(() => {
@@ -90,6 +92,8 @@ const Navigation = (props) => {
       else 
       { setSaleEditReport("TRUE")
         setInvMismatchReport("TRUE")
+        setSaleSaleDetailMismatchReport("TRUE")
+        setItemCountDailySheetReport("TRUE")
       }
       
 
@@ -114,51 +118,53 @@ const Navigation = (props) => {
               <NavDropdown.Item href="/ManageHeader">Manage Header</NavDropdown.Item>
             </NavDropdown>
             <NavDropdown title="Manage Items" id="basic-nav-dropdown">
-              {addBrand == "TRUE" ? <NavDropdown.Item href="/AddBrand">Add Brand</NavDropdown.Item> : ""}
-              {searchBrand == "TRUE" ?<NavDropdown.Item href="/SearchBrand">Search Brand</NavDropdown.Item>:""}
-              {addCat == "TRUE" ?<NavDropdown.Item href="/AddCategory">Add Category</NavDropdown.Item>:""}
-              {searchCat == "TRUE" ?<NavDropdown.Item href="/SearchCategory">Search Category</NavDropdown.Item>:""}
-              {addSubCat == "TRUE" ?<NavDropdown.Item href="/AddSubCategory">Add SubCategory</NavDropdown.Item>:""}
-              {searchSubCat == "TRUE" ? <NavDropdown.Item href="/SearchSubCategory">Search SubCategory</NavDropdown.Item>:""}
-              {addItem == "TRUE" ?<NavDropdown.Item href="/AddItem">Add Item</NavDropdown.Item>:""}
-              {searchItem =="TRUE" ?<NavDropdown.Item href="/SearchItem">Search Item</NavDropdown.Item>:""}
+              {addBrand === "TRUE" ? <NavDropdown.Item href="/AddBrand">Add Brand</NavDropdown.Item> : ""}
+              {searchBrand === "TRUE" ?<NavDropdown.Item href="/SearchBrand">Search Brand</NavDropdown.Item>:""}
+              {addCat === "TRUE" ?<NavDropdown.Item href="/AddCategory">Add Category</NavDropdown.Item>:""}
+              {searchCat === "TRUE" ?<NavDropdown.Item href="/SearchCategory">Search Category</NavDropdown.Item>:""}
+              {addSubCat === "TRUE" ?<NavDropdown.Item href="/AddSubCategory">Add SubCategory</NavDropdown.Item>:""}
+              {searchSubCat === "TRUE" ? <NavDropdown.Item href="/SearchSubCategory">Search SubCategory</NavDropdown.Item>:""}
+              {addItem === "TRUE" ?<NavDropdown.Item href="/AddItem">Add Item</NavDropdown.Item>:""}
+              {searchItem ==="TRUE" ?<NavDropdown.Item href="/SearchItem">Search Item</NavDropdown.Item>:""}
             </NavDropdown>
             <NavDropdown title="Inventory Management" id="basic-nav-dropdown">
-              {purInv=="TRUE" ?<NavDropdown.Item href="/PurchaseInvoice">Purchase Invoice</NavDropdown.Item>:""}
-              {editPurInv == "TRUE" ?<NavDropdown.Item href="/PurchaseEdit">Edit Purchase</NavDropdown.Item>:""}
-              {movStk == "TRUE"?<NavDropdown.Item href="/MoveStock">Move Stock</NavDropdown.Item>:""}
-              {saleInvoice =="TRUE"?<NavDropdown.Item href="/SaleInvoice">Sale Invoice</NavDropdown.Item>:""}
-              {saleReturn == "TRUE"?<NavDropdown.Item href="/SaleReturn">Sale Return</NavDropdown.Item>:""}
-              {editSaleInv == "TRUE" ?<NavDropdown.Item href="/EditSale">Edit Sale</NavDropdown.Item>:""}
-              {pricing =="TRUE" ?<NavDropdown.Item href="/Pricing">Pricing</NavDropdown.Item>:""}
-              {aR == "TRUE"? <NavDropdown.Item href="/AccountReceivable">Account Receivable</NavDropdown.Item>:""}
-              {aP == "TRUE"?<NavDropdown.Item href="/AccountPayable">Account Payable</NavDropdown.Item>:""}
-              {addExpense == "TRUE"?<NavDropdown.Item href="/AddExpense">Add Expense</NavDropdown.Item>:""}
+              {purInv==="TRUE" ?<NavDropdown.Item href="/PurchaseInvoice">Purchase Invoice</NavDropdown.Item>:""}
+              {editPurInv === "TRUE" ?<NavDropdown.Item href="/PurchaseEdit">Edit Purchase</NavDropdown.Item>:""}
+              {movStk === "TRUE"?<NavDropdown.Item href="/MoveStock">Move Stock</NavDropdown.Item>:""}
+              {saleInvoice ==="TRUE"?<NavDropdown.Item href="/SaleInvoice">Sale Invoice</NavDropdown.Item>:""}
+              {saleReturn === "TRUE"?<NavDropdown.Item href="/SaleReturn">Sale Return</NavDropdown.Item>:""}
+              {editSaleInv === "TRUE" ?<NavDropdown.Item href="/EditSale">Edit Sale</NavDropdown.Item>:""}
+              {pricing ==="TRUE" ?<NavDropdown.Item href="/Pricing">Pricing</NavDropdown.Item>:""}
+              {aR === "TRUE"? <NavDropdown.Item href="/AccountReceivable">Account Receivable</NavDropdown.Item>:""}
+              {aP === "TRUE"?<NavDropdown.Item href="/AccountPayable">Account Payable</NavDropdown.Item>:""}
+              {addExpense === "TRUE"?<NavDropdown.Item href="/AddExpense">Add Expense</NavDropdown.Item>:""}
             </NavDropdown>
             <NavDropdown title="User Management" id="basic-nav-dropdown">
-              {addUser =="TRUE"?<NavDropdown.Item href="/AddUser">Add User</NavDropdown.Item>:""}
-              {searchUser == "TRUE" ?<NavDropdown.Item href="/SearchUser">Search User</NavDropdown.Item>:""}
-              {addRole == "TRUE" ?<NavDropdown.Item href="/AddRole">Add Role</NavDropdown.Item>:""}
-              {updateAccess == "TRUE" ?<NavDropdown.Item href="/UpdateAccess">Update Access</NavDropdown.Item>:""}
+              {addUser ==="TRUE"?<NavDropdown.Item href="/AddUser">Add User</NavDropdown.Item>:""}
+              {searchUser === "TRUE" ?<NavDropdown.Item href="/SearchUser">Search User</NavDropdown.Item>:""}
+              {addRole === "TRUE" ?<NavDropdown.Item href="/AddRole">Add Role</NavDropdown.Item>:""}
+              {updateAccess === "TRUE" ?<NavDropdown.Item href="/UpdateAccess">Update Access</NavDropdown.Item>:""}
             </NavDropdown>
             <NavDropdown title="Cash Management" id="basic-nav-dropdown">
-              {addCashFlow == "TRUE" ?<NavDropdown.Item href="/AddCashFlow">Add Cash Flow</NavDropdown.Item>:""}
-              {cashAR == "TRUE" ?<NavDropdown.Item href="/AR">Account Receivable</NavDropdown.Item>:""}
-              {cashAP == "TRUR" ?<NavDropdown.Item href="/AP">Account Payable</NavDropdown.Item>:""}
+              {addCashFlow === "TRUE" ?<NavDropdown.Item href="/AddCashFlow">Add Cash Flow</NavDropdown.Item>:""}
+              {cashAR === "TRUE" ?<NavDropdown.Item href="/AR">Account Receivable</NavDropdown.Item>:""}
+              {cashAP === "TRUR" ?<NavDropdown.Item href="/AP">Account Payable</NavDropdown.Item>:""}
             </NavDropdown>
             <NavDropdown title="Reports" id="basic-nav-dropdown">
-              {stkRep == "TRUE" ?<NavDropdown.Item href="/StockReport">Stock Report</NavDropdown.Item>:""}
-              {purRep == "TRUE" ?<NavDropdown.Item href="/PurchaseReport">Purchase Report</NavDropdown.Item>:""}
-              {saleRep == "TRUE" ?<NavDropdown.Item href="/SaleReport">Sale Report</NavDropdown.Item>:""}
-              {saleRRep == "TRUE" ?<NavDropdown.Item href="/SaleReturnReport">Sale Return Report</NavDropdown.Item>:""}
-              {saleEditReport == "TRUE" ?<NavDropdown.Item href="/SaleEditReport">Sale Edit Report</NavDropdown.Item>:""}
-              {invMismatchReport == "TRUE" ?<NavDropdown.Item href="/InvMismatchReport">Inventory Mismatch Report</NavDropdown.Item>:""}
-              {balSheet == "TRUE" ?<NavDropdown.Item href="/BalanceSheetReport">Balance Sheet</NavDropdown.Item>:""}
-              {iLmtRep == "TRUE" ?<NavDropdown.Item href="/ItemLimitReport">Item Limit Report</NavDropdown.Item>:""}
-              {iTrendRep == "TRUE" ?<NavDropdown.Item href="/ItemTrendReport">Item Trend Report</NavDropdown.Item>:""}
-              {monthlySale == "TRUE" ?<NavDropdown.Item href="/MonthlySaleReport">Monthly Sale</NavDropdown.Item>:""}
-              {iSPD == "TRUE"?<NavDropdown.Item href="/ItemSalePurchaseDateWise">Item Sale Purchase Datewise</NavDropdown.Item>:""}
-              {saleAT == "TRUE"?<NavDropdown.Item href="/SaleAgentReport">Sale Agent Trend</NavDropdown.Item>:""}
+              {stkRep === "TRUE" ?<NavDropdown.Item href="/StockReport">Stock Report</NavDropdown.Item>:""}
+              {purRep === "TRUE" ?<NavDropdown.Item href="/PurchaseReport">Purchase Report</NavDropdown.Item>:""}
+              {saleRep === "TRUE" ?<NavDropdown.Item href="/SaleReport">Sale Report</NavDropdown.Item>:""}
+              {saleRRep === "TRUE" ?<NavDropdown.Item href="/SaleReturnReport">Sale Return Report</NavDropdown.Item>:""}
+              {saleEditReport === "TRUE" ?<NavDropdown.Item href="/SaleEditReport">Sale Edit Report</NavDropdown.Item>:""}
+              {invMismatchReport === "TRUE" ?<NavDropdown.Item href="/InvMismatchReport">Inventory Mismatch Report</NavDropdown.Item>:""}
+              {saleSaleDetailMismatchReport === "TRUE" ?<NavDropdown.Item href="/SaleSaleDetailMismatchReport">Sale Sale Detail Mismatch Report</NavDropdown.Item>:""}
+              {balSheet === "TRUE" ?<NavDropdown.Item href="/BalanceSheetReport">Balance Sheet</NavDropdown.Item>:""}
+              {iLmtRep === "TRUE" ?<NavDropdown.Item href="/ItemLimitReport">Item Limit Report</NavDropdown.Item>:""}
+              {iTrendRep === "TRUE" ?<NavDropdown.Item href="/ItemTrendReport">Item Trend Report</NavDropdown.Item>:""}
+              {itemCountDailySheetReport==="TRUE" ?<NavDropdown.Item href="/ItemCountDailyReport">Item Count Daily Report</NavDropdown.Item>:""}
+              {monthlySale === "TRUE" ?<NavDropdown.Item href="/MonthlySaleReport">Monthly Sale</NavDropdown.Item>:""}
+              {iSPD === "TRUE"?<NavDropdown.Item href="/ItemSalePurchaseDateWise">Item Sale Purchase Datewise</NavDropdown.Item>:""}
+              {saleAT === "TRUE"?<NavDropdown.Item href="/SaleAgentReport">Sale Agent Trend</NavDropdown.Item>:""}
             </NavDropdown>
             <NavDropdown title="Carts Management" id="basic-nav-dropdown">
               <NavDropdown.Item href="/cartDetails">View Carts</NavDropdown.Item>

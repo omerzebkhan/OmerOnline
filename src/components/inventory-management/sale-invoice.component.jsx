@@ -402,13 +402,13 @@ const SaleInvoice = ({
 
 
     const submitInvoceHandler = async () => {
-        if (invoiceItem.length===0)
-        {
-            setMessage('Enter Invoice Details')   
-        }
-        else{
+        // if (invoiceItem.length===0)
+        // {
+        //     setMessage('Enter Invoice Details')   
+        // }
+        // else{
         saveSale();
-        }
+        //}
         
     }
 
