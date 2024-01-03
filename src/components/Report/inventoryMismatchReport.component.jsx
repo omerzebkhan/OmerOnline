@@ -81,7 +81,7 @@ const InventoryMismatchReport = ({
                                 <th>Current Stock</th>
                                 <th>Total purchase</th>
                                 <th>Total Sale</th>
-                                <th>sale - purchase</th>
+                                <th>purchase-sale</th>
                                 <th>Difference</th>
                             </tr>
                         </thead>
@@ -101,7 +101,7 @@ const InventoryMismatchReport = ({
                                         <td>{item.quantity}</td>
                                         <td>{item.totalpurchase}</td>
                                         <td>{item.totalsale}</td>
-                                        <td>{item.totalsale-item.totalpurchase}</td>
+                                        <td>{item.totalpurchase-item.totalsale}</td>
                                         <td>{item.diff}</td>
                                     </tr>
                                 )
