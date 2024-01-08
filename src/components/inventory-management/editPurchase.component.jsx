@@ -99,6 +99,7 @@ const EditPurchase = ({
         setEndDate(date);
     }
 
+   
     const handleSubmit = event => {
         console.log(`handle submit is clicked...`)
         event.preventDefault();
@@ -276,6 +277,36 @@ const EditPurchase = ({
                                         setEdit("False");
                                         setPDId("Null");
 
+                                        ///////////////////////////////////Edit updated new logic
+                                        ///if all are success purchase invoice , purchase detail , item then add values in the Editpurchase table
+                                                var editPurchaseData = {
+                                                    purchaseinvoiceid:pInvoiceId,
+                                                    purchasedetailid:pdId,
+                                                    itemid:pdItemId,
+                                                    oldprice:pdOldPrice,
+                                                    oldqty:pdOldQuantity,
+                                                    newprice:pdPrice,
+                                                    newqty:pdQuantity,
+                                                    finalprice:amountDiff * -1,
+                                                    finalqty:iData.quantity,
+                                                    beforeqty:res.data.quantity,
+                                                    comments:'updateInvoceHandler called'
+                                                }
+                                            console.log(`Adding editSaleData.....`)
+                                            console.log(editPurchaseData)
+                                            //update the edit purchase
+                                            inventoryService.createEditPurchase(editPurchaseData)
+                                            .then(res => {
+                                                console.log(`New createEditPurchase has been added`)
+                                            })
+                                            .catch(error => {
+                                                setMessage(`catch of createEditPurchase ${error.response.request.response.message}`)
+                                                console.log(`catch of createEditPurchase ${error.response.request.response.message}`);
+                                            })
+
+                                                ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
                                         // refresh purchase view
                                         if (cCustomer.length > 0) {
                                             fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
@@ -366,6 +397,38 @@ const EditPurchase = ({
                                     .then(res => {
                                         setMessage("Purchase Recalculated .......");
                                         console.log(`Purchase Recalculated .......${pInvoiceId}`);
+
+                                                ///////////////////////////////////Edit updated new logic
+                                                ///if all are success sale invoice , sale detail , item then add values in the Editsale table
+                                                var editPurchaseData = {
+                                                    purchaseinvoiceid:pInvoiceId,
+                                                    purchasedetailid:pdId,
+                                                    itemid:pdItemId,
+                                                    oldprice:pdOldPrice,
+                                                    oldqty:pdOldQuantity,
+                                                    newprice:0,
+                                                    newqty:0,
+                                                    finalprice:0,
+                                                    finalqty:itemUpdated.quantity,
+                                                    beforeqty:quantity,
+                                                    comments:'deleteRecordHandler called'
+                                                }
+                                            console.log(`Adding editPurchaseData.....`)
+                                            console.log(editPurchaseData)
+                                            
+                                            inventoryService.createEditPurchase(editPurchaseData)
+                                            .then(res => {
+                                                console.log(`New createEditPurchase has been added`)
+                                            })
+                                            .catch(error => {
+                                                setMessage(`catch of createEditPurchase ${error.response.request.response.message}`)
+                                                console.log(`catch of createEditPurchase ${error.response.request.response.message}`);
+                                            })
+
+                                            ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
                                     })
                                     .catch(error => {
                                         setMessage(`catch of Recalculated ${error.response.request.response.message}`)
@@ -474,6 +537,35 @@ const EditPurchase = ({
                                         //     response showroom = ${response4.data.showroom}`)
                                         setMessage(`Updated Stock value successfully`);
 
+                                        ///////////////////////////////////Edit updated new logic
+                                        ///if all are success purchase invoice , purchase detail , item then add values in the Editpurchase table
+                                                var editPurchaseData = {
+                                                    purchaseinvoiceid:pDetailData.PurchaseInvoiceId,
+                                                    purchasedetailid:0,
+                                                    itemid:id,
+                                                    oldprice:0,
+                                                    oldqty:0,
+                                                    newprice:0,
+                                                    newqty:parseInt(item[2]),
+                                                    finalprice:0,
+                                                    finalqty:itemUpdated.quantity,
+                                                    beforeqty:response2.data.quantity,
+                                                    comments:'submitInvoiceHandler called'
+                                                }
+                                            console.log(`Adding editPurchaseData.....`)
+                                            console.log(editPurchaseData)
+                                            
+                                            inventoryService.createEditPurchase(editPurchaseData)
+                                            .then(res => {
+                                                console.log(`New createEditPurchase has been added`)
+                                            })
+                                            .catch(error => {
+                                                setMessage(`catch of createEditPurchase ${error.response.request.response.message}`)
+                                                console.log(`catch of createEditPurchase ${error.response.request.response.message}`);
+                                            })
+
+                                                ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
                                     })
                                     .catch(e => {
@@ -540,6 +632,36 @@ const EditPurchase = ({
                     itemService.update(id, itemUpdated)
                         .then(response4 => {
                             setMessage(`Updated Stock value successfully`);
+
+                            ///////////////////////////////////Edit updated new logic
+                             ///if all are success sale invoice , sale detail , item then add values in the Editsale table
+                             var editPurchaseData = {
+                                purchaseinvoiceid:purchaseInvoice,
+                                purchasedetailid:0,
+                                itemid:id,
+                                oldprice:0,
+                                oldqty:0,
+                                newprice:0,
+                                newqty:0,
+                                finalprice:0,
+                                finalqty:itemUpdated.quantity,
+                                beforeqty:quantity,
+                                comments:'deleteInvoiceHandler called'
+                            }
+                        console.log(`Adding editPurchaseData.....`)
+                        console.log(editPurchaseData)
+                        
+                        inventoryService.createEditPurchase(editPurchaseData)
+                        .then(res => {
+                            console.log(`New createEditPurchase has been added`)
+                        })
+                        .catch(error => {
+                            setMessage(`catch of createEditPurchase ${error.response.request.response.message}`)
+                            console.log(`catch of createEditPurchase ${error.response.request.response.message}`);
+                        })
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
                         })
                         .catch(e => {
                             console.log(`catch of update Stock ${e}`);
@@ -617,6 +739,7 @@ const EditPurchase = ({
         }
 
     }
+   
 
     //////////////////////////////////////////////////////////////////////
     /////////////////////////// Drop down logic for Item 

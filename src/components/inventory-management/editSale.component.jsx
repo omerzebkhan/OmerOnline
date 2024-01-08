@@ -245,15 +245,6 @@ const EditSale = ({
                                             .then(res1 => {
                                                 console.log(`Item data has been updated with ${iData.quantity} ${iData.showroom}`)
 
-                                                // reset screen
-                                                setEdit("False");
-
-                                                if (cCustomer.length > 0) {
-                                                    fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0", "0", "0");
-                                                }
-                                                else {
-                                                    fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0", "0", "0");
-                                                }
                                                 ///////////////////////////////////Edit updated new logic
                                                 ///if all are success sale invoice , sale detail , item then add values in the Editsale table
                                                 var editSaleData = {
@@ -282,6 +273,19 @@ const EditSale = ({
                                             })
 
                                                 ////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+                                                // reset screen
+                                                setEdit("False");
+
+                                                if (cCustomer.length > 0) {
+                                                    fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id, "0", "0", "0");
+                                                }
+                                                else {
+                                                    fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", "0", "0", "0");
+                                                }
+                                                
                                                 setInvoiceItem([])
 
                                             })
@@ -403,15 +407,7 @@ const EditSale = ({
                                                 console.log(`catch of createEditSale ${error.response.request.response.message}`);
                                             })
 
-
-
-
-
-
-
-
-
-                                                ////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                            ////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
@@ -630,7 +626,7 @@ const EditSale = ({
                                                     oldprice:0,
                                                     oldqty:0,
                                                     newprice:0,
-                                                    newqty:sdQuantity,
+                                                    newqty:0,
                                                     finalprice:0,
                                                     finalqty:itemUpdated.quantity,
                                                     beforeqty:quantity,

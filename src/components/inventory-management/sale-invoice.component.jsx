@@ -160,17 +160,13 @@ const SaleInvoice = ({
         }
     }
 
-   
-
-    const selectRow = (item) => {
+     const selectRow = (item) => {
         //console.log("Select Invoice clicked");
         setEditRow([]);
         setEditRow(item);
         
     }
-
-    
-
+  
     const handleSubmit = event => {
         event.preventDefault();
       

@@ -100,6 +100,18 @@ class inventoryDataService {
     return http.get(`/purchaseInvPay/${id}`);
   }
 
+   ////////////////////////
+  ////Edit Purchase Record////
+  ///////////////////////
+  createEditPurchase(data) {
+    // console.log(data);
+    return http.post("/editPurchase/",data,{headers: authHeader() });
+  }
+
+  getAllEditPurchase(sDate,eDate,itemId,invoiceId) {
+    // console.log(`dates are ${sDate} ${eDate}`)
+     return http.get(`/editPurchase/${sDate}/${eDate}/${itemId}/${invoiceId}`);
+   }
 
   ////////////////////////
   ////Edit Sale Record////
