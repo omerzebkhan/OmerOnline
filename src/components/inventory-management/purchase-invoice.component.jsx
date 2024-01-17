@@ -130,6 +130,20 @@ const PurchaseInvoice = ({
     const handleSubmit = event => {
         event.preventDefault();
         // check if same item is added twice 
+        console.log(cItem[0].name)
+        console.log(invoiceItem)
+        var checkItem =  (invoiceItem.filter(
+                 (option) => option[0].toLowerCase().indexOf(cItem[0].name.toLowerCase()) > -1
+             ));
+        if (checkItem.length>0)
+        {
+            setMessage('Item already in the Invoice')   
+        }
+        else{
+
+
+
+
         setInvoiceItem([...invoiceItem, [cItem[0].name, quantity, price, cItem[0].id]]);
         var total = parseFloat(price).toFixed(3);
         var qty = parseInt(quantity);
@@ -149,6 +163,7 @@ const PurchaseInvoice = ({
         }
 
         // setTotalInvoiceQuantity(qty);
+    }
 
     }
 

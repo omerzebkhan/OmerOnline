@@ -7,15 +7,39 @@ export const fetchPurchaseStart = () =>({
     type:PurchaseActionType.FETCH_PURCHASE_START
 });
 
+export const fetchPurchaseSuccess = purchaseMap =>({
+    type:PurchaseActionType.FETCH_PURCHASE_SUCCESS,
+    payload:purchaseMap
+});
+
+export const fetchPurchaseFailure = errorMessage => ({
+    type:PurchaseActionType.FETCH_PURCHASE_FAILURE,
+    payload:errorMessage
+})
+
+
+export const fetchEditPurchaseStart = () => ({
+    type: PurchaseActionType.FETCH_EDITPURCHASE_START
+});
+
+export const fetchEditPurchaseSuccess = saleMap => ({
+    type: PurchaseActionType.FETCH_EDITPURCHASE_SUCCESS,
+    payload: saleMap
+});
+
+export const fetchEditPurchaseFailure = errorMessage => ({
+    type: PurchaseActionType.FETCH_EDITPURCHASE_FAILURE,
+    payload: errorMessage
+})
+
+
+
 export const fetchPurchaseInvoiceDetail = purchaseMap => ({
     type: PurchaseActionType.FETCH_PURCHASEINVOICEDETAIL_SUCCESS,
     payload: purchaseMap
 });
 
-export const fetchPurchaseSuccess = purchaseMap =>({
-    type:PurchaseActionType.FETCH_PURCHASE_SUCCESS,
-    payload:purchaseMap
-});
+
 
 export const fetchPurchaseAPSuccess = purchaseMap =>({
     type:PurchaseActionType.FETCH_PURCHASEAP_SUCCESS,
@@ -28,10 +52,7 @@ export const fetchPurInvPayDeatilSuccess = purchaseMap =>({
 });
 
 
-export const fetchPurchaseFailure = errorMessage => ({
-    type:PurchaseActionType.FETCH_PURCHASE_FAILURE,
-    payload:errorMessage
-})
+
 
 export const setCurrentPurchase= purchase =>({
     type:PurchaseActionType.SET_CURRENT_PURCHASE,
@@ -51,9 +72,6 @@ export const fetchPurchaseSummaryFailure = errorMessage => ({
     type: PurchaseActionType.FETCH_PURCHASE_FAILURE,
     payload: errorMessage
 })
-
-
-
 
 export const fetchPurchaseStartAsync = () => {
     return dispatch =>{
@@ -177,4 +195,36 @@ export const fetchPurchaseAP = () => {
                 }
             }
         }
+
+
+        export const fetchEditPurchase = (sDate, eDate,itemId,invoiceId) => {
+            return dispatch => {
+                if (sDate !== "" && eDate !== "") {
+                    //var dateFormat = require('dateformat');
+                    sDate = dateFormat(new Date(sDate), "yyyy-M-dd");
+                    eDate = dateFormat(new Date(eDate), "yyyy-M-dd");
+                    var myDate = new Date(eDate);
+                    myDate.setDate(myDate.getDate() + 1);
+                   myDate = dateFormat(myDate, "yyyy-M-dd");
+                    eDate = myDate;
+        
+                    console.log(`sDate=${sDate} 
+                    edate=${eDate}
+                    itemid =${itemId}
+                    invoiceid =${invoiceId}
+                    `);
+        
+                    dispatch(fetchEditPurchaseStart());
+                    inventoryService.getAllEditPurchase(sDate, eDate,itemId,invoiceId)
+                        .then(response => {
+                            const saleMap = response.data;
+                            //console.log(response.data)
+                            dispatch(fetchEditPurchaseSuccess(saleMap));
+                        })
+                        .catch(error => dispatch(fetchEditPurchaseFailure(error.response.request.response.message)))
+                        ;
+                }
+            }
+        }
+        
 

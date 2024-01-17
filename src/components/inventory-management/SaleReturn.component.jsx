@@ -208,7 +208,7 @@ const SaleReturn = ({
                         console.log(`catch of Sale Return ${e} error from server  ${e.message}`)
                         setMessage(`catch of Sale Return ${e} error from server  ${e.message}`)
                     })
-
+                console.log("Create Sale Successfully added....")
 
                 /////////////////////////////////////////////////////////////////////////////////
                 //////////////Update Sale deatils amount to reduce the quantity  ///////////////
@@ -225,6 +225,7 @@ const SaleReturn = ({
                             console.log(`catch of Sale Return ${e} error from server  ${e.message}`)
                             setMessage(`catch of Sale Return ${e} error from server  ${e.message}`)
                         })
+                    console.log("Delete Sale Detail ....")
                     console.log(resSaleDetail)
                 }
                 else {
@@ -282,11 +283,12 @@ const SaleReturn = ({
                     }
                     console.log(`Sale Invoice no =${selectFilteredSale.saleInvoiceId}
                                                                 totalitems = ${vSaleInvoice.totalitems}
-                                                                ${vSaleInvoice.Returned}
-                                                                ${vSaleInvoice.Outstanding}
-                                                                ${vSaleInvoice.invoicevalue}
+                                                                ${parseInt(selectFilteredSale.Returned)} + ${totalReturnValue}= ${vSaleInvoice.Returned}
+                                                                ${parseInt(selectFilteredSale.Outstanding)} - ${totalReturnValue}=${vSaleInvoice.Outstanding}
+                                                                ${parseInt(selectFilteredSale.invoicevalue)} - ${totalReturnValue}=${vSaleInvoice.invoicevalue}
                                                                 `)
                     let res = await inventoryService.updateSale(selectFilteredSale.saleInvoiceId, vSaleInvoice)
+
                         .catch(e => {
                             console.log(`catch of Update Sale Invoice ${e} error from server  ${e.message}`)
                             setMessage(`catch of Update Sale Invoice ${e} error from server  ${e.message}`)

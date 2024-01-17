@@ -1,6 +1,7 @@
 import PurchaseActionType from './purchase.type';
 const INITIAL_STATE = {
     purchase: null,
+    editPurchase: null,
     purchaseSummary: null,
     purchaseInvoiceDetail: null,
     purchaseAR: null,
@@ -22,6 +23,34 @@ const purchaseReducer = (state = INITIAL_STATE, action) => {
                 ...state,
                 isFetching: true
             }
+        case PurchaseActionType.FETCH_PURCHASE_SUCCESS:
+                return {
+                    ...state,
+                    isFetching: false,
+                    purchase: action.payload
+                }
+        case PurchaseActionType.FETCH_PURCHASE_FAILURE:
+                    return {
+                        ...state,
+                        errorMessage: action.payload
+                    }
+
+        case PurchaseActionType.FETCH_EDITPURCHASE_START:
+                return {
+                    ...state,
+                    isFetching: true
+                }
+        case PurchaseActionType.FETCH_EDITPURCHASE_SUCCESS:
+                return {
+                    ...state,
+                    isFetching: false,
+                    editPurchase: action.payload
+                }
+        case PurchaseActionType.FETCH_EDITPURCHASE_FAILURE:
+                return {
+                    ...state,
+                    errorMessage: action.payload
+                }    
         case PurchaseActionType.FETCH_PURCHASEINVOICEDETAIL_SUCCESS:
             return {
                 ...state,
@@ -29,12 +58,7 @@ const purchaseReducer = (state = INITIAL_STATE, action) => {
                 purchaseInvoiceDetail: action.payload
             }
 
-        case PurchaseActionType.FETCH_PURCHASE_SUCCESS:
-            return {
-                ...state,
-                isFetching: false,
-                purchase: action.payload
-            }
+        
         case PurchaseActionType.FETCH_PURCHASESUMMARY_SUCCESS:
             return {
                 ...state,
@@ -53,11 +77,7 @@ const purchaseReducer = (state = INITIAL_STATE, action) => {
                 isFetching: false,
                 purInvPayDetail: action.payload
             }
-        case PurchaseActionType.FETCH_PURCHASE_FAILURE:
-            return {
-                ...state,
-                errorMessage: action.payload
-            }
+        
         default:
             return state;
     }

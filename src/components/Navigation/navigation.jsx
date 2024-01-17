@@ -48,6 +48,7 @@ const Navigation = (props) => {
   const [invMismatchReport,setInvMismatchReport] = useState();
   const [saleSaleDetailMismatchReport,setSaleSaleDetailMismatchReport]=useState();
   const [itemCountDailySheetReport,setItemCountDailySheetReport]=useState();
+  const [purchaseEditReport,setPurchaseEditReport] = useState();
 
 
   useEffect(() => {
@@ -94,6 +95,7 @@ const Navigation = (props) => {
         setInvMismatchReport("TRUE")
         setSaleSaleDetailMismatchReport("TRUE")
         setItemCountDailySheetReport("TRUE")
+        setPurchaseEditReport("TRUE")
       }
       
 
@@ -153,6 +155,7 @@ const Navigation = (props) => {
             <NavDropdown title="Reports" id="basic-nav-dropdown">
               {stkRep === "TRUE" ?<NavDropdown.Item href="/StockReport">Stock Report</NavDropdown.Item>:""}
               {purRep === "TRUE" ?<NavDropdown.Item href="/PurchaseReport">Purchase Report</NavDropdown.Item>:""}
+              {purchaseEditReport === "TRUE" ?<NavDropdown.Item href="/PurchaseEditReport">Purchase Edit Report</NavDropdown.Item>:""}
               {saleRep === "TRUE" ?<NavDropdown.Item href="/SaleReport">Sale Report</NavDropdown.Item>:""}
               {saleRRep === "TRUE" ?<NavDropdown.Item href="/SaleReturnReport">Sale Return Report</NavDropdown.Item>:""}
               {saleEditReport === "TRUE" ?<NavDropdown.Item href="/SaleEditReport">Sale Edit Report</NavDropdown.Item>:""}

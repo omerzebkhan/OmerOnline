@@ -51,6 +51,7 @@ import SaleEditReport from './components/Report/editSaleReport.component'
 import InventoryMismatchReport from './components/Report/inventoryMismatchReport.component'
 import SaleSaleDetailMismatchReport from "./components/Report/saleSaleDetailMismatch.component";
 import ItemCountDailySheetReport from "./components/Report/itemCountDailySheet.component";
+import PurchaseEditReport from './components/Report/editPurchaseReport.component';
 
 
 import Login from "./components/Login";
@@ -241,6 +242,7 @@ const App = () => {
                     <Route path="/InvMismatchReport" render={()=><InventoryMismatchReport />}/>
                     <Route path="/ItemCountDailyReport" render={()=><ItemCountDailySheetReport />}/>
                     <Route path="/SaleSaleDetailMismatchReport" render={()=><SaleSaleDetailMismatchReport />}/>
+                    <Route path="/PurchaseEditReport" render={()=><PurchaseEditReport />}/>
           </Switch>
         </div>
 
