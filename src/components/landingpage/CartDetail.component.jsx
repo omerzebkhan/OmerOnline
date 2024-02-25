@@ -51,8 +51,10 @@ const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,i
             cartService.updateCart(cartData[0].id,data1)
             .then(res =>{
                 setMessage("Your Cart has been Completed")
-                //get item online price from the items table and update in the carts Details
-                //
+                ////////////////get item online price from the items table and update in the carts Details
+                /////////////// and remove the quantity from the items table as item has been sold out.
+                
+                //////////////////////////////////////////////////////////////////////////////////////////
 
                 
 

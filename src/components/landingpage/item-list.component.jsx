@@ -73,7 +73,8 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
         quantity: 1,
         cartstatus: 'Add',
         cartid: '',
-        price:item.onlineprice
+        price:item.onlineprice,
+        cost:item.averageprice
       };
 
       console.log(data)
@@ -88,7 +89,7 @@ const ItemList = ({ fetchItemByInputAsync, itemData,
             // if not create new one if exits then add item to it
             // item stock value should be checked before creating the cart from online store
             // and stock should be updated after the cart will be created
-            cartService.create(data)
+            cartService.create(data)  //cart and cart details will be created by same api call.
               .then(response => {
                 setMessage(`New Cart Created for the customer Cart Id = ${response.data.id}`);
                 console.log(response.data);

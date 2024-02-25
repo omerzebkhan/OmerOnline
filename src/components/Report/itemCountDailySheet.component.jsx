@@ -104,7 +104,8 @@ const ItemCountDailySheet =({currentUser}) => {
                     <th>Purchase Item Count</th>
                     <th>Sale Edit Id</th>
                     <th>Sale Edit Count</th>
-                    
+                    <th>Sale Return Id</th>
+                    <th>Sale Return Count</th>
                     
                   </tr>
                 </thead>
@@ -120,6 +121,8 @@ const ItemCountDailySheet =({currentUser}) => {
                         <td>{parseFloat(item.purchaseitem)}</td>
                         <td>{parseFloat(item.editsaleid)}</td>
                         <td>{parseFloat(item.editsaleitem)}</td>
+                        <td>{parseFloat(item.salereturnid)}</td>
+                        <td>{parseFloat(item.salereturnitem)}</td>
                       </tr>
                     ))
                   }

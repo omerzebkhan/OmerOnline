@@ -8,6 +8,11 @@ class cartDataService {
     return http.get(`/cartDetailByCust/${id}`); 
   }
 
+  //GET ALL CARTS
+  getAll() {
+    return http.get("/cart/",{headers: authHeader()});
+  }
+
   updateCartDetail(id, data) {
     return http.put(`/cartDetail/${id}`, data);
   }

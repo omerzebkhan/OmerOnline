@@ -21,7 +21,7 @@ class inventoryDataService {
   }
 
   getPurchaseAP() {
-    return http.get(`/purchaseAP/`);
+    return http.get(`/purchaseAP/`,{headers: authHeader() });
   }
 
   deletePurchase(id) {
