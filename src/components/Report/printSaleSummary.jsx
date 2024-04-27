@@ -189,7 +189,8 @@ const styles = StyleSheet.create({
 const InvoiceTableHeader = () => (
   <View style={styles.container}>
     <Text style={styles.description}>Item Description</Text>
-    <Text style={styles.qty}>Qty</Text>
+    <Text style={styles.qty}>Stock Value</Text>
+    <Text style={styles.rate}>Qty</Text>
   </View>
 );
 
@@ -204,7 +205,8 @@ const InvoiceTableRow = ({items,sDate,eDate}) => {
       </View>
       <View style={styles.row} key={index}>
       <Text style={styles.R_description}>{item.name}</Text>
-      <Text style={styles.R_qty}>{item.sum}</Text>
+      <Text style={styles.R_qty}>{item.quantity}</Text>
+      <Text style={styles.R_rate}>{item.sum}</Text>
       </View>
     </View>;
     }
@@ -212,7 +214,8 @@ const InvoiceTableRow = ({items,sDate,eDate}) => {
     {
       return <View style={styles.row} key={index}>
       <Text style={styles.R_description}>{item.name}</Text>
-      <Text style={styles.R_qty}>{item.sum}</Text>
+      <Text style={styles.R_qty}>{item.quantity}</Text>
+      <Text style={styles.R_rate}>{item.sum}</Text>
     </View>;
     }
     
@@ -247,15 +250,18 @@ const InvoiceThankYouMsg = () => (
 
 const InvoiceTableFooter = ({ items }) => {
   var totalQty = 0.00;
+  var totalStockValue = 0.00;
   items.map((item, index) => {
     //console.log(index)
     totalQty = parseFloat(totalQty) + parseFloat(item.sum);
+    totalStockValue = parseFloat(totalStockValue) + parseFloat(item.quantity);
     return "";
   })
   return (
     <View style={styles.tf_row}>
       <Text style={styles.tf_description}>TOTAL</Text>
-      <Text style={styles.tf_qty}>{parseFloat(totalQty)}</Text>
+      <Text style={styles.tf_qty}>{parseFloat(totalStockValue)}</Text>
+      <Text style={styles.tf_rate}>{parseFloat(totalQty)}</Text>
 
     </View>
   )
