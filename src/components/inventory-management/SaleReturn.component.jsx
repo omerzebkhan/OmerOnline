@@ -208,7 +208,7 @@ const SaleReturn = ({
                         console.log(`catch of Sale Return ${e} error from server  ${e.message}`)
                         setMessage(`catch of Sale Return ${e} error from server  ${e.message}`)
                     })
-                console.log("Create Sale Successfully added....")
+                console.log("Create Sale Successfully added...."+ asyncSaleReturn)
 
                 /////////////////////////////////////////////////////////////////////////////////
                 //////////////Update Sale deatils amount to reduce the quantity  ///////////////
@@ -281,14 +281,45 @@ const SaleReturn = ({
                         Outstanding: parseInt(selectFilteredSale.Outstanding) - totalReturnValue,
                         totalitems: parseInt(selectFilteredSale.totalitems) - totalReturnQuantity
                     }
-                    console.log(`Sale Invoice no =${selectFilteredSale.saleInvoiceId}
-                                                                totalitems = ${vSaleInvoice.totalitems}
-                                                                ${parseInt(selectFilteredSale.Returned)} + ${totalReturnValue}= ${vSaleInvoice.Returned}
-                                                                ${parseInt(selectFilteredSale.Outstanding)} - ${totalReturnValue}=${vSaleInvoice.Outstanding}
-                                                                ${parseInt(selectFilteredSale.invoicevalue)} - ${totalReturnValue}=${vSaleInvoice.invoicevalue}
-                                                                `)
-                    let res = await inventoryService.updateSale(selectFilteredSale.saleInvoiceId, vSaleInvoice)
+                   
+                    
 
+                    let res = await inventoryService.updateSale(selectFilteredSale.saleInvoiceId, vSaleInvoice)
+                    //put these values in the degug db table if the .env 
+                    console.log(`Sale Invoice no =${selectFilteredSale.saleInvoiceId}
+                    totalitems = ${vSaleInvoice.totalitems}
+                    ${parseInt(selectFilteredSale.Returned)} + ${totalReturnValue}= ${vSaleInvoice.Returned}
+                    ${parseInt(selectFilteredSale.Outstanding)} - ${totalReturnValue}=${vSaleInvoice.Outstanding}
+                    ${parseInt(selectFilteredSale.invoicevalue)} - ${totalReturnValue}=${vSaleInvoice.invoicevalue}
+                    response from update sale =${res}
+                    `)
+                    console.log(res)
+                    var debugLog = {
+                        invafter: 0,
+                        totalitems : vSaleInvoice.totalitems,
+                        invid : selectFilteredSale.saleInvoiceId,
+                        invtype : "salereturn",
+                        userid  : currentUser.id,
+                        description : `
+                        selectFilteredSale.Returned +totalReturnValue=vSaleInvoice.Returned
+                        ${parseInt(selectFilteredSale.Returned)} + ${totalReturnValue}= ${vSaleInvoice.Returned}
+                        selectFilteredSale.Outstanding-totalReturnValue=vSaleInvoice.Outstanding
+                        ${parseInt(selectFilteredSale.Outstanding)} - ${totalReturnValue}=${vSaleInvoice.Outstanding}
+                        selectFilteredSale.invoicevalue - totalReturnValue=vSaleInvoice.invoicevalue
+                        ${parseInt(selectFilteredSale.invoicevalue)} - ${totalReturnValue}=${vSaleInvoice.invoicevalue}`,
+                        comments : "response of upadateSale ="+res
+                    }
+
+                    let debugLogRes = await inventoryService.createDebug(debugLog)
+                    .catch(e => {
+                        console.log(`catch of debugLog ${e} error from server  ${e.message}`)
+                        setMessage(`catch of debugLog ${e} error from server  ${e.message}`)
+                    })
+                    console.log("Debug Response logs ...."+ debugLogRes)
+
+
+    
+                    ///////
                         .catch(e => {
                             console.log(`catch of Update Sale Invoice ${e} error from server  ${e.message}`)
                             setMessage(`catch of Update Sale Invoice ${e} error from server  ${e.message}`)

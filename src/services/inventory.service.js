@@ -307,6 +307,11 @@ class inventoryDataService {
   /////Others/////////////
   ////////////////////////
 
+  //////////////Creating debug logs //////////////////////
+  createDebug(data){
+      //console.log(`Sale Return data =${data}`);
+      return http.post("/createInvDebug/",data,{headers: authHeader() });
+  }
    
 
   //////Get balance sheet data
