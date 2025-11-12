@@ -11,7 +11,7 @@ import { setCurrentUser } from '../../redux/user/user.action';
 import inventoryService from '../../services/inventory.service';
 import user from '../../services/user.service';
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     fetchSaleByInputStartAsync,
@@ -25,7 +25,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [payHist, setPayHist] = useState([])
     const [returnHist, setReturnHist] = useState([])
     const [currentInvoice, setCurrentInvoice] = useState([]);
-    const [secInvoice,setSecInvoice]=useState([]);
+    const [secInvoice, setSecInvoice] = useState([]);
     const [cashPayment, setCashPayment] = useState(0);
     const [bankPayment, setBankPayment] = useState(0);
     const [message, setMessage] = useState("");
@@ -39,7 +39,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [agentNameInput, setAgentNameInput] = useState("");
     const [filteredOptionsName, setFilteredOptionsName] = useState([]);
     const [filteredOptionsReff, setFilteredOptionsReff] = useState([]);
-    const [openInvoices, setOpenInvoices] = useState([]); 
+    const [openInvoices, setOpenInvoices] = useState([]);
     const [totalInvoiceValue, setTotalInvoiceValue] = useState([0]);
     const [filterOutstanding, setFilterOutstanding] = useState([0]);
     const [totalRecord, setTotalRecord] = useState([0]);
@@ -49,7 +49,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [amountInput, setAmountInput] = useState("");
     const [filter, setFilter] = useState("");
     const [filterOldestInvoice, setFilterOlderInvoice] = useState("");
-    const [oldestInvoice,setOldestInvoice]= useState("");
+    const [oldestInvoice, setOldestInvoice] = useState("");
 
 
     useLayoutEffect(() => {
@@ -116,8 +116,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 //return parseFloat(a.Outstanding) > parseFloat(b.Outstanding) ? -1 : parseFloat(a.Outstanding) < parseFloat(b.Outstanding) ? 1 : 0;
                 //sort as per created date
                 return Date.parse(a.createdAt) < Date.parse(b.createdAt) ? -1 : Date.parse(a.createdAt) > Date.parse(b.createdAt) ? 1 : 0;
-            
-            
+
+
             }
 
             const sorted = arr.sort(sortByKey);
@@ -133,21 +133,19 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [salInvDetail])
 
     useEffect(() => {
-        
+
         //check if the invoicevalue is -ive then show invoices with outstanding >0
-        if (currentInvoice.id && currentInvoice.Outstanding<0)
-        {
+        if (currentInvoice.id && currentInvoice.Outstanding < 0) {
             //alert("invoice value is <0 show the outstanding invoices.....")
-        
-        setOpenInvoices(sInvoice.filter(
-            option => {
-                return option.Outstanding >0
-            }
-        ));
-        console.log(openInvoices)
+
+            setOpenInvoices(sInvoice.filter(
+                option => {
+                    return option.Outstanding > 0
+                }
+            ));
+            console.log(openInvoices)
         }
-        else
-        {
+        else {
             setOpenInvoices([])
         }
     }, [currentInvoice])
@@ -157,8 +155,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     }, [salePayHist])
 
 
-   
-  
+
+
 
     const selectSaleInvoice = (item) => {
         fetchSaleByInputStartAsync(item.customerId);
@@ -175,8 +173,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
             setBankPayment(event.target.value);
         }
         else if (event.target.id === "amount") {
-            if (filter==="" || filter==="Please Select")
-            {
+            if (filter === "" || filter === "Please Select") {
                 alert("Select the filter first");
             }
             else {
@@ -198,7 +195,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     //         return (option) => option.salesOutstanding == parseInt(event.target.value)
                     //     }
                     // ));
-                   
+
                 }
                 else if (filter === 'Greater Than') {
                     selectedItem = filteredOptionsName.filter(
@@ -214,22 +211,21 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     );
                     setFilteredOptionsName(selectedItem)
                 }
-                
+
                 //setFilteredOptionsName(selectedItem)
-            
+
             }
-            
+
         }
         else if (event.target.id === "Filter") {
-                setFilter(event.target.value);
-                // apply the filter on these values     
+            setFilter(event.target.value);
+            // apply the filter on these values     
         }
-        else if (event.target.id === "FilterOldestInv"){
+        else if (event.target.id === "FilterOldestInv") {
             setFilterOlderInvoice(event.target.value)
         }
         else if (event.target.id === "oldestInvoice") {
-            if (filterOldestInvoice==="" || filterOldestInvoice==="Please Select")
-            {
+            if (filterOldestInvoice === "" || filterOldestInvoice === "Please Select") {
                 alert("Select the filter first");
             }
             else {
@@ -245,7 +241,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     selectedItem = filteredOptionsName.filter(
                         (option) => option.diff.days === parseFloat(event.target.value)
                     );
-                   
+
                 }
                 else if (filterOldestInvoice === 'Greater Than') {
                     selectedItem = filteredOptionsName.filter(
@@ -259,12 +255,12 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         (option) => option.diff.days < parseFloat(event.target.value)
                     );
                 }
-                
+
                 setFilteredOptionsName(selectedItem)
                 console.log(selectedItem)
-            
+
             }
-            
+
         }
         else if (event.target.id === "Name") {
             setNameInput(event.target.value);
@@ -347,7 +343,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 setFilteredOptionsName(saleArData)
             }
             else if (nameInput !== "" && agentNameInput !== "") {
-                
+
                 setFilteredOptionsName(saleArData.filter(
                     option => {
                         return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
@@ -413,8 +409,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const updateHandler = () => {
         console.log(`update is clicked.....${currentInvoice.Outstanding}`)
         console.log(`currrent invoice id .....${currentInvoice.id}`)
-        if(currentInvoice.Outstanding<0)
-        {
+        if (currentInvoice.Outstanding < 0) {
             // update two invoices.
             //1- currentInvoice.outstaning = currentInvoince.outstaning + (- secInvoince.InvoiceValue)
             //2- secInvoice.outstanding = secInvoice.outstanding + currentInvoice.out
@@ -422,19 +417,17 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
             var secOutstanding = 0
             var cpayment = 0
             var spayment = 0
-            var cComments = `Amount adjusted against =${secInvoice.id}` 
+            var cComments = `Amount adjusted against =${secInvoice.id}`
             var secComments = `Amount adjusted against =${currentInvoice.id}`
-            if (secInvoice.Outstanding+(currentInvoice.Outstanding)>=0)
-            {
-            cOutStanding = 0
-            secOutstanding = secInvoice.Outstanding+(currentInvoice.Outstanding)
-            cpayment = -(secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.Outstanding)))    
-            spayment = secInvoice.Outstanding-(secInvoice.Outstanding+(currentInvoice.Outstanding))    
+            if (secInvoice.Outstanding + (currentInvoice.Outstanding) >= 0) {
+                cOutStanding = 0
+                secOutstanding = secInvoice.Outstanding + (currentInvoice.Outstanding)
+                cpayment = -(secInvoice.Outstanding - (secInvoice.Outstanding + (currentInvoice.Outstanding)))
+                spayment = secInvoice.Outstanding - (secInvoice.Outstanding + (currentInvoice.Outstanding))
             }
-            else if(secInvoice.Outstanding+(currentInvoice.Outstanding)<0)
-            {
+            else if (secInvoice.Outstanding + (currentInvoice.Outstanding) < 0) {
                 cOutStanding = currentInvoice.Outstanding + secInvoice.Outstanding
-                secOutstanding = 0 
+                secOutstanding = 0
                 cpayment = -(secInvoice.Outstanding)
                 spayment = secInvoice.Outstanding
             }
@@ -452,7 +445,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 reffInvoice: currentInvoice.id,
                 cashPayment: cpayment,
                 bankPayment: 0,
-                comments:cComments
+                comments: cComments
             }
 
 
@@ -465,7 +458,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     //2- Update saleInvoice 
                     ///////////////////////
                     var cvSaleInv = {
-                        Outstanding:cOutStanding
+                        Outstanding: cOutStanding
                     }
                     // console.log(`${parseInt(currentInvoice.Outstanding)} -
                     // ${parseInt(cashPayment)} -
@@ -476,7 +469,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             setMessage("Update Sale Outstanding completed successfully.....")
                             console.log("Update Sale Outstanding completed successfully.....")
 
-                            
+
                         })
                         .catch(e => {
                             console.log(`catch of Sale Outstanding ${e}
@@ -488,79 +481,16 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                 error from server  ${e.message}`);
                 })
 
-        //update Second Invoice
-        var svSaleInvPay = {
-            reffInvoice: secInvoice.id,
-            cashPayment: spayment,
-            bankPayment: 0,
-            comments:secComments
-        }
-
-
-        inventoryService.createSaleInvPay(svSaleInvPay)
-            .then(res => {
-                setMessage("Sale Invoice Payment added successfully.....")
-                console.log("Sale Invoice Payment added successfully.....")
-
-                ////////////////////////
-                //2- Update saleInvoice 
-                ///////////////////////
-                var svSaleInv = {
-                    Outstanding:secOutstanding
-                }
-                console.log(`${parseInt(currentInvoice.Outstanding)} -
-                ${parseInt(cashPayment)} -
-                ${parseInt(bankPayment)}`)
-
-                inventoryService.updateSale(secInvoice.id, svSaleInv)
-                    .then(res => {
-                        setMessage("Update Sale Outstanding completed successfully.....")
-                        console.log("Update Sale Outstanding completed successfully.....")
-
-                        ///refresh the data 
-                        // clear and reload the invoice 
-                        fetchSaleAR();
-                        fetchSaleByInputStartAsync(0);
-                        setSInvPayDetail([])
-                        setCurrentInvoice([]);
-                        setCashPayment(0);
-                        setBankPayment(0);
-
-                    })
-                    .catch(e => {
-                        console.log(`catch of Sale Outstanding ${e}
-                                      error from server  ${e.message}`);
-                    })
-            })
-            .catch(e => {
-                console.log(`catch of Create Sale Invoice Payment ${e}
-            error from server  ${e.message}`);
-            })
-
-        }
-        else
-        {
-        if (currentInvoice.Outstanding < parseInt(cashPayment) + parseInt(bankPayment)) {
-            alert("values are wrong...");
-        }
-        else {
-
-            // 1-  PurchaseInvoicePayment
-            //2- update the PurchaseInvoice
-            
-
-            setLoading(true);
-            // 1- Add New record in the saleInvoicePayment
-            /////////////////////////////////////////////
-            var vSaleInvPay = {
-                reffInvoice: currentInvoice.id,
-                cashPayment: cashPayment,
-                bankPayment: bankPayment,
-                comments:''
+            //update Second Invoice
+            var svSaleInvPay = {
+                reffInvoice: secInvoice.id,
+                cashPayment: spayment,
+                bankPayment: 0,
+                comments: secComments
             }
-            console.log(vSaleInvPay)
 
-            inventoryService.createSaleInvPay(vSaleInvPay)
+
+            inventoryService.createSaleInvPay(svSaleInvPay)
                 .then(res => {
                     setMessage("Sale Invoice Payment added successfully.....")
                     console.log("Sale Invoice Payment added successfully.....")
@@ -568,21 +498,19 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     ////////////////////////
                     //2- Update saleInvoice 
                     ///////////////////////
-                    var vSaleInv = {
-                        Outstanding: parseInt(currentInvoice.Outstanding) -
-                            parseInt(cashPayment) -
-                            parseInt(bankPayment)
+                    var svSaleInv = {
+                        Outstanding: secOutstanding
                     }
                     console.log(`${parseInt(currentInvoice.Outstanding)} -
-                    ${parseInt(cashPayment)} -
-                    ${parseInt(bankPayment)}`)
+                ${parseInt(cashPayment)} -
+                ${parseInt(bankPayment)}`)
 
-                    inventoryService.updateSale(currentInvoice.id, vSaleInv)
+                    inventoryService.updateSale(secInvoice.id, svSaleInv)
                         .then(res => {
                             setMessage("Update Sale Outstanding completed successfully.....")
                             console.log("Update Sale Outstanding completed successfully.....")
 
-
+                            ///refresh the data 
                             // clear and reload the invoice 
                             fetchSaleAR();
                             fetchSaleByInputStartAsync(0);
@@ -591,24 +519,88 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             setCashPayment(0);
                             setBankPayment(0);
 
-
                         })
                         .catch(e => {
                             console.log(`catch of Sale Outstanding ${e}
-                                          error from server  ${e.message}`);
+                                      error from server  ${e.message}`);
                         })
-
-
-
-
                 })
                 .catch(e => {
                     console.log(`catch of Create Sale Invoice Payment ${e}
-                error from server  ${e.message}`);
+            error from server  ${e.message}`);
                 })
 
         }
-    }
+        else {
+            if (currentInvoice.Outstanding < parseInt(cashPayment) + parseInt(bankPayment)) {
+                alert("values are wrong...");
+            }
+            else {
+
+                // 1-  PurchaseInvoicePayment
+                //2- update the PurchaseInvoice
+
+
+                setLoading(true);
+                // 1- Add New record in the saleInvoicePayment
+                /////////////////////////////////////////////
+                var vSaleInvPay = {
+                    reffInvoice: currentInvoice.id,
+                    cashPayment: cashPayment,
+                    bankPayment: bankPayment,
+                    comments: ''
+                }
+                console.log(vSaleInvPay)
+
+                inventoryService.createSaleInvPay(vSaleInvPay)
+                    .then(res => {
+                        setMessage("Sale Invoice Payment added successfully.....")
+                        console.log("Sale Invoice Payment added successfully.....")
+
+                        ////////////////////////
+                        //2- Update saleInvoice 
+                        ///////////////////////
+                        var vSaleInv = {
+                            Outstanding: parseInt(currentInvoice.Outstanding) -
+                                parseInt(cashPayment) -
+                                parseInt(bankPayment)
+                        }
+                        console.log(`${parseInt(currentInvoice.Outstanding)} -
+                    ${parseInt(cashPayment)} -
+                    ${parseInt(bankPayment)}`)
+
+                        inventoryService.updateSale(currentInvoice.id, vSaleInv)
+                            .then(res => {
+                                setMessage("Update Sale Outstanding completed successfully.....")
+                                console.log("Update Sale Outstanding completed successfully.....")
+
+
+                                // clear and reload the invoice 
+                                fetchSaleAR();
+                                fetchSaleByInputStartAsync(0);
+                                setSInvPayDetail([])
+                                setCurrentInvoice([]);
+                                setCashPayment(0);
+                                setBankPayment(0);
+
+
+                            })
+                            .catch(e => {
+                                console.log(`catch of Sale Outstanding ${e}
+                                          error from server  ${e.message}`);
+                            })
+
+
+
+
+                    })
+                    .catch(e => {
+                        console.log(`catch of Create Sale Invoice Payment ${e}
+                error from server  ${e.message}`);
+                    })
+
+            }
+        }
         setLoading(false)
     }
 
@@ -633,7 +625,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         agentname: response2.data[0].agentname,
                         saleInvoiceValue: response2.data[0].invoicevalue,
                         salesOutstanding: response2.data[0].Outstanding,
-                        diff:response2.data[0].diff
+                        diff: response2.data[0].diff
 
                     }
                 ]
@@ -793,13 +785,16 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
 
 
                         <div>
-                            <ReactHTMLTableToExcel
-                                className="btn btn-info"
-                                table="OutstandingCustomer"
-                                filename="ReportExcel"
-                                sheet="Sheet"
-                                buttonText="Export excel" />
+                           
+                            <DownloadTableExcel
+                                filename="account_receivable"
+                                sheet="Receivable"
+                                currentTableRef="OutstandingCustomer"
+                            >
+                                <button className="btn btn-success">Download as Excel</button>
+                            </DownloadTableExcel>
                         </div>
+
                     </div>
                     {filteredOptionsName ?
                         <div>
@@ -848,7 +843,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                                 <td>{item.agentname}</td>
                                                 <td>{item.saleInvoiceValue}</td>
                                                 <td>{item.salesOutstanding}</td>
-                                                <td>{(item.diff===null)?0:item.diff.days}</td>
+                                                <td>{(item.diff === null) ? 0 : item.diff.days}</td>
                                                 <td><button type="button" onClick={() => {
                                                     setSInvPayDetail([]);
                                                     setPayHist([]);
@@ -876,7 +871,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                     }
 
 
-                    {filteredOptionsReff.length>0 ?
+                    {filteredOptionsReff.length > 0 ?
                         <div>
                             <h1>Outstaning Invoices</h1>
                             <div className="form-group row">
@@ -943,7 +938,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         :
                         ""
                     }
-                   
+
                     {currentInvoice.id ?
                         <div>
                             <div className="form-group row">
@@ -1027,9 +1022,9 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                         </div>
                         :
                         ""}
-                     {openInvoices.length>0 ?
-                    <div>
-                         <table border="1">
+                    {openInvoices.length > 0 ?
+                        <div>
+                            <table border="1">
                                 <thead>
                                     <tr>
                                         <th>Date</th>
@@ -1066,10 +1061,10 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     )}
                                 </tbody>
                             </table>
-                    </div>    
-                    :
-                    ""
-                    }    
+                        </div>
+                        :
+                        ""
+                    }
                     {payHist && payHist.length > 0 ?
                         <div>
                             <table border="1">

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 import itemService from "../../services/item.services";
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 
 const ItemLimitReport = ({currentUser}) => {
@@ -113,12 +113,14 @@ const ItemLimitReport = ({currentUser}) => {
                         <option value="higherlimit">More than higher limit</option>
                     </select> */}
             <div>
-                <ReactHTMLTableToExcel
-                    className="btn btn-info"
-                    table="itemLimitView"
-                    filename="LimitReportExcel"
-                    sheet="Sheet"
-                    buttonText="Limit Report Excel" />
+                
+                    <DownloadTableExcel
+                                                filename="LimitReportExcel"
+                                                sheet="Receivable"
+                                                currentTableRef="stockView"
+                                            >
+                                                <button className="btn btn-success">Download as Excel</button>
+                                            </DownloadTableExcel>
             </div>
 
             {filteredOptionsItem ?

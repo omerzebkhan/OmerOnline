@@ -6,7 +6,7 @@ import itemService from "../../services/item.services";
 import DatePicker from "react-datepicker";
 import {sortTable } from "../../helper/commonFunctions";
 
-//import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+//import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const SellingItemTrend = ({currentUser}) => {
 

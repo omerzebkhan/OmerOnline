@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -10,11 +10,11 @@ import { setMessage } from '../../redux/user/user.action';
 import inventoryService from "../../services/inventory.service";
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const SaleSaleDetailMismatchReport = ({
-       isFetching,currentUser }) => {
-    
+    isFetching, currentUser }) => {
+
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
     const [access, setAccess] = useState(false);
     useLayoutEffect(() => {
@@ -31,7 +31,7 @@ const SaleSaleDetailMismatchReport = ({
     }, [])
 
 
-   
+
 
     const getSaleSaleDetailMismatch = () => {
 
@@ -44,8 +44,8 @@ const SaleSaleDetailMismatchReport = ({
                 console.log(`get Item Trend Report error ${e}`);
             })
     }
-         
-   
+
+
 
     return (
         <div className="submit-form container">
@@ -53,7 +53,7 @@ const SaleSaleDetailMismatchReport = ({
             <h1>Sale Sale Detail Mismatch Report</h1>
             <form >
                 <div className="form-group">
-                   
+
                     <div>
                         <ReactHTMLTableToExcel
                             className="btn btn-info"
@@ -61,6 +61,15 @@ const SaleSaleDetailMismatchReport = ({
                             filename="ReportExcel"
                             sheet="Sheet"
                             buttonText="Export excel" />
+
+                        <DownloadTableExcel
+                            filename="ReportExcel"
+                            sheet="Receivable"
+                            currentTableRef="ReportExcel"
+                        >
+                            <button className="btn btn-success">Download as Excel</button>
+                        </DownloadTableExcel>
+
                     </div>
                 </div>
 
@@ -68,7 +77,7 @@ const SaleSaleDetailMismatchReport = ({
             {isFetching ?
                 <div>"Loading data ....."</div> :
                 ""}
-            
+
 
             {filteredOptionsItem ?
                 <div>
@@ -97,7 +106,7 @@ const SaleSaleDetailMismatchReport = ({
                                         <td>{item.id}</td>
                                         <td>{item.invoicevalue}</td>
                                         <td>{item.saledetailtotal}</td>
-                                        <td>{item.invoicevalue-item.saledetailtotal}</td>
+                                        <td>{item.invoicevalue - item.saledetailtotal}</td>
                                     </tr>
                                 )
                                 )

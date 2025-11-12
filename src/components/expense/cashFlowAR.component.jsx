@@ -7,7 +7,7 @@ import { setCurrentUser } from '../../redux/user/user.action';
 import cashFlowServices from '../../services/cashFlow.services';
 import user from '../../services/user.service';
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const CashFlowAR = ({
     fetchCashFlowAR, cashFlowArData,

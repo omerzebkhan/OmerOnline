@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -10,11 +10,11 @@ import { setMessage } from '../../redux/user/user.action';
 import itemService from "../../services/item.services";
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const StockReport = ({
     fetchItemStartAsync, itemData,
-    isFetching,currentUser }) => {
+    isFetching, currentUser }) => {
     const [itemInput, setItemInput] = useState("");
     const [valueInput, setValueInput] = useState("");
     const [filter, setFilter] = useState("");
@@ -112,7 +112,7 @@ const StockReport = ({
         })
     }, [itemSaleHistory])
 
-useEffect(() => {
+    useEffect(() => {
         var sumQuantity = 0
         var sumRecord = 1
         itemReturnHistory.map((item, index) => {
@@ -275,12 +275,14 @@ useEffect(() => {
                         onChange={handleChange} />
                     <button className="btn btn-primary" type="button" onClick={searchHandler}>Search</button>
                     <div>
-                        <ReactHTMLTableToExcel
-                            className="btn btn-info"
-                            table="stockView"
-                            filename="ReportExcel"
-                            sheet="Sheet"
-                            buttonText="Export excel" />
+                       
+                        <DownloadTableExcel
+                            filename="stockView"
+                            sheet="Receivable"
+                            currentTableRef="stockView"
+                        >
+                            <button className="btn btn-success">Download as Excel</button>
+                        </DownloadTableExcel>
                     </div>
                 </div>
 
@@ -362,60 +364,60 @@ useEffect(() => {
             {itemPurchaseHistory ?
                 <div>
                     <div>
-                        
+
                         <Button variant="success" className="mb-4" onClick={invokeCollapseSPH}>
                             Show Purchase History
                         </Button>
                         <Collapse in={isVisibleSPH}>
                             <div id="collapsePanel">
                                 <div>
-                                <div>
-                        <div className="inputFormHeader"><h2>Summary Purchase History</h2></div>
-                        <div className="inputForm">
-                            <div>Total Item Quantity = {totalQtyPurchaseHistory}</div>
-                            <div>Total Records = {totalRecordPurchaseHistory}</div>
-                        </div>
-                    </div>
-                    <h3>Purchase History </h3>
-                    <table border='1' id="Purchase History">
+                                    <div>
+                                        <div className="inputFormHeader"><h2>Summary Purchase History</h2></div>
+                                        <div className="inputForm">
+                                            <div>Total Item Quantity = {totalQtyPurchaseHistory}</div>
+                                            <div>Total Records = {totalRecordPurchaseHistory}</div>
+                                        </div>
+                                    </div>
+                                    <h3>Purchase History </h3>
+                                    <table border='1' id="Purchase History">
 
-                        <thead>
-                            <tr>
-                                <th>Invoice Id</th>
-                                <th>Supllier Name</th>
-                                <th>Item Name</th>
-                                <th>Inv. Deatil Id</th>
-                                <th>Cost</th>
-                                <th>Quantity</th>
-                                <th>Creation Date Time</th>
-                            </tr>
-                        </thead>
+                                        <thead>
+                                            <tr>
+                                                <th>Invoice Id</th>
+                                                <th>Supllier Name</th>
+                                                <th>Item Name</th>
+                                                <th>Inv. Deatil Id</th>
+                                                <th>Cost</th>
+                                                <th>Quantity</th>
+                                                <th>Creation Date Time</th>
+                                            </tr>
+                                        </thead>
 
-                        <tbody>
+                                        <tbody>
 
 
-                            {
-                                itemPurchaseHistory.map((item, index) => (
-                                    //   console.log(item);
+                                            {
+                                                itemPurchaseHistory.map((item, index) => (
+                                                    //   console.log(item);
 
-                                    <tr key={index}
-                                    //onClick={() => setActiveBrand(item, index)}
-                                    >
-                                        <td>{item.id}</td>
-                                        <td>{item.supplierName}</td>
-                                        <td>{item.itemName}</td>
-                                        <td>{item.InvPurId}</td>
-                                        <td>{item.price}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.createdAt}</td>
-                                    </tr>
-                                )
-                                )
+                                                    <tr key={index}
+                                                    //onClick={() => setActiveBrand(item, index)}
+                                                    >
+                                                        <td>{item.id}</td>
+                                                        <td>{item.supplierName}</td>
+                                                        <td>{item.itemName}</td>
+                                                        <td>{item.InvPurId}</td>
+                                                        <td>{item.price}</td>
+                                                        <td>{item.quantity}</td>
+                                                        <td>{item.createdAt}</td>
+                                                    </tr>
+                                                )
+                                                )
 
-                            }
-                        </tbody>
-                    </table>
-                                   
+                                            }
+                                        </tbody>
+                                    </table>
+
                                 </div>
                             </div>
                         </Collapse>
@@ -427,63 +429,63 @@ useEffect(() => {
 
             {itemSaleHistory ?
                 <div>
-                      <Button variant="success" className="mb-4" onClick={invokeCollapseSSH}>
-                            Show Sale History
-                        </Button>
-                        <Collapse in={isVisibleSSH}>
-                            <div id="collapsePanel">
+                    <Button variant="success" className="mb-4" onClick={invokeCollapseSSH}>
+                        Show Sale History
+                    </Button>
+                    <Collapse in={isVisibleSSH}>
+                        <div id="collapsePanel">
+                            <div>
                                 <div>
-                                <div>
-                        <div className="inputFormHeader"><h2>Summary Sale History</h2></div>
-                        <div className="inputForm">
-                            <div>Total Item Quantity = {totalQtySaleHistory}</div>
-                            <div>Total Records = {totalRecordSaleHistory}</div>
-                        </div>
-                    </div>
-                                <h3>Sale History </h3>
-                    <table border='1' id="Sale History">
-
-                        <thead>
-                            <tr>
-                                <th>Invoice Id</th>
-                                <th>Customer Name</th>
-                                <th>Item Name</th>
-                                <th>Inv. Deatil Id</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Creation Date Time</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-
-                            {
-                                itemSaleHistory.map((item, index) => (
-                                    //   console.log(item);
-
-                                    <tr key={index}
-                                    //onClick={() => setActiveBrand(item, index)}
-                                    >
-                                        <td>{item.id}</td>
-                                        <td>{item.customerName}</td>
-                                        <td>{item.itemName}</td>
-                                        <td>{item.InvPurId}</td>
-                                        <td>{item.price}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.createdAt}</td>
-                                    </tr>
-                                )
-                                )
-
-                            }
-                        </tbody>
-                    </table>
-
+                                    <div className="inputFormHeader"><h2>Summary Sale History</h2></div>
+                                    <div className="inputForm">
+                                        <div>Total Item Quantity = {totalQtySaleHistory}</div>
+                                        <div>Total Records = {totalRecordSaleHistory}</div>
+                                    </div>
                                 </div>
+                                <h3>Sale History </h3>
+                                <table border='1' id="Sale History">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Invoice Id</th>
+                                            <th>Customer Name</th>
+                                            <th>Item Name</th>
+                                            <th>Inv. Deatil Id</th>
+                                            <th>Price</th>
+                                            <th>Quantity</th>
+                                            <th>Creation Date Time</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+
+                                        {
+                                            itemSaleHistory.map((item, index) => (
+                                                //   console.log(item);
+
+                                                <tr key={index}
+                                                //onClick={() => setActiveBrand(item, index)}
+                                                >
+                                                    <td>{item.id}</td>
+                                                    <td>{item.customerName}</td>
+                                                    <td>{item.itemName}</td>
+                                                    <td>{item.InvPurId}</td>
+                                                    <td>{item.price}</td>
+                                                    <td>{item.quantity}</td>
+                                                    <td>{item.createdAt}</td>
+                                                </tr>
+                                            )
+                                            )
+
+                                        }
+                                    </tbody>
+                                </table>
+
                             </div>
-                        </Collapse>
-                   
+                        </div>
+                    </Collapse>
+
                 </div>
                 :
                 ""
@@ -491,58 +493,58 @@ useEffect(() => {
             {itemReturnHistory ?
                 <div>
                     <Button variant="success" className="mb-4" onClick={invokeCollapseSRH}>
-                            Show Return History
-                        </Button>
-                        <Collapse in={isVisibleSRH}>
-                            <div id="collapsePanel">
+                        Show Return History
+                    </Button>
+                    <Collapse in={isVisibleSRH}>
+                        <div id="collapsePanel">
+                            <div>
                                 <div>
-                                <div>
-                        <div className="inputFormHeader"><h2>Summary Return History</h2></div>
-                        <div className="inputForm">
-                            <div>Total Item Quantity = {totalQtyReturnHistory}</div>
-                            <div>Total Records = {totalRecordReturnHistory}</div>
-                        </div>
-                    </div>    
-                                <h3>Return History </h3>
-                    <table border='1' id="Return History">
-
-                        <thead>
-                            <tr>
-                                <th>Sale Invoice Id</th>
-                                <th>Return Id</th>
-                                <th>Item Name</th>
-                                <th>Quantity</th>
-                                <th>Creation Date Time</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-
-                            {
-                                itemReturnHistory.map((item, index) => (
-                                    //   console.log(item);
-
-                                    <tr key={index}
-                                    //onClick={() => setActiveBrand(item, index)}
-                                    >
-                                        <td>{item.saleInvoiceId}</td>
-                                        <td>{item.id}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.createdAt}</td>
-                                    </tr>
-                                )
-                                )
-
-                            }
-                        </tbody>
-                    </table>
-
+                                    <div className="inputFormHeader"><h2>Summary Return History</h2></div>
+                                    <div className="inputForm">
+                                        <div>Total Item Quantity = {totalQtyReturnHistory}</div>
+                                        <div>Total Records = {totalRecordReturnHistory}</div>
+                                    </div>
                                 </div>
+                                <h3>Return History </h3>
+                                <table border='1' id="Return History">
+
+                                    <thead>
+                                        <tr>
+                                            <th>Sale Invoice Id</th>
+                                            <th>Return Id</th>
+                                            <th>Item Name</th>
+                                            <th>Quantity</th>
+                                            <th>Creation Date Time</th>
+                                        </tr>
+                                    </thead>
+
+                                    <tbody>
+
+
+                                        {
+                                            itemReturnHistory.map((item, index) => (
+                                                //   console.log(item);
+
+                                                <tr key={index}
+                                                //onClick={() => setActiveBrand(item, index)}
+                                                >
+                                                    <td>{item.saleInvoiceId}</td>
+                                                    <td>{item.id}</td>
+                                                    <td>{item.name}</td>
+                                                    <td>{item.quantity}</td>
+                                                    <td>{item.createdAt}</td>
+                                                </tr>
+                                            )
+                                            )
+
+                                        }
+                                    </tbody>
+                                </table>
+
                             </div>
-                        </Collapse>
-                    
+                        </div>
+                    </Collapse>
+
                 </div>
                 :
                 ""

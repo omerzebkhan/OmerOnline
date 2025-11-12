@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -10,11 +10,11 @@ import { setMessage } from '../../redux/user/user.action';
 import itemService from "../../services/item.services";
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
-import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const InventoryMismatchReport = ({
     fetchInventoryMismatchAsync, itemData,
-    isFetching,currentUser }) => {
+    isFetching, currentUser }) => {
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
     const [access, setAccess] = useState(false);
     useLayoutEffect(() => {
@@ -43,8 +43,8 @@ const InventoryMismatchReport = ({
     }, [itemData])
 
 
-         
-   
+
+
 
     return (
         <div className="submit-form container">
@@ -52,14 +52,16 @@ const InventoryMismatchReport = ({
             <h1>Inventory Mismatch Report</h1>
             <form >
                 <div className="form-group">
-                   
+
                     <div>
-                        <ReactHTMLTableToExcel
-                            className="btn btn-info"
-                            table="stockView"
+                        
+                        <DownloadTableExcel
                             filename="ReportExcel"
-                            sheet="Sheet"
-                            buttonText="Export excel" />
+                            sheet="Receivable"
+                            currentTableRef="stockView"
+                        >
+                            <button className="btn btn-success">Download as Excel</button>
+                        </DownloadTableExcel>
                     </div>
                 </div>
 
@@ -67,7 +69,7 @@ const InventoryMismatchReport = ({
             {isFetching ?
                 <div>"Loading data ....."</div> :
                 ""}
-            
+
 
             {filteredOptionsItem ?
                 <div>
@@ -101,7 +103,7 @@ const InventoryMismatchReport = ({
                                         <td>{item.quantity}</td>
                                         <td>{item.totalpurchase}</td>
                                         <td>{item.totalsale}</td>
-                                        <td>{item.totalpurchase-item.totalsale}</td>
+                                        <td>{item.totalpurchase - item.totalsale}</td>
                                         <td>{item.diff}</td>
                                     </tr>
                                 )

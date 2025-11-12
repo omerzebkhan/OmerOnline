@@ -9,7 +9,7 @@ import inventoryService from '../../services/inventory.service';
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
 
-//import ReactHTMLTableToExcel from 'react-html-table-to-excel';
+//import { DownloadTableExcel } from "react-export-table-to-excel";
 import { Chart as ChartJS, registerables } from 'chart.js';
 import { Chart,Bar, Line, Pie } from 'react-chartjs-2';
 ChartJS.register(...registerables);
