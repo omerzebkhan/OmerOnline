@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, { useRef,useState, useEffect,useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
@@ -14,6 +14,7 @@ const ItemLimitReport = ({currentUser}) => {
     const [sortConfig, setSortConfig] = useState();
 
     const [access, setAccess] = useState(false);
+    const tableRef = useRef(null);
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
         setAccess(checkAccess("ITEMLIMIT REPORT", currentUser.rights));
@@ -117,7 +118,7 @@ const ItemLimitReport = ({currentUser}) => {
                     <DownloadTableExcel
                                                 filename="LimitReportExcel"
                                                 sheet="Receivable"
-                                                currentTableRef="stockView"
+                                               currentTableRef={tableRef.current}
                                             >
                                                 <button className="btn btn-success">Download as Excel</button>
                                             </DownloadTableExcel>
@@ -126,7 +127,7 @@ const ItemLimitReport = ({currentUser}) => {
             {filteredOptionsItem ?
                 <div>
 
-                    <table border='1' id="itemLimitView">
+                    <table border='1' id="itemLimitView" ref={tableRef}>
 
                         <thead>
                             <tr>

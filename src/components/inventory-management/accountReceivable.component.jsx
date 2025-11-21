@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
 import SearchUser from "../user/searchUser.component";
@@ -50,7 +50,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
     const [filter, setFilter] = useState("");
     const [filterOldestInvoice, setFilterOlderInvoice] = useState("");
     const [oldestInvoice, setOldestInvoice] = useState("");
-
+    const tableRef = useRef(null);
 
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
@@ -789,7 +789,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             <DownloadTableExcel
                                 filename="account_receivable"
                                 sheet="Receivable"
-                                currentTableRef="OutstandingCustomer"
+                                currentTableRef={tableRef.current}
                             >
                                 <button className="btn btn-success">Download as Excel</button>
                             </DownloadTableExcel>
@@ -817,7 +817,7 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                                     <div>Total Outstanding = {filterOutstanding}</div>
                                 </div>
                             </div>
-                            <table border="1" id="OutstandingCustomer">
+                            <table border="1" id="OutstandingCustomer" ref={tableRef}>
                                 <thead>
                                     <tr>
 
@@ -1102,10 +1102,8 @@ const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
                             <table border="1">
                                 <thead>
                                     <tr>
-                                        <th>Date</th>
-                                        <th>Reff Inv.</th>
-                                        <th>Cash Payment</th>
-                                        <th>Bank Payment</th>
+                                        <th>Date</th><th>Reff Inv.</th>
+                                        <th>Cash Payment</th><th>Bank Payment</th>
                                         <th>Comments</th>
                                     </tr>
                                 </thead>

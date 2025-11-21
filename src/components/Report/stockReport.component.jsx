@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -37,6 +37,7 @@ const StockReport = ({
     const [isVisibleSRH, setIsVisibleSRH] = useState(false);
 
     const [access, setAccess] = useState(false);
+    const tableRef = useRef(null);
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
         setAccess(checkAccess("STOCK REPORT", currentUser.rights));
@@ -279,7 +280,7 @@ const StockReport = ({
                         <DownloadTableExcel
                             filename="stockView"
                             sheet="Receivable"
-                            currentTableRef="stockView"
+                           currentTableRef={tableRef.current}
                         >
                             <button className="btn btn-success">Download as Excel</button>
                         </DownloadTableExcel>
@@ -302,7 +303,7 @@ const StockReport = ({
             {filteredOptionsItem ?
                 <div>
                     <h3>Stock View</h3>
-                    <table border='1' id="stockView">
+                    <table border='1' id="stockView" ref={tableRef}>
 
                         <thead>
                             <tr>

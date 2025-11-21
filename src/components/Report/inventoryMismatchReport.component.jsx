@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -17,6 +17,8 @@ const InventoryMismatchReport = ({
     isFetching, currentUser }) => {
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
     const [access, setAccess] = useState(false);
+    const tableRef = useRef(null);
+
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
         setAccess(checkAccess("STOCK REPORT", currentUser.rights));
@@ -58,7 +60,7 @@ const InventoryMismatchReport = ({
                         <DownloadTableExcel
                             filename="ReportExcel"
                             sheet="Receivable"
-                            currentTableRef="stockView"
+                            currentTableRef={tableRef.current}
                         >
                             <button className="btn btn-success">Download as Excel</button>
                         </DownloadTableExcel>
@@ -74,7 +76,7 @@ const InventoryMismatchReport = ({
             {filteredOptionsItem ?
                 <div>
                     <h3>Inventory Mismatch View</h3>
-                    <table border='1' id="stockView">
+                    <table border='1' id="stockView" ref={tableRef}>
 
                         <thead>
                             <tr>

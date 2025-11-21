@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Button, Collapse } from 'react-bootstrap'
@@ -17,6 +17,7 @@ const SaleSaleDetailMismatchReport = ({
 
     const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
     const [access, setAccess] = useState(false);
+    const tableRef = useRef(null);
     useLayoutEffect(() => {
         // checkAdmin().then((r) => { setContent(r); });
         setAccess(checkAccess("STOCK REPORT", currentUser.rights));
@@ -55,17 +56,11 @@ const SaleSaleDetailMismatchReport = ({
                 <div className="form-group">
 
                     <div>
-                        <ReactHTMLTableToExcel
-                            className="btn btn-info"
-                            table="stockView"
-                            filename="ReportExcel"
-                            sheet="Sheet"
-                            buttonText="Export excel" />
-
+                       
                         <DownloadTableExcel
                             filename="ReportExcel"
                             sheet="Receivable"
-                            currentTableRef="ReportExcel"
+                            currentTableRef={tableRef.current}
                         >
                             <button className="btn btn-success">Download as Excel</button>
                         </DownloadTableExcel>
@@ -82,7 +77,7 @@ const SaleSaleDetailMismatchReport = ({
             {filteredOptionsItem ?
                 <div>
                     <h3>Sale Sale Detail Mismatch View</h3>
-                    <table border='1' id="stockView">
+                    <table border='1' id="stockView" ref={tableRef}>
 
                         <thead>
                             <tr>

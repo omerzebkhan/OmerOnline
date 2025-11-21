@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
@@ -27,6 +27,7 @@ const ItemSalePurchaseDateWise = ({ currentUser }) => {
   const [itemList, setItemList] = useState([])
 
   const [access, setAccess] = useState(false);
+  const tableRef = useRef(null);
   useLayoutEffect(() => {
     // checkAdmin().then((r) => { setContent(r); });
     setAccess(checkAccess("MonthlySale", currentUser.rights));
@@ -169,7 +170,7 @@ const ItemSalePurchaseDateWise = ({ currentUser }) => {
           <DownloadTableExcel
             filename="itemSalePurchase"
             sheet="Receivable"
-            currentTableRef="itemSalePurchase"
+            currentTableRef={tableRef.current}
           >
             <button className="btn btn-success">Download as Excel</button>
           </DownloadTableExcel>
@@ -219,7 +220,7 @@ const ItemSalePurchaseDateWise = ({ currentUser }) => {
           </div>
           <div>
             <h3>Item Sale Purchase View</h3>
-            <table border='1' id="itemSalePurchase">
+            <table border='1' id="itemSalePurchase" ref={tableRef}>
 
               <thead>
                 <tr>

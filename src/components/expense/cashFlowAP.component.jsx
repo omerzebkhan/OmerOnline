@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import { connect } from 'react-redux';
 
 import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR, fetchSalePayHist } from '../../redux/Sale/sale.action';
-import { fetchCashFlowAP,fetchCashFlowPay } from '../../redux/cashFlow/cashFlow.action';
+import { fetchCashFlowAP, fetchCashFlowPay } from '../../redux/cashFlow/cashFlow.action';
 import { setCurrentUser } from '../../redux/user/user.action';
 import cashFlowServices from '../../services/cashFlow.services';
 import user from '../../services/user.service';
@@ -11,7 +11,7 @@ import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const CashFlowAP = ({
     fetchCashFlowAP, cashFlowApData,
-    fetchCashFlowPay,cashFlowPay,
+    fetchCashFlowPay, cashFlowPay,
     currentUser,
     isFetching, currentUser1 }) => {
     // const [sInvoice, setSInvoice] = useState(saleInvoice);
@@ -31,7 +31,8 @@ const CashFlowAP = ({
     const [filterOutstanding, setFilterOutstanding] = useState([0]);
     const [totalRecord, setTotalRecord] = useState([0]);
 
-    const [arInvoiceId,setARInvoiceId] = useState();
+    const [arInvoiceId, setARInvoiceId] = useState();
+    const tableRef = useRef(null);
 
 
     useLayoutEffect(() => {
@@ -61,10 +62,10 @@ const CashFlowAP = ({
         }
     }, [cashFlowApData])
 
-   
 
-   
-    
+
+
+
     useEffect(() => {
         var sumAmount = 0
         var sumOutstanding = 0
@@ -80,8 +81,8 @@ const CashFlowAP = ({
         })
     }, [filteredOptionsName])
 
-   
-   
+
+
     const selectSaleInvoice = (item) => {
         fetchSaleByInputStartAsync(item.customerId);
         setCurrentUser(item.customerId);
@@ -95,10 +96,10 @@ const CashFlowAP = ({
         else if (event.target.id === "bankPayment") {
             setBankPayment(event.target.value);
         }
-        
-        
-      
-        
+
+
+
+
     }
 
     const updatHandler = () => {
@@ -107,13 +108,9 @@ const CashFlowAP = ({
             alert("values are wrong...");
         }
         else {
-
             // 1-  cash Flow Payment
             //2- update the cash Flow for outstanding
-            
-
             setLoading(true);
-            
             //////////////////////////////////////////////
             // 1- Add New record in the cashFlowPayment
             /////////////////////////////////////////////
@@ -122,8 +119,6 @@ const CashFlowAP = ({
                 cashPayment: cashPayment,
                 bankPayment: bankPayment
             }
-
-
             cashFlowServices.createCashFlowPay(vcashFlowPayment)
                 .then(res => {
                     setMessage("Cash Flow Payment added successfully.....")
@@ -171,7 +166,7 @@ const CashFlowAP = ({
         setLoading(false)
     }
 
- 
+
 
     const getPaymentDetail = (invoiceId) => {
         //console.log(`Sale payment Details is called ${invoiceId}`)
@@ -202,7 +197,7 @@ const CashFlowAP = ({
 
                         : ""}
                     <h1>Cash Flow Accounts Payable</h1>
-                    
+
                     {filteredOptionsName ?
                         <div>
                             <div>
@@ -274,7 +269,7 @@ const CashFlowAP = ({
                     }
 
 
-                   
+
                     {currentInvoice.id ?
                         <div>
                             <div className="form-group row">
@@ -428,11 +423,11 @@ const mapStateToProps = state => ({
     currentUser1: state.user.user.user,
     cashFlowApData: state.cashFlow.cashFlowAP,
     cashFlowPay: state.cashFlow.cashFlowPay,
-    
+
 
 })
 const mapDispatchToProps = dispatch => ({
-    fetchCashFlowPay:(invoiceId) =>dispatch(fetchCashFlowPay(invoiceId)),
+    fetchCashFlowPay: (invoiceId) => dispatch(fetchCashFlowPay(invoiceId)),
     fetchCashFlowAP: () => dispatch(fetchCashFlowAP())
 });
 
