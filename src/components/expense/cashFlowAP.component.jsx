@@ -420,7 +420,7 @@ const CashFlowAP = ({
 
 const mapStateToProps = state => ({
     currentUser: state.user.currentUser,
-    currentUser1: state.user.user.user,
+    currentUser1: state.user.user,
     cashFlowApData: state.cashFlow.cashFlowAP,
     cashFlowPay: state.cashFlow.cashFlowPay,
 

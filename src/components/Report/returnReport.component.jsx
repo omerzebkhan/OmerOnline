@@ -1,220 +1,251 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
-
-import { fetchSaleReturnByDate,fetchSaleReturnDetail } from '../../redux/Sale/sale.action';
-import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
-import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+
+import { fetchSaleReturnByDate, fetchSaleReturnDetail } from '../../redux/Sale/sale.action';
+import { checkAccess } from '../../helper/checkAuthorization';
 
 const ReturnReport = ({
-    fetchSaleReturnByDate,saleReturnData,
-    fetchSaleReturnDetail,saleReturnDetailData,currentUser
+    fetchSaleReturnByDate,
+    saleReturnData = [],
+    fetchSaleReturnDetail,
+    saleReturnDetailData = [],
+    currentUser
 }) => {
-
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const [nameInput, setNameInput] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [nameInput, setNameInput] = useState("");
-
-    const [totalSaleRecord,setTotalSaleRecord] = useState([0]);
-    const [totalSaleItem,setTotalSaleItem] = useState(0);
-    
+    const [hasSearched, setHasSearched] = useState(false);
     const [access, setAccess] = useState(false);
+
+    // Summary totals
+    const summary = useMemo(() => {
+        if (!saleReturnData.length) return { records: 0, totalItems: 0 };
+        return saleReturnData.reduce((acc, item) => ({
+            records: acc.records + 1,
+            totalItems: acc.totalItems + parseInt(item.quantity || 0)
+        }), { records: 0, totalItems: 0 });
+    }, [saleReturnData]);
+
     useLayoutEffect(() => {
-        // checkAdmin().then((r) => { setContent(r); });
-        setAccess(checkAccess("SALERETURN REPORT", currentUser.rights));
-        //console.log(`access value = ${access}`)
-    }
-        , []);
-    
-  
-    useEffect(() => {
-        if (saleReturnData){ 
-        var sumQuantity = 0
-        var sumRecord = 1
-        saleReturnData.map((item, index) =>{
-            sumQuantity = sumQuantity + parseInt(item.quantity)
-            setTotalSaleItem(sumQuantity)
-            sumRecord = index + 1
-            setTotalSaleRecord(sumRecord)
-        })}
-    }, [saleReturnData])
+        setAccess(checkAccess("SALERETURN REPORT", currentUser?.rights || []));
+    }, [currentUser]);
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setLoading(true);
+        setMessage("");
+        setHasSearched(true);
 
-    const handleChange = event => {
+        const customerName = nameInput.trim() || "0";
+        const sDate = startDate ? startDate.toLocaleDateString('en-US') : "0";
+        const eDate = endDate ? endDate.toLocaleDateString('en-US') : "0";
 
-        if (event.target.id === "Name") {
-            setNameInput(event.target.value);
-        }
-    }
-
-    const handleStartDTPicker = (date) => {
-        setStartDate(date);
-    }
-
-    const handleEndDTPicker = (date) => {
-        setEndDate(date);
-    }
-
-    const handleSubmit = event => {
-        event.preventDefault();
-        console.log(startDate)
-        if (nameInput==="" && (startDate!==null||endDate!==null)){
-            fetchSaleReturnByDate("0",startDate.toDateString(), endDate.toDateString());
-        }
-        else if (nameInput!=="" && (startDate===null||endDate===null)){
-            
-            fetchSaleReturnByDate(nameInput,"0", "0");
-        }
-        else if (nameInput!=="" && (startDate!==null||endDate!==null))
-        {
-            fetchSaleReturnByDate(nameInput,startDate.toDateString(), endDate.toDateString());
-        }
-        
-    }
+        fetchSaleReturnByDate(customerName, sDate, eDate);
+    };
 
     const selectInvoice = (item) => {
-        console.log("Select Invoice clicked");
-        // fetchUserByInputAsync(item.customerId);
-        fetchSaleReturnDetail(item.saleInvoiceId);    
+        fetchSaleReturnDetail(item.saleInvoiceId);
+    };
+
+    if (!access) {
+        return (
+            <div className="container mt-5">
+                <div className="alert alert-danger text-center">Access Denied</div>
+            </div>
+        );
     }
 
     return (
-        <div className="submit-form container">
-            <h1>Sale Return Report</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group row">
-                    <div className="col-sm-3">
-                        Start Date
-                        <DatePicker id="datePicker" selected={startDate} onChange={handleStartDTPicker}
-                        name="startDate" dateFormat="MM/dd/yyyy" />
-                    </div>
-                    <div className="col-sm-3">
-                        End Date
-                        <DatePicker id="datePicker" selected={endDate} onChange={handleEndDTPicker}
-                            name="startDate" dateFormat="MM/dd/yyyy" />
-                    </div>
-                </div>
-                <div className="form-group row">
-                    <div className="col-sm-12">
-                    <input
+        <div className="container mt-4">
+            <h1 className="mb-4 text-center fw-bold">Sale Return Report</h1>
+
+            {/* Search Form */}
+            <div className="card mb-4 shadow">
+                <div className="card-body">
+                    <form onSubmit={handleSubmit}>
+                        <div className="row g-3">
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold">Start Date</label>
+                                <DatePicker
+                                    selected={startDate}
+                                    onChange={setStartDate}
+                                    className="form-control"
+                                    dateFormat="MM/dd/yyyy"
+                                />
+                            </div>
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold">End Date</label>
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={setEndDate}
+                                    className="form-control"
+                                    dateFormat="MM/dd/yyyy"
+                                    minDate={startDate}
+                                />
+                            </div>
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold">Customer Name (Optional)</label>
+                                <input
                                     type="text"
-                                    name="Name"
-                                    id="Name"
-                                    placeholder="Customer Name"
+                                    className="form-control"
+                                    placeholder="Enter customer name"
                                     value={nameInput}
-                                    onChange={handleChange} />
-                    </div>
-                    
+                                    onChange={(e) => setNameInput(e.target.value)}
+                                />
+                            </div>
+                        </div>
+                        <div className="mt-3 text-end">
+                            <button type="submit" className="btn btn-primary" disabled={loading}>
+                                {loading ? "Searching..." : "Search"}
+                            </button>
+                        </div>
+                    </form>
                 </div>
+            </div>
 
-                <div >
-                    <button className="btn btn-success" type="submit" >Search</button>
+            {/* Results only after search */}
+            {hasSearched && (
+                <>
+                    {/* Loading */}
+                    {loading && (
+                        <div className="text-center my-5">
+                            <div className="spinner-border text-primary" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </div>
+                        </div>
+                    )}
 
-                </div>
-            </form>
+                    {/* No Data */}
+                    {!loading && saleReturnData.length === 0 && (
+                        <div className="text-center my-5">
+                            <div className="alert alert-info d-inline-block">
+                                <h5>No return records found</h5>
+                                <p className="mb-0">Try adjusting the date range or customer name.</p>
+                            </div>
+                        </div>
+                    )}
 
-           { saleReturnData ?
-               <div>
-                   <div>
-                    <div className="inputFormHeader"><h2>Summary Return Data</h2></div>
-                    <div className="inputForm">
-                    <div>Total Records = {totalSaleRecord}</div>    
-                    <div>Total Item = {totalSaleItem}</div>
-                    </div>
-                </div>
-               <div>
-                    
-                    <h3>Return View</h3>
-                    <table border='1'>
-                        <thead>
-                            <tr>
-                                <th>Sale Invoice</th>
-                                <th>Quantity</th>
-                                <th>Customer Name</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {   
-                                saleReturnData.map((item, index) => (
-                                    console.log(item),
-                                    <tr key={index}
-                                        onClick={() => selectInvoice(item)}
-                                    >
-                                        <td>{item.saleInvoiceId}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.cAt}</td>
-                                        
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                </div>
-                :
-                ""
-            }
+                    {/* Results */}
+                    {!loading && saleReturnData.length > 0 && (
+                        <>
+                            {/* Summary */}
+                            <div className="card mb-4 shadow">
+                                <div className="card-header bg-success text-white">
+                                    <h4 className="mb-0">Return Summary</h4>
+                                </div>
+                                <div className="card-body">
+                                    <div className="row text-center">
+                                        <div className="col-md-6">
+                                            <h5>Total Records</h5>
+                                            <h3 className="text-primary">{summary.records}</h3>
+                                        </div>
+                                        <div className="col-md-6">
+                                            <h5>Total Returned Items</h5>
+                                            <h3 className="text-danger">{summary.totalItems}</h3>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
 
-{saleReturnDetailData ?
-                <div>
-                    <h3>Sale Retutn Invoice Detail View</h3>
-                    <table id='returnTBL' border='1'>
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Sale Invoice Id</th>
-                                <th>Item Name</th>
-                                <th>Quantity</th>
-                                <th>Date</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { saleReturnDetailData.map((item, index) => (
-                                    // console.log(item),
-                                    <tr key={index}
-                                       // onClick={() => editInvoceHandler(item)}
-                                    >
-                                        <td>{item.id}</td>
-                                        <td>{item.saleInvoiceId}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.createdAt}</td>
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
-         
-         
-                </div>
+                            {/* Main Table */}
+                            <div className="card shadow mb-4">
+                                <div className="card-header bg-primary text-white">
+                                    <h4 className="mb-0">Return Invoices</h4>
+                                </div>
+                                <div className="card-body">
+                                    <div className="table-responsive">
+                                        <table className="table table-striped table-hover">
+                                            <thead className="table-dark">
+                                                <tr>
+                                                    <th>Sale Invoice</th>
+                                                    <th>Quantity</th>
+                                                    <th>Customer</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {saleReturnData.map((item) => (
+                                                    <tr
+                                                        key={item.saleInvoiceId}
+                                                        className="cursor-pointer"
+                                                        onClick={() => selectInvoice(item)}
+                                                    >
+                                                        <td>{item.saleInvoiceId}</td>
+                                                        <td>{item.quantity}</td>
+                                                        <td>{item.name || "N/A"}</td>
+                                                        <td>{new Date(item.cAt).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
 
-                :
-                ""
-            }
-         
-           
+                            {/* Details Table */}
+                            {saleReturnDetailData.length > 0 && (
+                                <div className="card shadow">
+                                    <div className="card-header bg-info text-white">
+                                        <h4 className="mb-0">Return Invoice Details</h4>
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="table-responsive">
+                                            <table className="table table-striped table-hover">
+                                                <thead className="table-dark">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Sale Invoice ID</th>
+                                                        <th>Item Name</th>
+                                                        <th>Quantity</th>
+                                                        <th>Date</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {saleReturnDetailData.map((item) => (
+                                                        <tr key={item.id}>
+                                                            <td>{item.id}</td>
+                                                            <td>{item.saleInvoiceId}</td>
+                                                            <td>{item.name || "N/A"}</td>
+                                                            <td>{item.quantity}</td>
+                                                            <td>{new Date(item.createdAt).toLocaleString()}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </>
+            )}
+
+            {/* Initial State */}
+            {!hasSearched && (
+                <div className="text-center my-5 text-muted">
+                    <h4>Please use the search form above to generate a return report</h4>
+                    <p>Enter date range and/or customer name, then click Search.</p>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
 const mapStateToProps = state => ({
-    currentUser: state.user.user.user,
-    user: state.user.users,
-    saleReturnData: state.sale.saleReturn,
-    saleReturnDetailData: state.sale.saleReturnDetail,
-    userData: state.user.users
-})
-
-const mapDispatchToProps = dispatch => ({
-    fetchSaleReturnByDate: (custName,sDate,eDate) => dispatch(fetchSaleReturnByDate(custName,sDate, eDate)),
-    fetchSaleReturnDetail: (invoiceId) => dispatch(fetchSaleReturnDetail(invoiceId))
-    
-
+    currentUser: state.user.user,
+    saleReturnData: state.sale.saleReturn || [],
+    saleReturnDetailData: state.sale.saleReturnDetail || []
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(ReturnReport);
+const mapDispatchToProps = {
+    fetchSaleReturnByDate,
+    fetchSaleReturnDetail
+};
 
+export default connect(mapStateToProps, mapDispatchToProps)(ReturnReport);

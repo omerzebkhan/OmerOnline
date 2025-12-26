@@ -5,7 +5,7 @@ export class BootstrapCarousel extends Component {
         render() {  
                 return (  
                         <div className="container"> 
-                         <div class='container-fluid' >  
+                         <div className='container-fluid' >  
                           <div className="row title" style={{ marginBottom: "20px" }} >    
                          </div>  
                          </div>  

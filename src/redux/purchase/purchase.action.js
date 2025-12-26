@@ -113,7 +113,8 @@ export const fetchPurchaseByDate = (sDate, eDate, customerId) => {
                eDate = myDate;
                 // var now = new Date();
                // dateFormat(now, "dddd, mmmm dS, yyyy, h:MM:ss TT");
-               console.log(`sDate=${sDate} 
+               console.log(`fetchPurchaseByDate
+                sDate=${sDate} 
                edate=${eDate}
                customerid =${customerId}`);
                // f = firestore.collection('SaleInvoice')

@@ -1,4 +1,4 @@
-import React, { useState, useEffect,useLayoutEffect } from 'react';
+import React, { useState, useEffect,useLayoutEffect,useMemo } from 'react';
 import 'bootstrap/dist/css/bootstrap.min.css'
 import { connect,useSelector } from 'react-redux';
 
@@ -21,7 +21,7 @@ import { faPlus } from '@fortawesome/free-solid-svg-icons';
 const AddItem = ({
     fetchCategoryStartAsync, CategoryData,
     fetchSubCategoryStartAsync, SubCategoryData,
-    currentBrand,selectedItem }) => {
+    currentBrand,selectedItem,currentUser }) => {
 
     const [loading, setLoading] = useState(false);
     const [name, setName] = useState("");
@@ -46,13 +46,13 @@ const AddItem = ({
     const [content, setContent] = useState("");
     const [access,setAccess] = useState(false);
 
-    const currentUser = useSelector((state) => state.user.user.user);
-
-    useLayoutEffect(() => {
-        checkAdmin().then((r) => { setContent(r);});
-        setAccess(checkAccess("ADD ITEM",currentUser.rights));
-         }
-    , []);
+     useLayoutEffect(() => {
+          // setMessage("");
+           //checkAdmin().then((r) => { setContent(r); });
+           setAccess(checkAccess("ADD ITEM", currentUser.rights));
+       }, []);
+   
+    
 
 
     useEffect(() => {
@@ -117,7 +117,7 @@ const AddItem = ({
         //console.log(`image itemid = ${id}`)
         setProgress(0);
         setCurrentFile(currentFile);
-        //console.log(currentFile);
+        console.log(currentFile);
         const lastDot = currentFile.name.lastIndexOf('.');
         const ext = currentFile.name.substring(lastDot + 1);
         var fn = `item${id}.${ext}`;
@@ -545,7 +545,8 @@ const AddItem = ({
 const mapStateToProps = state => ({
     CategoryData: state.category.category,
     SubCategoryData: state.subCategory.subCategory,
-    currentBrand: state.brand.currentBrand
+    currentBrand: state.brand.currentBrand,
+    currentUser: state.user.user
 })
 
 const mapDispatchToProps = dispatch => ({

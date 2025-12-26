@@ -1,328 +1,217 @@
-import { React, useEffect, useState } from 'react';
-import { connect } from 'react-redux';
-//import Pagination from "@material-ui/lab/Pagination";
-// import { useTable } from "react-table";
-import Pagination from "@mui/material/Pagination";
+import React, { useState, useEffect, useMemo } from "react";
+import { connect } from "react-redux";
+import {
+    fetchUserStartAsync,
+    setCurrentUser,
+} from "../../redux/user/user.action";
 
-import { fetchUserStartAsync, setCurrentUser } from '../../redux/user/user.action';
-import AddUser from './addUser.component';
-
+import AddUser from '../user/addUser.component';
 
 const SearchUser = ({
-     fetchUserStartAsync,
-     setCurrentUser,
-     isFetching, userData, errorMessage, currentUser, show }) => {
+    users,
+    isFetching,
+    currentUser,
+    fetchUserStartAsync,
+    setCurrentUser,
+}) => {
+    const [filters, setFilters] = useState({ Username: "", Email: "" });
+    const [debouncedFilters, setDebouncedFilters] = useState(filters);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
 
-
-    const [page, setPage] = useState(1);
-    const [count, setCount] = useState(0);
-    const [pageSize, setPageSize] = useState(3);
-
-    const pageSizes = [50, 100, 200,3000];
-
+    // Fetch users on mount
     useEffect(() => {
-        if (userData){
-            setCount(userData.totalPages)
-            console.log(`total pages are ${userData.totalPages}`)
-            }
-    }, [userData])
-   const getRequestParams = (page, pageSize) => {    
-        let params = {};
-        if (page) {
-            params["page"] = page - 1;
+        fetchUserStartAsync();
+    }, [fetchUserStartAsync]);
+
+    //Clean up function
+        useEffect(() => {
+        return () => {
+            setCurrentUser(null);
+        };
+    }, []);
+    
+
+
+
+    // Debounce filter input
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            setDebouncedFilters(filters);
+        }, 300);
+
+        return () => clearTimeout(handler);
+    }, [filters]);
+
+    // Apply filtering when debounced filters or users change
+    useEffect(() => {
+        if (!users || !Array.isArray(users)) {
+            setFilteredUsers([]);
+            return;
         }
 
-        if (pageSize) {
-           params["size"] = pageSize;
+        let result = [...users];
+
+        if (debouncedFilters.Username) {
+            result = result.filter((user) =>
+                user.username
+                    ?.toLowerCase()
+                    .includes(debouncedFilters.Username.toLowerCase())
+            );
         }
 
-        return params;
+        if (debouncedFilters.Email) {
+            result = result.filter((user) =>
+                user.email
+                    ?.toLowerCase()
+                    .includes(debouncedFilters.Email.toLowerCase())
+            );
+        }
+
+        setFilteredUsers(result);
+        setCurrentPage(1); // Reset to first page on filter
+    }, [debouncedFilters, users]);
+
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-       
-        ////////////////////////Paging logic//////////////////////
-        
+    // Pagination logic
+    const paginatedUsers = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredUsers.slice(start, start + itemsPerPage);
+    }, [currentPage, filteredUsers]);
 
-        if (show ==="AccRec")
-        {
-            fetchUserStartAsync();
-        }
-        else if (show === "AccPay"){
-            fetchUserStartAsync();
-        }
-        else{
-            const params = getRequestParams(page, pageSize);
-            console.log(params)
-        fetchUserStartAsync(params);
-        if (userData){
-        setCount(userData.totalPages)
-        console.log(`total pages are ${userData.totalPages}`)
-        }
-        }
-     
-        /////////////////////////////////////////////////////////
-    }
-
-
-
-    const handlePageChange = (event, value) => {
-        setPage(value);
-        const params = getRequestParams(value, pageSize);
-        // console.log(`page = ${params.page}   pageSize = ${params.pageSize} `)
-           fetchUserStartAsync(params);
-           if (userData){
-           setCount(userData.totalPages)
-           }
-        
-    };
-
-    const handlePageSizeChange = (event) => {
-        console.log(event.target.value)
-        setPageSize(event.target.value);
-        setPage(1);
-    };
-
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
 
     return (
-        <div>
-            <div className="searchFormHeader"><h1>Search User</h1></div>
-            <div className="searchForm">
-                <form onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label htmlFor="Name">Name</label>
-                        <input
-                            type="text"
-                            name="Name"
-                            id="Name"
-                            placeholder="Name"
-                        />
-            Description
-            <input
-                            type="text"
-                            name="Description"
-                            id="Description"
-                            placeholder="Description"
-                        />
-                    </div>
-                    <div >
-                        <button className="btn btn-success" type="submit" >Search</button>
+        <div className="container">
+            <h3>Search Users</h3>
 
-                    </div>
-                    <div className="col-md-12 list">
-                                        <div className="mt-3">
-                                            {"Items per Page: "}
-                                            <select onChange={handlePageSizeChange} value={pageSize}>
-                                                {pageSizes.map((size) => (
-                                                    <option key={size} value={size}>
-                                                        {size}
-                                                    </option>
-                                                ))}
-                                            </select>
+            {/* Search Filters */}
+            <div className="form-group">
+                <label>Username</label>
+                <input
+                    type="text"
+                    name="Username"
+                    className="form-control"
+                    value={filters.Username}
+                    onChange={handleFilterChange}
+                    placeholder="Search by username"
+                />
 
-                                            <Pagination
-                                                className="my-3"
-                                                count={count}
-                                                page={page}
-                                                siblingCount={1}
-                                                boundaryCount={1}
-                                                variant="outlined"
-                                                shape="rounded"
-                                                onChange={handlePageChange}
-                                            />
-                                        </div>
-                                        </div>
-                </form>
-                {isFetching ? <div className="alert alert-warning" role="alert">loading....</div> : ''}
-                {errorMessage ? <div className="alert alert-danger" role="alert">{this.props.errorMessage}</div> : ""}
-
-                {userData ?
-                    (() => {
-                        switch (show) {
-                            case "AccRec": return (
-                                <div>
-                                    <h3>Account Receivable View</h3>
-                                    <table border='1'>
-
-                                        <thead>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Name</th>
-                                                <th>Mobile</th>
-                                                <th>Ph</th>
-                                                <th>email</th>
-                                                <th>Address</th>
-                                                <th>Role</th>
-                                                <th>TotalInvoice</th>
-                                                <th>OutStanding</th>
-                                                <th>Description</th>
-                                                <th>Comments</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-
-
-                                            {userData ?
-                                                userData.user
-                                                    .filter(function (item) { return item.roles.toUpperCase() === "CUSTOMER" && item.outstanding>0 })
-                                                    .map((user, index) => (
-                                                        //   console.log(item);
-
-                                                        <tr key={index}
-                                                            onClick={() => setCurrentUser(user)}>
-                                                            <td>{user.id}</td>
-                                                            <td>{user.name}</td>
-                                                            <td>{user.mobile}</td>
-                                                            <td>{user.ph}</td>
-                                                            <td>{user.email}</td>
-                                                            <td>{user.address}</td>
-                                                            <td>{user.roles}</td>
-                                                            <td>{user.totalamount}</td>
-                                                            <td>{user.outstanding}</td>
-                                                            <td>{user.desctiption}</td>
-                                                            <td>{user.comments}</td>
-                                                            <td>{user.status}</td>
-                                                        </tr>))
-                                                :
-                                                "no data found"
-                                            }
-                                        </tbody>
-                                    </table>
-                                </div>
-                            );
-                            case "AccPay": return (
-                                <div>
-                                    <h3>Account PayAble View</h3>
-                                    <table border='1'>
-
-                                        <thead>
-                                            <tr>
-                                                <th>Id</th>
-                                                <th>Name</th>
-                                                <th>Mobile</th>
-                                                <th>Ph</th>
-                                                <th>email</th>
-                                                <th>Address</th>
-                                                <th>Role</th>
-                                                <th>TotalInvoice</th>
-                                                <th>OutStanding</th>
-                                                <th>Description</th>
-                                                <th>Comments</th>
-                                                <th>Status</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            {userData ?
-                                                userData.user
-                                                    .filter(function (item) { return item.roles.toUpperCase() === "SUPPLIER" })
-                                                    .map((user, index) => (
-                                                        //   console.log(item);    
-                                                        <tr key={index}
-                                                            onClick={() => setCurrentUser(user)}>
-                                                            <td>{user.id}</td>
-                                                            <td>{user.name}</td>
-                                                            <td>{user.mobile}</td>
-                                                            <td>{user.ph}</td>
-                                                            <td>{user.email}</td>
-                                                            <td>{user.address}</td>
-                                                            <td>{user.roles}</td>
-                                                            <td>{user.totalamount}</td>
-                                                            <td>{user.outstanding}</td>
-                                                            <td>{user.desctiption}</td>
-                                                            <td>{user.comments}</td>
-                                                            <td>{user.status}</td>
-                                                        </tr>)) :
-                                                "no data found"}
-                                        </tbody>
-                                    </table>
-                                </div>
-                            );
-                            default: return (
-                                <div>
-                                    <h3>User View</h3>
-                                    
-                                        <table border='1'>
-                                            <thead>
-                                                <tr>
-                                                    <th>Id</th>
-                                                    <th>Name</th>
-                                                    <th>Mobile</th>
-                                                    <th>Ph</th>
-                                                    <th>email</th>
-                                                    <th>Address</th>
-                                                    <th>Roles</th>
-                                                    <th>Description</th>
-                                                    <th>Comments</th>
-                                                    <th>status</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                {userData ?
-                                                    userData.user.map((user, index) => (
-                                                        //   console.log(item);
-                                                        <tr key={index}
-                                                            onClick={() => setCurrentUser(user)}>
-                                                            <td>{user.id}</td>
-                                                            <td>{user.name}</td>
-                                                            <td>{user.mobile}</td>
-                                                            <td>{user.ph}</td>
-                                                            <td>{user.email}</td>
-                                                            <td>{user.address}</td>
-                                                            <td>{user.roles}</td>
-                                                            <td>{user.desctiption}</td>
-                                                            <td>{user.comments}</td>
-                                                            <td>{user.status}</td>
-                                                        </tr>))
-                                                    :
-                                                    "no data found"
-                                                }
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                );
-                            }
-                        })()
-
-                        :
-                        ""}
-                                    <div className="col-md-6">
-                                        {console.log(show)}
-                                        {currentUser && !show ? (
-                                            //Object.keys(currentBrand).length? (
-                                            
-                                            <div>
-                                               
-                                                <AddUser selectedUser={currentUser} />
-
-                                            </div>
-                                        ) : (
-                                                <div>
-                                                    <br />
-                                                    <p>Please click on a User...</p>
-                                                </div>
-                                            )}
-                                    </div>
-
-                                </div>
+                <label className="mt-2">Email</label>
+                <input
+                    type="text"
+                    name="Email"
+                    className="form-control"
+                    value={filters.Email}
+                    onChange={handleFilterChange}
+                    placeholder="Search by email"
+                />
             </div>
-        )
 
-}
+            {/* Loading State */}
+            {isFetching && <div className="mt-3">Loading...</div>}
 
-    const mapStateToProps = state => ({
-        userData: state.user.users,
-        isFetching: state.user.isFetching,
-        errorMessage: state.user.errorMessage,
-        currentUser: state.user.currentUser
+            {/* Users Table */}
+            <table className="table table-bordered mt-2">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {paginatedUsers.length > 0 ? (
+                        paginatedUsers.map((user, index) => (
+                            <tr key={user.id}>
+                                <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                                <td>{user.username || "-"}</td>
+                                <td>{user.email || "-"}</td>
+                                <td>{user.role || "user"}</td>
+                                <td>
+                                    <button
+                                        className="btn btn-sm btn-success"
+                                        onClick={() => setCurrentUser(user)}
+                                    >
+                                        Select
+                                    </button>
+                                </td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="5" className="text-center py-3">
+                                {!isFetching && filteredUsers.length === 0
+                                    ? "No users found"
+                                    : ""}
+                            </td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
 
-    })
+            {/* Pagination */}
+            {filteredUsers.length > itemsPerPage && (
+                <div className="pagination-controls mt-3">
+                    <button
+                        className="btn btn-secondary btn-sm"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                    >
+                        Prev
+                    </button>
 
-    const mapDispatchToProps = dispatch => ({
-        fetchUserStartAsync: (params) => dispatch(fetchUserStartAsync(params)),
-        setCurrentUser: (id) => dispatch(setCurrentUser(id))
-    });
+                    <span className="mx-2">
+                        Page {currentPage} of {totalPages}
+                    </span>
 
-    export default connect(mapStateToProps, mapDispatchToProps)(SearchUser);
+                    <button
+                        className="btn btn-secondary btn-sm"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                        Next
+                    </button>
+                </div>
+            )}
+
+            {/* Selected User Section (Optional: Show AddUser form here or navigate) */}
+            <div className="mt-4">
+                {currentUser ? (
+                    <div>
+                        <h4>Edit User</h4>
+                        <AddUser selectedUser={currentUser} />   {/* <-- form appears here */}
+                        <button
+                            className="btn btn-warning mt-3"
+                            onClick={() => setCurrentUser(null)}
+                        >
+                            Clear Selection
+                        </button>
+                    </div>
+                ) : (
+                    <p>No user selected. Click "Select" to edit a user.</p>
+                )}
+            </div>
+        </div>
+    );
+};
+
+const mapStateToProps = (state) => ({
+    users: state.user.users,
+    isFetching: state.user.isFetching,
+    currentUser: state.user.currentUser,
+});
+
+const mapDispatchToProps = (dispatch) => ({
+    fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
+    setCurrentUser: (user) => dispatch(setCurrentUser(user)),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchUser);

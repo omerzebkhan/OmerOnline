@@ -1,573 +1,447 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
-
-// import inventoryService from "../../services/inventory.service";
-// import userService from "../../services/user.service";
-// import itemService from "../../services/item.services";
-import { fetchItemStartAsync } from '../../redux/item/item.action';
-import { fetchSaleByDate, fetchSaleInvoiceDetailAsync,fetchSaleByDateSummary } from '../../redux/Sale/sale.action';
-import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
-import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+
+
+import {
+    fetchSaleByDate,
+    fetchSaleInvoiceDetailAsync,
+    fetchSaleByDateSummary
+} from '../../redux/Sale/sale.action';
+import { fetchUserStartAsync } from '../../redux/user/user.action';
+import { checkAccess } from '../../helper/checkAuthorization';
+
 import PdfInvoice from "./printInvoice";
 import PrintSaleSummary from './printSaleSummary';
 
 const SaleReport = ({
-    fetchUserStartAsync, userData,
-    fetchItemStartAsync, itemData,
-    fetchSaleByDate,saleData,
-    fetchSaleInvoiceDetailAsync,saleInvoiceDetailData,
-     fetchUserByInputAsync,user,
+    fetchSaleByDate,
+    fetchSaleInvoiceDetailAsync,
+    fetchSaleByDateSummary,
+    fetchUserStartAsync,
     currentUser,
-    fetchSaleByDateSummary,saleSummary
+    saleData = [],
+    saleSummary = [],
+    saleInvoiceDetailData = [],
+    userData = { user: [] }
 }) => {
+    const tableRef = useRef(null);
+    const detailTableRef = useRef(null);
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
+    const [invoiceNo, setInvoiceNo] = useState("");
     const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
+    const [hasSearched, setHasSearched] = useState(false);
 
-    const [totalSaleRecord,setTotalSaleRecord] = useState([0]);
-    const [totalSaleItem,setTotalSaleItem] = useState(0);
-    const [totalSaleInvVal,setTotalSaleInvVal] = useState(0);
-    const [totalSaleProfit,setTotalSaleProfit] = useState(0);
-    const [invoiceNo,setInvoiceNo]=useState("");
+    // Customer & Agent
+    const [customerSearch, setCustomerSearch] = useState("");
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [showCustomerDropdown, setShowCustomerDropdown] = useState(false);
 
-    const [cCustomer, setcCustomer] = useState([]);
-    const [customerInput, setCustomerInput] = useState("");
-    const [activeOptionCustomer, setActiveOptionCustomer] = useState("");
-    const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
-    const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
+    const [agentSearch, setAgentSearch] = useState("");
+    const [selectedAgent, setSelectedAgent] = useState(null);
+    const [showAgentDropdown, setShowAgentDropdown] = useState(false);
 
-    const [cAgent, setcAgent] = useState([]);
-    const [agentInput, setAgentInput] = useState("");
-    const [activeOptionAgent, setActiveOptionAgent] = useState("");
-    const [showOptionsAgent, setShowOptionsAgent] = useState(false);
-    const [filteredOptionsAgent, setFilteredOptionsAgent] = useState([]);
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
 
-    const [filteredSale,setFilteredSale]=useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(15);
+    const pageSizeOptions = [10, 15, 25, 50, 100];
+
+    const [access, setAccess] = useState(false);
 
 
-
+    useLayoutEffect(() => {
+        setAccess(checkAccess("SALE REPORT", currentUser?.rights || []));
+    }, [currentUser]);
 
     useEffect(() => {
         fetchUserStartAsync();
-    }, [fetchUserStartAsync])
+    }, [fetchUserStartAsync]);
 
-  
+    const filteredCustomers = useMemo(() => {
+        if (!customerSearch.trim()) return [];
+        return userData.user
+            .filter(u => u.roles?.toUpperCase() === "CUSTOMER" && u.name.toLowerCase().includes(customerSearch.toLowerCase()))
+            .slice(0, 10);
+    }, [userData.user, customerSearch]);
+
+    const filteredAgents = useMemo(() => {
+        if (!agentSearch.trim()) return [];
+        return userData.user
+            .filter(u => u.roles?.toUpperCase() === "SALEAGENT" && u.name.toLowerCase().includes(agentSearch.toLowerCase()))
+            .slice(0, 10);
+    }, [userData.user, agentSearch]);
+
+    const summary = useMemo(() => {
+        if (!saleData.length) return { records: 0, totalItems: 0, totalValue: 0, totalProfit: 0 };
+        return saleData.reduce((acc, inv) => ({
+            records: acc.records + 1,
+            totalItems: acc.totalItems + parseInt(inv.totalitems || 0),
+            totalValue: acc.totalValue + parseFloat(inv.invoicevalue || 0),
+            totalProfit: acc.totalProfit + parseFloat(inv.profit || 0)
+        }), { records: 0, totalItems: 0, totalValue: 0, totalProfit: 0 });
+    }, [saleData]);
+
+    const totalPages = Math.ceil(saleData.length / itemsPerPage);
+    const paginatedData = saleData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) setCurrentPage(page);
+    };
 
     useEffect(() => {
-        if (filteredSale){ 
-        var sumQuantity = 0
-        var sumRecord = 1
-        var sumInvValue = 0
-        var sumProfit =0
-        filteredSale.map((item, index) =>{
-            sumQuantity = sumQuantity + parseInt(item.totalitems)
-            setTotalSaleItem(sumQuantity)
-            sumRecord = index + 1
-            setTotalSaleRecord(sumRecord)
-            sumInvValue = sumInvValue + (item.invoicevalue)
-            setTotalSaleInvVal(parseFloat(sumInvValue).toFixed(3))
-            sumProfit = sumProfit + (item.profit)
-            setTotalSaleProfit(parseFloat(sumProfit).toFixed(3))
-        })}
-    }, [filteredSale])
+        setCurrentPage(1);
+    }, [saleData, itemsPerPage]);
 
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        setHasSearched(true);
+        setSelectedInvoice(null);
+        setMessage("");
 
-    useEffect(() => {
-        setFilteredSale(saleData)
-    }, [saleData])
-
-
-    const handleStartDTPicker = (date) => {
-        setStartDate(date);
-    }
-
-    const handleEndDTPicker = (date) => {
-        setEndDate(date);
-    }
-
-    const handleSubmit = event => {
-        event.preventDefault();
-        //console.log(cAgent[0].id)
-      if(invoiceNo==""){
-      if (cCustomer.length > 0 && cAgent.length > 0 ) {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,cAgent[0].id,"0","0");
-        }
-        else if (cCustomer.length > 0){
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id,"0","0","0");
-        }
-        else if (cAgent.length > 0){
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0", cAgent[0].id,"0","0");
-        }
-        else {
-            fetchSaleByDate(startDate.toDateString(), endDate.toDateString(), "0","0","0","0");
-        }
-        fetchSaleByDateSummary(startDate.toDateString(), endDate.toDateString());
-    }
-    else
-    {
-        fetchSaleInvoiceDetailAsync(invoiceNo);  
-        //clear all other options
-        //should be fixed by setting data in array and resetting the array
-        setFilteredSale("")
-
-    }
-    }
-
-    const selectInvoice = (item) => {
-        console.log("Select Invoice clicked");
-       // console.log(item.id);
-       // console.log(`customer id = ${item.customerId}`)
-       
-        // const { fetchUserByInputAsync } = this.props;
-        fetchUserByInputAsync(item.customerId);
-        fetchSaleInvoiceDetailAsync(item.saleInvoiceId);
-
-
-        
-    }
-
-    const handleChange = event => {
-        //console.log(event);
-       if (event.target.id === "customerSearch") {
-            console.log(`customer input=${customerInput} ${event.target.value}`)
-            if (userData.user) {
-                setFilteredOptionsCustomer(userData.user.filter(
-                    // console.log(userData[0].name)
-                    (option) =>
-                        option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
-                    //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
-                ));
-                setActiveOptionCustomer(0);
-                setShowOptionsCustomer(true);
-                //setCustomerInput(customerInput);
-                setCustomerInput(event.target.value);
-            }
-            else { setMessage(`No data for customer search...`) }
-        }
-        else if (event.target.id === "agentSearch") {
-            setFilteredOptionsAgent(userData.user.filter(
-                (option) => option.name.toLowerCase().indexOf(agentInput.toLowerCase()) > -1
-                    && option.roles.toUpperCase() === "SALEAGENT"
-            ));
-            setActiveOptionAgent(0);
-            setShowOptionsAgent(true);
-            //setCustomerInput(customerInput);
-            setAgentInput(event.target.value);
-        }
-        else if (event.target.id === "invoiceNo"){
-            setInvoiceNo(event.target.value);
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////
-    /////////////////////////// Drop down logic for Customer 
-    const onKeyDownCustomer = (e) => {
-        //console.log("On change is fired")
-        // const { activeOption, filteredOptions } = this.props;
-        if (e.keyCode === 13) {
-            setActiveOptionCustomer(0);
-            setShowOptionsCustomer(false);
-            setCustomerInput(filteredOptionsCustomer[activeOptionCustomer]);
-        } else if (e.keyCode === 38) {
-            if (activeOptionCustomer === 0) {
-                //setcCustomer([]);
-                return;
-            }
-            setActiveOptionCustomer(activeOptionCustomer - 1)
-        } else if (e.keyCode === 40) {
-            if (activeOptionCustomer - 1 === filteredOptionsCustomer.length) {
-                //setcCustomer([]);
-                return;
-            }
-            setActiveOptionCustomer(activeOptionCustomer + 1)
-        }
-    };
-    const onClickCustomer = (e) => {
-        setActiveOptionCustomer(0);
-        setFilteredOptionsCustomer([]);
-        setShowOptionsCustomer(false);
-
-        // console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
-        // console.log(`user data${userData.user[0].id}`);
-        const selectedCustomer = userData.user.filter(
-            (option) => option.id == e.currentTarget.dataset.id
-        );
-
-        setCustomerInput(selectedCustomer[0].name);
-        setcCustomer(selectedCustomer);
-
-        // console.log(cItem[0].name)
-    };
-    let optionListCustomer;
-    if (showOptionsCustomer && customerInput) {
-        // console.log(filteredOptionsCustomer);
-        // console.log(filteredOptionsCustomer.length)
-        if (filteredOptionsCustomer.length) {
-            optionListCustomer = (
-                <ul className="options">
-                    {filteredOptionsCustomer.map((optionName, index) => {
-                        let className;
-                        if (index === activeOptionCustomer) {
-                            className = 'option-active';
-                        }
-                        return (
-                            <li key={optionName.id} className={className} data-id={optionName.id} onClick={onClickCustomer}>
-                                <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th className="th-sm">Name</th>
-                                            <th>Address</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{optionName.name}</td>
-                                            <td>{optionName.address}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </li>
-                        );
-                    })}
-                </ul>
-            );
+        if (invoiceNo.trim()) {
+            fetchSaleInvoiceDetailAsync(invoiceNo.trim());
         } else {
-            optionListCustomer = (
-                <div className="no-options">
-                    <em>No Option!</em>
-                </div>
+            const custId = selectedCustomer ? selectedCustomer.id : "0";
+            const agentId = selectedAgent ? selectedAgent.id : "0";
+
+            fetchSaleByDate(
+                startDate.toLocaleDateString('en-US'),
+                endDate.toLocaleDateString('en-US'),
+                custId,
+                agentId,
+                "0",
+                "0"
             );
-        }
-    }
 
-
-    //////////////////////////////////////////////////////////////////////
-
-//////////////////////////////////////////////////////////////////////
-    /////////////////////////// Drop down logic for Agent 
-    const onKeyDownAgent = (e) => {
-        //console.log("On change is fired")
-        // const { activeOption, filteredOptions } = this.props;
-        if (e.keyCode === 13) {
-            setActiveOptionAgent(0);
-            setShowOptionsAgent(false);
-            setAgentInput(filteredOptionsAgent[activeOptionAgent]);
-        } else if (e.keyCode === 38) {
-            if (activeOptionAgent === 0) {
-                //setcCustomer([]);
-                return;
-            }
-            setActiveOptionAgent(activeOptionAgent - 1)
-        } else if (e.keyCode === 40) {
-            if (activeOptionAgent - 1 === filteredOptionsAgent.length) {
-                //setcCustomer([]);
-                return;
-            }
-            setActiveOptionAgent(activeOptionAgent + 1)
+            fetchSaleByDateSummary(
+                startDate.toLocaleDateString('en-US'),
+                endDate.toLocaleDateString('en-US')
+            );
         }
     };
-    const onClickAgent = (e) => {
-        setActiveOptionAgent(0);
-        setFilteredOptionsAgent([]);
-        setShowOptionsAgent(false);
 
-        // console.log(e.currentTarget.dataset.id);
-        // console.log(itemData);
-        const selectedAgent = userData.user.filter(
-            (option) => option.id == e.currentTarget.dataset.id
-        );
-        setAgentInput(selectedAgent[0].name);
-        setcAgent(selectedAgent);
-
-        // console.log(cItem[0].name)
+    const selectInvoice = (invoice) => {
+        setSelectedInvoice(invoice);
+        fetchSaleInvoiceDetailAsync(invoice.saleInvoiceId);
     };
-    let optionListAgent;
-    if (showOptionsAgent && agentInput) {
-        // console.log(filteredOptionsAgent);
-        // console.log(filteredOptionsAgent.length)
-        if (filteredOptionsAgent.length) {
-            optionListAgent = (
-                <ul className="options">
-                    {filteredOptionsAgent.map((optionName, index) => {
-                        let className;
-                        if (index === activeOptionAgent) {
-                            className = 'option-active';
-                        }
-                        return (
-                            <li key={optionName.id} className={className} data-id={optionName.id} onClick={onClickAgent}>
-                                <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th className="th-sm">Name</th>
-                                            <th>Address</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{optionName.name}</td>
-                                            <td>{optionName.address}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
 
-                            </li>
-                        );
-                    })}
-                </ul>
-            );
-        } else {
-            optionListAgent = (
-                <div className="no-options">
-                    <em>No Option!</em>
-                </div>
-            );
-        }
-    }
-    //////////////////////////////////////////////////////////////////////
+    const clearCustomer = () => {
+        setSelectedCustomer(null);
+        setCustomerSearch("");
+    };
 
+    const clearAgent = () => {
+        setSelectedAgent(null);
+        setAgentSearch("");
+    };
+
+    const handlePrint = () => window.print();
+
+    if (!access) return <div className="container mt-5"><div className="alert alert-danger text-center">Access Denied</div></div>;
 
     return (
-        <div className="submit-form container">
-            <h1>Sale Report</h1>
-            <form onSubmit={handleSubmit}>
-                <div className="form-group row">
-                    <div className="col-sm-3">
-                        Start Date
-                        <DatePicker id="datePicker" selected={startDate} onChange={handleStartDTPicker}
-                        name="startDate" dateFormat="MM/dd/yyyy" />
-                    </div>
-                    <div className="col-sm-3">
-                        End Date
-                        <DatePicker id="datePicker" selected={endDate} onChange={handleEndDTPicker}
-                            name="startDate" dateFormat="MM/dd/yyyy" />
-                    </div>
-                </div>
+        <div className="container mt-4">
+            <h1 className="mb-4 text-center fw-bold">Sale Report</h1>
 
-                <div className="form-group row">
-
-                    <div className="col-sm-2">
-                        <label className="col-form-label" htmlFor="Item">Customer Name</label>
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="customerSearch"
-                            id="customerSearch"
-                            placeholder="Select Customer"
-                            value={customerInput}
-                            onChange={handleChange}
-                            onKeyDown={onKeyDownCustomer}
-                        />
-
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="Customer"
-                            id="Customer"
-                            placeholder="Customer Id"
-                            value={cCustomer[0] ? cCustomer[0].id : ""}
-                            disabled />
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="Customer Address"
-                            id="customerAddress"
-                            placeholder="Address"
-                            value={cCustomer[0] ? cCustomer[0].address : ""}
-                            disabled />
-                    </div>
-                    {optionListCustomer}
-
-
-                </div>
-                <div className="form-group row">
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Agent Name</label>
+            {/* Search Form */}
+            <div className="card mb-4 shadow">
+                <div className="card-body">
+                    <form onSubmit={handleSubmit}>
+                        {/* Date Pickers */}
+                        <div className="row g-3 mb-3">
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold">Start Date</label>
+                                <DatePicker selected={startDate} onChange={setStartDate} className="form-control" dateFormat="MM/dd/yyyy" />
                             </div>
-                            <div className="col-sm-2">   
-                                <input
-                                    type="text"
-                                    name="agentSearch"
-                                    id="agentSearch"
-                                    placeholder="Select Agent"
-                                    value={agentInput}
-                                    onChange={handleChange}
-                                    onKeyDown={onKeyDownAgent}
-                                />
+                            <div className="col-md-4">
+                                <label className="form-label fw-bold">End Date</label>
+                                <DatePicker selected={endDate} onChange={setEndDate} className="form-control" dateFormat="MM/dd/yyyy" minDate={startDate} />
                             </div>
-                            
-                            <div className="col-sm-2">    
-                                <input
-                                    type="text"
-                                    name="Agent"
-                                    id="Agnet"
-                                    placeholder="Select Agent"
-                                    value={cAgent[0] ? cAgent[0].id : "" }
-                                    disabled />
+                            <div className="col-md-4 align-self-end">
+                                <button type="submit" className="btn btn-primary w-100">Search</button>
                             </div>
-                            <div className="col-sm-4">
-                                <input
-                                    type="text"
-                                    name="Agent Address"
-                                    id="agentAddress"
-                                    placeholder="Address"
-                                    value={cAgent[0] ? cAgent[0].address : ""}
-                                    disabled />
-                            </div>
-                            <div>
-                                {optionListAgent}
-                            </div>
-
                         </div>
-                        <div className="form-group row">
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Inovce No.</label>
+
+                        {/* Customer & Agent */}
+                        <div className="row g-3">
+                            <div className="col-md-6">
+                                <label className="form-label fw-bold">Customer</label>
+                                <div className="position-relative">
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Search customer..."
+                                        value={customerSearch}
+                                        onChange={(e) => {
+                                            setCustomerSearch(e.target.value);
+                                            setShowCustomerDropdown(true);
+                                        }}
+                                    />
+                                    {selectedCustomer && <button type="button" className="btn btn-sm btn-outline-danger position-absolute end-0 top-50 translate-middle-y me-2" onClick={clearCustomer}>✕</button>}
+                                </div>
+                                {showCustomerDropdown && filteredCustomers.length > 0 && (
+                                    <div className="position-absolute bg-white border rounded shadow mt-1" style={{ zIndex: 1000, maxHeight: '300px', overflowY: 'auto', width: '100%' }}>
+                                        <table className="table table-sm table-hover mb-0">
+                                            <thead className="table-light"><tr><th>Name</th><th>Address</th></tr></thead>
+                                            <tbody>
+                                                {filteredCustomers.map(c => (
+                                                    <tr key={c.id} onClick={() => { setSelectedCustomer(c); setCustomerSearch(c.name); setShowCustomerDropdown(false); }}>
+                                                        <td><strong>{c.name}</strong></td>
+                                                        <td>{c.address || "-"}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
                             </div>
-                            <div className="col-sm-2">   
+
+                            <div className="col-md-6">
+                                <label className="form-label fw-bold">Agent</label>
+                                <div className="position-relative">
+                                    <input
+                                        type="text"
+                                        className="form-control"
+                                        placeholder="Search agent..."
+                                        value={agentSearch}
+                                        onChange={(e) => {
+                                            setAgentSearch(e.target.value);
+                                            setShowAgentDropdown(true);
+                                        }}
+                                    />
+                                    {selectedAgent && <button type="button" className="btn btn-sm btn-outline-danger position-absolute end-0 top-50 translate-middle-y me-2" onClick={clearAgent}>✕</button>}
+                                </div>
+                                {showAgentDropdown && filteredAgents.length > 0 && (
+                                    <div className="position-absolute bg-white border rounded shadow mt-1" style={{ zIndex: 1000, maxHeight: '300px', overflowY: 'auto', width: '100%' }}>
+                                        <table className="table table-sm table-hover mb-0">
+                                            <thead className="table-light"><tr><th>Name</th><th>Address</th></tr></thead>
+                                            <tbody>
+                                                {filteredAgents.map(a => (
+                                                    <tr key={a.id} onClick={() => { setSelectedAgent(a); setAgentSearch(a.name); setShowAgentDropdown(false); }}>
+                                                        <td><strong>{a.name}</strong></td>
+                                                        <td>{a.address || "-"}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Invoice No */}
+                        <div className="row g-3 mt-2">
+                            <div className="col-md-6">
+                                <label className="form-label fw-bold">Invoice No. (Optional)</label>
                                 <input
                                     type="text"
-                                    name="invoiceNo"
-                                    id="invoiceNo"
-                                    placeholder="InvoiceNo"
+                                    className="form-control"
+                                    placeholder="Enter invoice number"
                                     value={invoiceNo}
-                                    onChange={handleChange}
+                                    onChange={(e) => setInvoiceNo(e.target.value)}
                                 />
                             </div>
                         </div>
-
-                <div >
-                    <button className="btn btn-success" type="submit" >Search</button>
-
+                    </form>
                 </div>
-            </form>
+            </div>
 
-            {saleSummary && filteredSale?        
-            <PrintSaleSummary data={saleSummary} sDate={startDate.toDateString()} eDate={endDate.toDateString()} />
-            :
-            ""
-            }
+            {/* === RESULTS ONLY AFTER SEARCH === */}
+            {hasSearched && (
+                <>
+                    {/* Summary Print */}
+                    {saleSummary.length > 0 && (
+                        <div className="mb-4">
+                            <PrintSaleSummary data={saleSummary} sDate={startDate.toLocaleDateString('en-US')} eDate={endDate.toLocaleDateString('en-US')} />
+                        </div>
+                    )}
 
-            { filteredSale ?
-               <div>
-                   <div>
-                    <div className="inputFormHeader"><h2>Summary Sale Data</h2></div>
-                    <div className="inputForm">
-                    <div>Total Records = {totalSaleRecord}</div>    
-                    <div>Total Item = {totalSaleItem}</div>
-                    <div>Total Invoice Value = {totalSaleInvVal}</div>
-                    <div>Total profit = {totalSaleProfit} </div>
-                    </div>
-                </div>
-               <div>
-                    
-                    <h3>Sale View</h3>
-                    <table border='1'>
-                        <thead>
-                            <tr>
-                                <th>Reff Invoice</th>
-                                <th>Customer Name</th>
-                                <th>Sale Agent</th>
-                                <th>Total Items</th>
-                                <th>Invoice Value</th>
-                                <th>Profit</th>
-                                <th>Date Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {   
-                                filteredSale.map((item, index) => (
-                                    console.log(item),
-                                    <tr key={index}
-                                        onClick={() => selectInvoice(item)}
+                    {/* No Data */}
+                    {saleData.length === 0 && (
+                        <div className="text-center my-5">
+                            <div className="alert alert-info d-inline-block">
+                                <h5>No sale records found</h5>
+                                <p className="mb-0">Try adjusting dates, customer, agent, or invoice number.</p>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Sale Data Table */}
+                    {saleData.length > 0 && (
+                        <>
+                            {/* Summary */}
+                            <div className="card mb-4 shadow">
+                                <div className="card-header bg-success text-white">
+                                    <h4 className="mb-0">Sale Summary</h4>
+                                </div>
+                                <div className="card-body">
+                                    <div className="row text-center">
+                                        <div className="col-md-3"><h5>Records</h5><h3 className="text-primary">{summary.records}</h3></div>
+                                        <div className="col-md-3"><h5>Total Items</h5><h3 className="text-success">{summary.totalItems}</h3></div>
+                                        <div className="col-md-3"><h5>Invoice Value</h5><h3 className="text-danger">{summary.totalValue.toFixed(3)}</h3></div>
+                                        <div className="col-md-3"><h5>Total Profit</h5><h3 className="text-info">{summary.totalProfit.toFixed(3)}</h3></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Actions */}
+                            <div className="mb-4 text-end">
+                                <DownloadTableExcel filename={`sale_report_${startDate.toISOString().slice(0, 10)}_${endDate.toISOString().slice(0, 10)}`} sheet="Sales" currentTableRef={tableRef.current}>
+                                    <button className="btn btn-success me-2">Export Excel</button>
+                                </DownloadTableExcel>
+                                <button className="btn btn-secondary" onClick={handlePrint}>Print</button>
+                                {/* Sale Invoice Print Button */}
+                                {selectedInvoice && saleInvoiceDetailData.length > 0 && (
+                                    // <PdfInvoice invoice={saleInvoiceDetailData} />
+                                    <button
+                                        type="button"
+                                        className="btn btn-outline-primary btn-sm"
+                                        onClick={() => PdfInvoice({ invoice: saleInvoiceDetailData })} // Trigger PDF print
+                                        title="Print Invoice"
                                     >
-                                        <td>{item.saleInvoiceId}</td>
-                                        <td>{item.name}</td>
-                                        <td>{item.agentname}</td>
-                                        <td>{item.totalitems}</td>
-                                        <td>{item.invoicevalue}</td>
-                                        <td>{parseFloat(item.profit).toFixed(3)}</td>
-                                        <td>{item.date}</td>
+                                        <i className="fas fa-print"></i> {/* Printer icon */}
+                                    </button>
+                                )}
+                            </div>
 
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                </div>
-                :
-                ""
-            }
-            {saleInvoiceDetailData ?
-                <div>
-                    <h3>Sale Invoice Detail View</h3>
-                    <table id='returnTBL' border='1'>
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Date</th>
-                                <th>Sale Id</th>
-                                <th>Item Name</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                                <th>Cost</th>
-                                <th>profit</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { saleInvoiceDetailData.map((item, index) => (
-                                    // console.log(item),
-                                    <tr key={index}
-                                       // onClick={() => editInvoceHandler(item)}
-                                    >
-                                        <td>{item.id}</td>
-                                        <td>{item.createdAt}</td>
-                                        <td>{item.saleInvoiceId}</td>
-                                        <td>{item.itemname}</td>
-                                        <td>{item.price}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.cost}</td>
-                                        <td>{parseFloat((item.price*item.quantity)-(item.cost * item.quantity)).toFixed(3)}</td>
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
-                    <PdfInvoice invoice={saleInvoiceDetailData} />
-         
-                </div>
+                            {/* Main Table */}
+                            <div className="card shadow mb-4">
+                                <div className="card-header bg-primary text-white d-flex justify-content-between">
+                                    <h4 className="mb-0">Sales Invoices</h4>
+                                    <div>
+                                        <label className="text-white me-2">Rows per page:</label>
+                                        <select className="form-select d-inline-block w-auto" value={itemsPerPage} onChange={(e) => setItemsPerPage(Number(e.target.value))}>
+                                            {pageSizeOptions.map(n => <option key={n}>{n}</option>)}
+                                        </select>
+                                    </div>
+                                </div>
+                                <div className="card-body">
+                                    <div className="table-responsive">
+                                        <table className="table table-striped table-hover" ref={tableRef}>
+                                            <thead className="table-dark">
+                                                <tr>
+                                                    <th>Reff Invoice</th>
+                                                    <th>Customer</th>
+                                                    <th>Agent</th>
+                                                    <th>Total Items</th>
+                                                    <th>Invoice Value</th>
+                                                    <th>Profit</th>
+                                                    <th>Date</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {paginatedData.map((item) => (
+                                                    <tr key={item.saleInvoiceId} className="cursor-pointer" onClick={() => selectInvoice(item)}>
+                                                        <td>{item.saleInvoiceId}</td>
+                                                        <td>{item.name || "N/A"}</td>
+                                                        <td>{item.agentname || "N/A"}</td>
+                                                        <td>{item.totalitems}</td>
+                                                        <td>{parseFloat(item.invoicevalue || 0).toFixed(3)}</td>
+                                                        <td>{parseFloat(item.profit || 0).toFixed(3)}</td>
+                                                        <td>{new Date(item.date).toLocaleString()}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                :
-                ""
-            }
-         
+                                    {/* Pagination */}
+                                    {totalPages > 1 && (
+                                        <nav className="mt-4">
+                                            <ul className="pagination justify-content-center">
+                                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                                    <button className="page-link" onClick={() => goToPage(currentPage - 1)}>Previous</button>
+                                                </li>
+                                                {[...Array(totalPages)].map((_, i) => (
+                                                    <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                                        <button className="page-link" onClick={() => goToPage(i + 1)}>{i + 1}</button>
+                                                    </li>
+                                                ))}
+                                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                                    <button className="page-link" onClick={() => goToPage(currentPage + 1)}>Next</button>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Invoice Details */}
+                            {selectedInvoice && saleInvoiceDetailData.length > 0 && (
+                                <div className="card shadow">
+                                    <div className="card-header bg-info text-white">
+                                        <h4 className="mb-0">Invoice Details - ID: {selectedInvoice.saleInvoiceId} ({selectedInvoice.name})</h4>
+                                    </div>
+                                    <div className="card-body">
+                                        <div className="table-responsive">
+                                            <table className="table table-striped" ref={detailTableRef}>
+                                                <thead className="table-light">
+                                                    <tr>
+                                                        <th>ID</th>
+                                                        <th>Date</th>
+                                                        <th>Sale ID</th>
+                                                        <th>Item</th>
+                                                        <th>Price</th>
+                                                        <th>Qty</th>
+                                                        <th>Cost</th>
+                                                        <th>Profit</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {saleInvoiceDetailData.map((item) => (
+                                                        <tr key={item.id}>
+                                                            <td>{item.id}</td>
+                                                            <td>{new Date(item.createdAt).toLocaleString()}</td>
+                                                            <td>{item.saleInvoiceId}</td>
+                                                            <td>{item.itemname || "N/A"}</td>
+                                                            <td>{parseFloat(item.price || 0).toFixed(3)}</td>
+                                                            <td>{item.quantity}</td>
+                                                            <td>{parseFloat(item.cost || 0).toFixed(3)}</td>
+                                                            <td>{parseFloat((item.price * item.quantity) - (item.cost * item.quantity)).toFixed(3)}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                        <PdfInvoice invoice={saleInvoiceDetailData} />
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </>
+            )}
+
+            {/* Initial State */}
+            {!hasSearched && (
+                <div className="text-center my-5 text-muted">
+                    <h4>Please use the search form above to generate a sale report</h4>
+                    <p>Select dates, optionally customer/agent, or enter invoice number, then click Search.</p>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
 const mapStateToProps = state => ({
-    itemData: state.item.items,
-    user: state.user.users,
-    saleData: state.sale.sale,
-    saleSummary : state.sale.saleSummary,
-    saleInvoiceDetailData: state.sale.saleInvoiceDetail,
-    userData: state.user.users
-})
-
-const mapDispatchToProps = dispatch => ({
-    fetchSaleByDate: (sDate, eDate, id, id1, itemId, invoiceId) => dispatch(fetchSaleByDate(sDate, eDate, id, id1, itemId, invoiceId)),
-    fetchSaleByDateSummary :(sDate,eDate) => dispatch(fetchSaleByDateSummary(sDate, eDate)),
-    fetchSaleInvoiceDetailAsync: (invoiceId) => dispatch(fetchSaleInvoiceDetailAsync(invoiceId)),
-    fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
-    fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
-    fetchItemStartAsync: () => dispatch(fetchItemStartAsync())
-
+    currentUser: state.user.user,
+    saleData: state.sale.sale || [],
+    saleSummary: state.sale.saleSummary || [],
+    saleInvoiceDetailData: state.sale.saleInvoiceDetail || [],
+    userData: state.user.users || { user: [] }
 });
+
+const mapDispatchToProps = {
+    fetchSaleByDate,
+    fetchSaleInvoiceDetailAsync,
+    fetchSaleByDateSummary,
+    fetchUserStartAsync,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SaleReport);

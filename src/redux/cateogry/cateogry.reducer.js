@@ -31,7 +31,13 @@ const categoryReducer = (state = INITIAL_STATE,action) =>{
             return{
                 ...state,
                 errorMessage:action.payload
-            }    
+            }  
+        
+        case CategoryActionType.CLEAR_CURRENT_CATEGORY:
+            return{
+                ...state,
+                currentCategory:null
+            }
         default:
             return state;
     }

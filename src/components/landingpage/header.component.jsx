@@ -8,7 +8,7 @@ const HeaderComponent = () => {
     //const headerImage = import(`assets/img/c2.jpg`);
     return (
       
-        <div class="jumbotron">
+        <div className="jumbotron">
         <Image
         src={`assets/header/${import.meta.env.VITE_HEADER_IMAGE}`}
         alt=""

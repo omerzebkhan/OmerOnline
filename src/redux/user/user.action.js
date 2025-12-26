@@ -76,7 +76,7 @@ export const setMessage = (message) => ({
       (data) => {
         dispatch({
           type: UserActionType.LOGIN_SUCCESS,
-          payload: { user: data },
+          payload:data,
         });
   
         return Promise.resolve();
@@ -104,6 +104,7 @@ export const setMessage = (message) => ({
   };
 
   export const logout = () => (dispatch) => {
+
     AuthService.logout();
   
     dispatch({
@@ -112,13 +113,32 @@ export const setMessage = (message) => ({
   };
 
   /////////////////////////////////
-
-export const fetchUserStartAsync = (params) => {
+//this is for paging 
+export const fetchUserStartAsyncPaging = (params) => {
    // console.log(`page = ${params.page}   pageSize = ${params.pageSize} `)
     return dispatch =>{
        
         dispatch (fetchUserStart());
         userService.getAll(params)
+        .then(response => {
+          console.log(response.data)
+          const userMap = response.data;
+          console.log(userMap);
+          dispatch(fetchUserSuccess(userMap)); 
+
+        })
+        .catch(error=>{
+          dispatch(fetchUserFailure(error.response.request.response.message))
+        });
+        
+}};
+
+export const fetchUserStartAsync = () => {
+   // console.log(`page = ${params.page}   pageSize = ${params.pageSize} `)
+    return dispatch =>{
+       
+        dispatch (fetchUserStart());
+        userService.getAll()
         .then(response => {
           console.log(response.data)
           const userMap = response.data;

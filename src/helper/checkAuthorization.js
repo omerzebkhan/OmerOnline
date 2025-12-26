@@ -7,7 +7,8 @@
       return UserService.getAdminBoard()
       .then(
           (response) => {
-           // console.log(`check Admin has been called.${response}`)
+            console.log(`check Admin has been called...`);
+            console.log(response.data);
           //   res = response.data;
           return (response.data);
           }
@@ -28,7 +29,7 @@
       };
 
   export const checkAccess = (srcName,rights) =>{
-    //const currentUser = useSelector((state) => state.user.user.user);
+    //const currentUser = useSelector((state) => state.user.user);
    // console.log(`rights are ${rights}  ${rights[0]}`)
    var access = rights.some(function (val) { 
     var sName = val.split(",");

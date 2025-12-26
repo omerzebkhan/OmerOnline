@@ -1,337 +1,245 @@
 import React, { useState, useEffect } from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css'
-import { connect} from 'react-redux';
-
-import { fetchCategoryStartAsync } from '../../redux/cateogry/category.actions';
+import { connect } from 'react-redux';
 import UploadService from "../../services/FileUploadService";
 import subCategoryService from "../../services/subCategory";
-import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
+import { fetchCategoryStartAsync } from '../../redux/cateogry/category.actions';
+import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
 
-
-const SubCategory = ({ fetchCategoryStartAsync, CategoryData,currentUser }) => {
-
-  const [loading, setLoading] = useState(false);
-  const [name, setName] = useState("");
-  const [description, setDescription] = useState("");
-  const [activeOption, setActiveOption] = useState(0);
-  const [filteredOptions, setFilteredOptions] = useState([]);
-  const [showOptions, setShowOptions] = useState(false);
+const AddSubCategory = ({
+  selectedSubCategory,
+  CategoryData,
+  currentUser,
+  fetchCategoryStartAsync
+}) => {
+  const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const [userInput, setUserInput] = useState('');
-  const [selCat, setSelCat] = useState("");
-  const [message, setMessage] = useState("");
+  const [selCat, setSelCat] = useState('');
+  const [filteredOptions, setFilteredOptions] = useState([]);
+  const [activeOption, setActiveOption] = useState(0);
+  const [showOptions, setShowOptions] = useState(false);
 
-  const [selectedFiles, setSelectedFiles] = useState(undefined);
-  const [currentFile, setCurrentFile] = useState(undefined);
+  const [selectedFiles, setSelectedFiles] = useState(null);
+  const [currentFile, setCurrentFile] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [content, setContent] = useState("");
-  const [access,setAccess] = useState(false);
+  const [message, setMessage] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [access, setAccess] = useState(false);
+  const [content, setContent] = useState('');
 
-  useEffect(() => {
-    checkAdmin().then((r) => { setContent(r);});
-    setAccess(checkAccess("ADD SUBCATEGORY",currentUser.rights));
-  }
-, []);
-
-
+  // Fetch categories on mount
   useEffect(() => {
     fetchCategoryStartAsync();
+    checkAdmin().then(r => setContent(r));
+    setAccess(checkAccess("ADD SUBCATEGORY", currentUser.rights));
+  }, []);
 
-  }, [fetchCategoryStartAsync])
-
-  const selectFile = (event) => {
-    setSelectedFiles(event.target.files);
-  };
-
-  const upload = (id) => {
-    let currentFile = selectedFiles[0];
-    // console.log(`image brandid = ${id}`)
-    setProgress(0);
-    setCurrentFile(currentFile);
-    console.log(currentFile);
-    const lastDot = currentFile.name.lastIndexOf('.');
-    const ext = currentFile.name.substring(lastDot + 1);
-    var fn = `subcat${id}.${ext}`;
-    //console.log(`file name should be ${fn}`);
-    // file.originalname = `${req.body.filename}.${ext}`;
-
-    UploadService.upload(currentFile, (event) => {
-      setProgress(Math.round((100 * event.loaded) / event.total));
-    }, fn, '\\App\\uploads\\subCategoriesImages\\')
-      .then((response) => {
-        if (import.meta.env.VITE_S3 ==="True"){
-          setMessage(response.data.message);
-          //console.log(response)
-          fn = `${response.data.data.Location}`
-          //console.log(fn)
-          }
-          else
-          {
-              setMessage(response.data.message);
-            //  console.log(response.data.message)
-          }
-        var data = {
-          imageUrl: fn
-        };
-        // console.log(`sending to update sub cat data
-        // data = ${data}`)
-        subCategoryService.update(id, data);
-
-      })
-      //   .then((files) => {
-      //     setFileInfos(files.data);
-      //   })
-      .catch((error) => {
-        console.log(`error message=${error.message}`);
-        setProgress(0);
-        setMessage("Could not upload the file!");
-        //setMessage(response.data.message);
-        setCurrentFile(undefined);
-      });
-
-    setSelectedFiles(undefined);
-  };
-
-
-
-  const saveSubCategory = () => {
-    //console.log(`selected category = ${selCat}`)
-    var data = {
-      name: name,
-      description: description,
-      category: selCat
-    };
-    console.log(data)
-    subCategoryService.create(data)
-      .then(response => {
-        // this.setState({
-        //   id: response.data.id,
-        //   name: response.data.name,
-        //   description: response.data.description,
-        //   url: response.data.url
-        // });
-        // console.log(response.status);
-        // console.log(response.data.id);
-
-        setMessage(`Sub Category successfully Added Id = ${response.data.id}`);
-        console.log(response.data);
-
-        // upload image
-        upload(response.data.id);
-
-        // update the 
-
-      })
-      .catch(e => {
-        console.log(e);
-      });
-  }
-
-  const handleSubmit = async event => {
-    event.preventDefault();
-    // //uploading image on firestore image name should be brand name
-    // setLoading(true);
-
-    //save sub Categories
-    saveSubCategory();
-    setLoading(false);
-    setName("");
-    setDescription("");
-
-
-
-  }
-
-  const onKeyDown = (e) => {
-    // console.log("On change is fired")
-    // const { activeOption, filteredOptions } = this.props;
-    if (e.keyCode === 13) {
-      setActiveOption(0);
-      setShowOptions(false);
-      setUserInput(filteredOptions[activeOption]);
-    } else if (e.keyCode === 38) {
-      if (activeOption === 0) {
-        return;
-      }
-      setActiveOption(activeOption - 1)
-    } else if (e.keyCode === 40) {
-      if (activeOption - 1 === filteredOptions.length) {
-        return;
-      }
-      setActiveOption(activeOption + 1)
-    }
-  };
-  const onClick = (e) => {
-    setActiveOption(0);
-    setFilteredOptions([]);
-    setShowOptions(false);
-    setUserInput(e.currentTarget.innerText);
-    setSelCat(e.currentTarget.dataset.id);
-   // console.log(e.currentTarget.dataset.id)
-
-  };
-
-  const handleChange = event => {
-    console.log("handle change is fired")
-    //console.log(event);
-    if (event.target.id === "file") {
-      //alert("file change event fired")
-      //console.log(event.target.files[0]);
-      //setFile(event.target.files[0]);
-
-    }
-    else if (event.target.id === "Name") {
-      setName(event.target.value);
-      // setFileName(event.target.value);
-    }
-    else if (event.target.id === "Description") {
-      setDescription(event.target.value);
-    }
-    else if (event.target.id === "Category") {
-      const options = CategoryData;
-      const userInput = event.currentTarget.value;
-
-      setFilteredOptions(CategoryData.filter(
-        (option) => option.name.toLowerCase().indexOf(userInput.toLowerCase()) > -1
-    ));
-      
-      setActiveOption(0);
-     // setFilteredOptions(filteredOptions);
-      setShowOptions(true);
-      setUserInput(userInput);
-    }
-  }
-
-  let optionList;
-  if (showOptions && userInput) {
-    console.log(filteredOptions);
-    console.log(filteredOptions.length)
-    if (filteredOptions.length) {
-      optionList = (
-        <ul className="options">
-          {filteredOptions.map((optionName, index) => {
-            let className;
-            if (index === activeOption) {
-              className = 'option-active';
-            }
-            return (
-              <li className={className} data-id={optionName.id} onClick={onClick}>
-                {optionName.name}
-              </li>
-            );
-          })}
-        </ul>
-      );
+  // Prefill fields if editing
+  useEffect(() => {
+    if (selectedSubCategory) {
+      setName(selectedSubCategory.name || '');
+      setDescription(selectedSubCategory.description || '');
+      setSelCat(selectedSubCategory.category?.id || '');
+      setUserInput(selectedSubCategory.category?.name || '');
+      setSelectedFiles(null);
+      setMessage('');
     } else {
-      optionList = (
-        <div className="no-options">
-          <em>No Option!</em>
-        </div>
-      );
+      setName('');
+      setDescription('');
+      setSelCat('');
+      setUserInput('');
+      setSelectedFiles(null);
+      setMessage('');
     }
-  }
+  }, [selectedSubCategory]);
 
+  // Handle file selection
+  const handleFileChange = (e) => {
+    setSelectedFiles(e.target.files);
+  };
 
+  // Upload image
+  const upload = async (id) => {
+    if (!selectedFiles) return;
+    const file = selectedFiles[0];
+    setCurrentFile(file);
+    setProgress(0);
 
+    const lastDot = file.name.lastIndexOf('.');
+    const ext = file.name.substring(lastDot + 1);
+    let fileName = `subcat${id}.${ext}`;
+
+    try {
+      const response = await UploadService.upload(file, (event) => {
+        setProgress(Math.round((100 * event.loaded) / event.total));
+      }, fileName, '\\App\\uploads\\subCategoriesImages\\');
+
+      const imageUrl = response.data?.data?.Location || fileName;
+      setMessage(response.data?.message || 'File uploaded');
+
+      await subCategoryService.update(id, { imageUrl });
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Upload failed');
+    }
+    setSelectedFiles(null);
+  };
+
+  // Save SubCategory (Create or Update)
+  const handleSave = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+
+    const data = { name, description, category: selCat };
+
+    try {
+      if (selectedSubCategory) {
+        await subCategoryService.update(selectedSubCategory.id, data);
+        setMessage('SubCategory updated successfully');
+        if (selectedFiles) await upload(selectedSubCategory.id);
+      } else {
+        const response = await subCategoryService.create(data);
+        setMessage(`SubCategory created with ID = ${response.data.id}`);
+        if (selectedFiles) await upload(response.data.id);
+      }
+    } catch (err) {
+      setMessage(err.response?.data?.message || 'Save failed');
+    }
+
+    setLoading(false);
+    setName('');
+    setDescription('');
+    setSelCat('');
+    setUserInput('');
+    setSelectedFiles(null);
+  };
+
+  // Autocomplete logic
+  const handleCategoryInput = (e) => {
+    const value = e.target.value;
+    setUserInput(value);
+    if (!value) {
+      setShowOptions(false);
+      return;
+    }
+    const options = CategoryData.filter(cat => 
+      cat.name.toLowerCase().includes(value.toLowerCase())
+    );
+    setFilteredOptions(options);
+    setActiveOption(0);
+    setShowOptions(true);
+  };
+
+  const handleOptionClick = (option) => {
+    setSelCat(option.id);
+    setUserInput(option.name);
+    setShowOptions(false);
+    setFilteredOptions([]);
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (filteredOptions.length) handleOptionClick(filteredOptions[activeOption]);
+    } else if (e.key === 'ArrowUp') {
+      if (activeOption > 0) setActiveOption(activeOption - 1);
+    } else if (e.key === 'ArrowDown') {
+      if (activeOption < filteredOptions.length - 1) setActiveOption(activeOption + 1);
+    }
+  };
 
   return (
-    <div>
-    {access ?
-    <div className="submit-form container">
-       {content === "Admin Content." ?
-                <div>
+    <div className="container submit-form">
+      {access ? (
+        <>
+          <h2>{selectedSubCategory ? 'Update SubCategory' : 'Add New SubCategory'}</h2>
+          {loading && <div className="alert alert-warning">Processing...</div>}
+          {message && <div className="alert alert-info">{message}</div>}
 
-      <div className="inputFormHeader"><h1>Add New Sub Category</h1></div>
-      <div className="inputForm">
-      {loading ? <div className="alert alert-warning" role="alert">uploading....</div> : ''}
-      {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-
-        <form onSubmit={handleSubmit}>
-          <div className="form-group row">
-            <label className="col-sm-2 col-form-label" htmlFor="Name">Name</label>
-            <div className="col-sm-10">
+          <form onSubmit={handleSave}>
+            {/* Name */}
+            <div className="form-group">
+              <label>Name</label>
               <input
                 type="text"
-                name="Name"
-                id="Name"
-                placeholder="Name"
+                className="form-control"
                 value={name}
-                onChange={handleChange} />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-2 col-form-label" htmlFor="Description" >Description</label>
-            <div className="col-sm-10">
-              <input
-                type="text"
-                name="Description"
-                id="Description"
-                placeholder="Description"
-                value={description}
-                onChange={handleChange} />
-            </div>
-          </div>
-          <div className="form-group row">
-            <label className="col-sm-2 col-form-label" htmlFor="Category" >Category</label>
-            <div className="col-sm-10">
-              <input
-                type="text"
-                name="Category"
-                id="Category"
-                placeholder="Select Category"
-                value={userInput}
-                onChange={handleChange}
-                onKeyDown={onKeyDown}
+                onChange={e => setName(e.target.value)}
+                required
               />
             </div>
-          </div>
-          {optionList}
-          <div>
-            {currentFile && (
-              <div className="progress">
-                <div
-                  className="progress-bar progress-bar-info progress-bar-striped"
-                  role="progressbar"
-                  aria-valuenow={progress}
-                  aria-valuemin="0"
-                  aria-valuemax="100"
-                  style={{ width: progress + "%" }}
-                >
-                  {progress}%
-          </div>
-              </div>
-            )}
 
-            <label className="btn btn-default">
-              <input type="file" onChange={selectFile} />
-            </label>
+            {/* Description */}
+            <div className="form-group">
+              <label>Description</label>
+              <input
+                type="text"
+                className="form-control"
+                value={description}
+                onChange={e => setDescription(e.target.value)}
+              />
+            </div>
 
-            
-          </div>
+            {/* Category Autocomplete */}
+            <div className="form-group">
+              <label>Category</label>
+              <input
+                type="text"
+                className="form-control"
+                value={userInput}
+                onChange={handleCategoryInput}
+                onKeyDown={handleKeyDown}
+                placeholder="Select Category"
+              />
+              {showOptions && filteredOptions.length > 0 && (
+                <ul className="options list-group mt-1">
+                  {filteredOptions.map((opt, idx) => (
+                    <li
+                      key={opt.id}
+                      className={`list-group-item ${idx === activeOption ? 'active' : ''}`}
+                      onClick={() => handleOptionClick(opt)}
+                    >
+                      {opt.name}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              {showOptions && filteredOptions.length === 0 && (
+                <div className="text-muted mt-1">No options found</div>
+              )}
+            </div>
 
-          <div>
-            <button className="btn btn-primary" disabled={!selectedFiles} type="submit">Add</button>
+            {/* File Upload */}
+            <div className="form-group">
+              <label>SubCategory Image</label>
+              <input type="file" className="form-control" onChange={handleFileChange} />
+              {progress > 0 && (
+                <div className="progress mt-2">
+                  <div className="progress-bar" role="progressbar" style={{ width: `${progress}%` }}>
+                    {progress}%
+                  </div>
+                </div>
+              )}
+            </div>
 
-          </div>
-        </form>
-
-      </div>
-      </div>
-                :
-                content}
+            <button type="submit" className="btn btn-success mt-2">
+              {selectedSubCategory ? 'Update' : 'Add'}
+            </button>
+          </form>
+        </>
+      ) : (
+        <h3>Access denied for this screen</h3>
+      )}
     </div>
-      :
-      "Access denied for the screen"}
-      </div>
   );
-}
+};
 
-const mapStateToProps = state => ({
+const mapStateToProps = (state) => ({
   CategoryData: state.category.category,
-  currentUser: state.user.user.user 
-})
-
-const mapDispatchToProps = dispatch => ({
-  fetchCategoryStartAsync: () => dispatch(fetchCategoryStartAsync())
+  currentUser: state.user.user,
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(SubCategory);
+const mapDispatchToProps = (dispatch) => ({
+  fetchCategoryStartAsync: () => dispatch(fetchCategoryStartAsync()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(AddSubCategory);

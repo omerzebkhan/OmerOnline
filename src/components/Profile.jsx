@@ -3,13 +3,14 @@ import { Navigate } from 'react-router-dom';
 import { useSelector } from "react-redux";
 
 const Profile = () => {
-  const currentUser = useSelector((state) => state.user.user.user);
+  const currentUser = useSelector((state) => state.user?.user || null);
 
   if (!currentUser) {
     console.log(`currentUser is null.......`)
     return <Navigate to="/login" />;
   }
 
+  
   return (
     <div className="container">
       <header className="jumbotron">

@@ -1,111 +1,178 @@
-import React from 'react';
-import {connect} from 'react-redux';
+import React, { useState, useEffect, useMemo } from "react";
+import { connect } from "react-redux";
+import { fetchAllSubCategoryStartAsync } from '../../redux/sub-category/subCategory.actions';
+import { fetchCategoryStartAsync } from '../../redux/cateogry/category.actions';
+import AddSubCategory from './add-subCategory.component';
 
-import {fetchAllSubCategoryStartAsync} from '../../redux/sub-category/subCategory.actions';
-import {fetchCategoryStartAsync} from '../../redux/cateogry/category.actions';
-import SubCategoryList from './list-subCategory.component';
-import { checkAccess } from '../../helper/checkAuthorization';
+const SearchSubCategory = ({
+    SubCategoryData,
+    categoryData,
+    isFetching,
+    currentSubCategory,
+    fetchAllSubCategoryStartAsync,
+    fetchCategoryStartAsync,
+    setCurrentSubCategory,
+}) => {
 
-class SearchSubCategory extends React.Component { 
+    const [filters, setFilters] = useState({ Name: "", Description: "" });
+    const [debouncedFilters, setDebouncedFilters] = useState(filters);
+    const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 8;
 
-    constructor(props) {
-        super(props);
-        this.state = { 
-            content: "",
-            access: false,
-           
+    // Fetch data on mount
+    useEffect(() => {
+        fetchAllSubCategoryStartAsync();
+        fetchCategoryStartAsync();
+    }, [fetchAllSubCategoryStartAsync, fetchCategoryStartAsync]);
+
+    // Debounce filters
+    useEffect(() => {
+        const handler = setTimeout(() => setDebouncedFilters(filters), 300);
+        return () => clearTimeout(handler);
+    }, [filters]);
+
+    // Filtering
+    useEffect(() => {
+        if (!SubCategoryData) return;
+        let result = [...SubCategoryData];
+
+        if (debouncedFilters.Name) {
+            result = result.filter(sub => sub.name.toLowerCase().includes(debouncedFilters.Name.toLowerCase()));
         }
-      }
-      componentDidMount() {
-        this.setState({access:checkAccess("SEARCH SUBCATEGORY",this.props.currentUser.rights) });
-        
-    }
-   
-    handleSubmit =  event => {
-        event.preventDefault();
-            console.log("submit handler of searchBrand ");
-            const {fetchAllSubCategoryStartAsync,fetchCategoryStartAsync} = this.props;
-            fetchAllSubCategoryStartAsync();
-           fetchCategoryStartAsync();
-
-    }
-
-    handleChange = event => {
-        //console.log(event);
-        if (event.target.id === "Name") {
-           // setName(event.target.value);
-        //    setFileName(event.target.value);
+        if (debouncedFilters.Description) {
+            result = result.filter(sub => sub.description.toLowerCase().includes(debouncedFilters.Description.toLowerCase()));
         }
-        else if (event.target.id === "Description") {
-            //setDescription(event.target.value);
-        }
-    }
 
+        setFilteredSubCategories(result);
+        setCurrentPage(1);
+    }, [debouncedFilters, SubCategoryData]);
 
-    render(){
-   return( <div>
-    {this.state.access ?
-        <div className="submit-form">
-            <div className="searchFormHeader"><h1>Search Sub Category</h1></div>
-             <div className="searchForm">
-            
-            <form onSubmit={this.handleSubmit}>
-            <div className="form-group">    
-            <label htmlFor="Name">Name</label>
-            <input
+    const handleFilterChange = (e) => {
+        const { name, value } = e.target;
+        setFilters(prev => ({ ...prev, [name]: value }));
+    };
+
+    // Pagination
+    const paginatedSubCategories = useMemo(() => {
+        const start = (currentPage - 1) * itemsPerPage;
+        return filteredSubCategories.slice(start, start + itemsPerPage);
+    }, [currentPage, filteredSubCategories]);
+
+    const totalPages = Math.ceil(filteredSubCategories.length / itemsPerPage);
+
+    return (
+        <div className="container">
+            <h3>Search SubCategories</h3>
+
+            <div className="form-group">
+                <label>Name</label>
+                <input
                     type="text"
                     name="Name"
-                    id="Name"
-                    placeholder="Name"
-                    onChange={this.handleChange} />
-            Description
-            <input
+                    value={filters.Name}
+                    onChange={handleFilterChange}
+                    placeholder="Search by name"
+                />
+
+                <label className="mt-2">Description</label>
+                <input
                     type="text"
                     name="Description"
-                    id="Description"
-                    placeholder="Description"
-                    onChange={this.handleChange} />
-             </div>       
-                <div >
-                    <button className="btn btn-success" type="submit" >Search</button>
+                    value={filters.Description}
+                    onChange={handleFilterChange}
+                    placeholder="Search by description"
+                />
+            </div>
+
+            {isFetching && <div>Loading...</div>}
+
+            {/* Table */}
+            <table className="table table-bordered mt-2">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Description</th>
+                        <th>Category</th>
+                        <th>Image</th>
+                        <th>Select</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {paginatedSubCategories.map(sub => (
+                        <tr key={sub.id}>
+                            <td>{sub.name}</td>
+                            <td>{sub.description}</td>
+                            <td>{categoryData.find(cat => cat.id === sub.category)?.name || ''}</td>
+                            <td>
+                                {sub.imageUrl && <img src={sub.imageUrl} alt="subcat" width="50" />}
+                            </td>
+                            <td>
+                                <button
+                                    className="btn btn-sm btn-success"
+                                    onClick={() => setCurrentSubCategory(sub)}
+                                >
+                                    Select
+                                </button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+
+            {/* Pagination Controls */}
+            {filteredSubCategories.length > 0 && (
+                <div className="pagination-controls mt-3">
+                    <button
+                        className="btn btn-secondary btn-sm"
+                        disabled={currentPage === 1}
+                        onClick={() => setCurrentPage(currentPage - 1)}
+                    >
+                        Prev
+                    </button>
+
+                    <span className="mx-2">
+                        Page {currentPage} of {totalPages}
+                    </span>
+
+                    <button
+                        className="btn btn-secondary btn-sm"
+                        disabled={currentPage === totalPages}
+                        onClick={() => setCurrentPage(currentPage + 1)}
+                    >
+                        Next
+                    </button>
                 </div>
-            </form>
+            )}
 
-            {this.props.isFetching ?
-        <div>"Loading data ....."</div>:
-        ""}
-
-           { this.props.SubCategoryData && this.props.categoryDate?(
-
-     
-            
-        <SubCategoryList 
-        subCategory= {this.props.SubCategoryData}
-        category = {this.props.categoryDate}
-        masterComp={this.props.masterComp} />
-        
-
-        ):(
-           "")
-           }
+            {/* ---------- Selected SubCategory Section ---------- */}
+            <div className="mt-4">
+                {currentSubCategory ? (
+                    <div>
+                        <AddSubCategory selectedSubCategory={currentSubCategory} />
+                        <button className="btn btn-warning mt-2" onClick={() => setCurrentSubCategory(null)}>
+                            Clear Selection
+                        </button>
+                    </div>
+                ) : (
+                    <p>No subcategory selected. Click a row to edit.</p>
+                )}
+            </div>
         </div>
-        </div>
-        :
-        "Access denied for the screen"}
-        </div>
-       )}
-}
+    );
+};
 
 const mapStateToProps = state => ({
-  SubCategoryData: state.subCategory.subCategory,
-  categoryDate :state.category.category,
-  isFetching : state.subCategory.isFetching,
-  currentUser: state.user.user.user
-})
-
-const mapDispatchToProps = dispatch =>({
-    fetchAllSubCategoryStartAsync: () => dispatch(fetchAllSubCategoryStartAsync()),
-    fetchCategoryStartAsync:() => dispatch(fetchCategoryStartAsync())  
+    SubCategoryData: state.subCategory.subCategory,
+    categoryData: state.category.category,
+    isFetching: state.subCategory.isFetching,
+    currentSubCategory: state.subCategory.currentSubCategory,
 });
 
-export default connect(mapStateToProps,mapDispatchToProps)(SearchSubCategory);
+const mapDispatchToProps = dispatch => ({
+    fetchAllSubCategoryStartAsync: () => dispatch(fetchAllSubCategoryStartAsync()),
+    fetchCategoryStartAsync: () => dispatch(fetchCategoryStartAsync()),
+    setCurrentSubCategory: (subCat) => dispatch({ type: 'SET_CURRENT_SUBCATEGORY', payload: subCat }),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(SearchSubCategory);

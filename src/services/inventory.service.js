@@ -8,7 +8,7 @@ class inventoryDataService {
   //////////////////////
 
   createPurchase(data) {
-    // console.log(data);
+    console.log(data);
     return http.post("/purchase/" ,data,{headers: authHeader() });
   }
 

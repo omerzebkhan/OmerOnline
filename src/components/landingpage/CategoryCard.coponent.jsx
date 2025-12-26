@@ -30,7 +30,7 @@ const CategoryCard = ({
                 console.log("calling item list");
                 setCurrentCategory(item.id);
                 localStorage.setItem("localCategory",item.id);
-                history.push('/ItemList')
+                history('/ItemList')
                 }}>
                   <Card.Img 
                   variant="top" 

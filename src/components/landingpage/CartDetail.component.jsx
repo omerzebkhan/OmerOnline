@@ -1,313 +1,313 @@
-import React,{useState,useEffect} from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
-import { useNavigate  } from "react-router-dom";
-import { Button } from 'react-bootstrap'
+import { useNavigate } from "react-router-dom";
+import { Button, Modal } from 'react-bootstrap';
+import "bootstrap/dist/css/bootstrap.min.css";
 
-import { fetchCartDetailByCust} from '../../redux/cart/cart.actions';
-
+import { fetchCartDetailByCust } from '../../redux/cart/cart.actions';
 import cartService from '../../services/cart.services';
 
-const CartDetail = ({fetchCartDetailByCust,currentUser,setCurrentItem,cartData,isFetching,errorMessage,
-    currentItem}) =>{
-        const [currentCart,setCurrentCart] = useState([]);
-        const [totalCartValue,setTotalCartValue] = useState(0);
-        const [totalCartQty,setTotalCartQty] = useState(0);
-        const [message,setMessage]= useState("");
-        const history = useNavigate ();
+const CartDetail = ({
+    fetchCartDetailByCust,
+    currentUser,
+    cartData = [],
+    isFetching,
+    errorMessage
+}) => {
+    const [totalCartValue, setTotalCartValue] = useState(0);
+    const [totalCartQty, setTotalCartQty] = useState(0);
+    const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
-        useEffect(() => {
-            console.log(`currentUser id = ${currentUser.id}`)
+    // Confirmation modals
+    const [showCheckoutConfirm, setShowCheckoutConfirm] = useState(false);
+    const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+    const [deletingItem, setDeletingItem] = useState(null);
 
+    const navigate = useNavigate();
+    const middlewareUrl = import.meta.env.VITE_MIDDLEWARE;
+
+    useEffect(() => {
+        if (currentUser?.id) {
             fetchCartDetailByCust(currentUser.id);
-            
-    
-        }, [fetchCartDetailByCust])
+        }
+    }, [currentUser?.id, fetchCartDetailByCust]);
 
-        useEffect(() => {
-            var totalCartValue = 0
-            var totalCartQty =0
-            console.log(cartData)
-            if (cartData) {
-                
-                cartData.map((item, index) => {
-                    totalCartQty = totalCartQty + item.quantity
-                    totalCartValue = totalCartValue + (item.quantity*item.onlineprice)
-                    setTotalCartValue(totalCartValue)
-                    setTotalCartQty(totalCartQty)
-                })
+    // Calculate totals whenever cartData changes
+    useEffect(() => {
+        if (cartData && cartData.length > 0) {
+            const qty = cartData.reduce((sum, item) => sum + item.quantity, 0);
+            const value = cartData.reduce((sum, item) => sum + (item.quantity * item.onlineprice), 0);
+            setTotalCartQty(qty);
+            setTotalCartValue(value);
+        } else {
+            setTotalCartQty(0);
+            setTotalCartValue(0);
+        }
+    }, [cartData]);
+
+    const updateQuantity = async (item, increment) => {
+        const newQty = item.quantity + increment;
+        if (newQty < 1) return;
+
+        setLoading(true);
+        try {
+            const data = { quantity: newQty };
+            await cartService.updateCartDetail(item.cartid, data);
+            setMessage(`Quantity updated to ${newQty}`);
+            fetchCartDetailByCust(currentUser.id);
+        } catch (error) {
+            setMessage("Failed to update quantity");
+            if (error.response?.status === 401) {
+                navigate('/login');
             }
-           
-            
-        }, [cartData])
-    
-        const saveCart = () =>
-        {
-            //call update cart to "READY FOR DELIVERY"
-           // console.log(cartData[0].id)
-           var data1 = {
-            status : "READY FOR DELIVERY"    
-            };
-
-            cartService.updateCart(cartData[0].id,data1)
-            .then(res =>{
-                setMessage("Your Cart has been Completed")
-                ////////////////get item online price from the items table and update in the carts Details
-                /////////////// and remove the quantity from the items table as item has been sold out.
-                
-                //////////////////////////////////////////////////////////////////////////////////////////
-
-                
-
-                setTotalCartValue(0)
-                setTotalCartQty(0)
-                fetchCartDetailByCust(currentUser.id);    
-                
-            })
-            .catch((error) => {
-                console.log(`error message=${error.response.request.response}`);
-                //setProgress(0);
-                setMessage(error.response.request.response.message);
-            });  
-
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const btnAddQty = (item) => {
-            console.log(item)
-            console.log(`cart + is clicked =${item.id}`)
-            //update old cart quantity
-              // then update stock value
-              // PENDING item value should be check in the stock online to check availability
-              console.log(`existing cart quantity should be update`)
-              var data1 = {
-                quantity: item.quantity + 1
-              }
+    const confirmDelete = (item) => {
+        setDeletingItem(item);
+        setShowDeleteConfirm(true);
+    };
 
-              cartService.updateCartDetail(item.cartid, data1).then(response => {
-                setMessage(`Quantity udpated in the existing Cart`);
-                console.log(response.data);
-                // refresh the cart
-                fetchCartDetailByCust(currentUser.id);
-              })
-              .catch(error => { if (error.response.status === 401) {
-              history.push(`/login`)}
-              console.log(`error from service cart = ${error.response.request.response.message}`);
-            });
+    const deleteItem = async () => {
+        if (!deletingItem) return;
+        setLoading(true);
+        try {
+            const data = { status: "DELETE" };
+            await cartService.updateCartDetail(deletingItem.cartid, data);
 
+            // If it was the last item, update cart status
+            if (totalCartQty === deletingItem.quantity) {
+                const cartUpdate = { status: "DELETED" };
+                await cartService.updateCart(deletingItem.id, cartUpdate);
+            }
+
+            setMessage("Item removed from cart");
+            setShowDeleteConfirm(false);
+            setDeletingItem(null);
+            fetchCartDetailByCust(currentUser.id);
+        } catch (error) {
+            setMessage("Failed to remove item");
+        } finally {
+            setLoading(false);
         }
+    };
 
-        const btnRmvQty = (item) => {
-            console.log(item)
-            console.log(`cart - is clicked =${item.id}`)
-            
-            //update old cart quantity
-              // then update stock value
-              // PENDING quantity should be added back to the stock 
-              console.log(`existing cart quantity should be update`)
-              var data1 = {
-                quantity: item.quantity - 1
-              }
-              
-              if (data1.quantity>0){
-              cartService.updateCartDetail(item.cartid, data1).then(response => {
-                setMessage(`Quantity udpated in the existing Cart`);
-                console.log(response.data);
-                // refresh the cart
-                fetchCartDetailByCust(currentUser.id);
-              })
-              .catch(error => { if (error.response.status === 401) {
-              history.push(`/login`)}
-              console.log(`error from service cart = ${error.response.request.response.message}`);
-            });
+    const confirmCheckout = () => {
+        if (cartData.length === 0) {
+            setMessage("Your cart is empty");
+            return;
         }
-        else
-        {
-            //Qutantity become 0 so detlete the entry from the cartDetails
-            // if there is no other value in the cart then update cart to deleted
-            // PENDING item should be added back to the stock
-            var data = {
-                status : "DELETE"    
-            };
-        
-            cartService.updateCartDetail(item.cartid,data)
-            .then(res =>{
-                setMessage("Your Cart Details has been updated")
+        setShowCheckoutConfirm(true);
+    };
 
-                // check if there cart is empty then delete the cart
-                // if total item was 1 then update cart as deleted 
-                if (totalCartQty===1)
-                {
-                    var data1 = {
-                        status : "DELETED"    
-                    };
-
-                    cartService.updateCart(item.id,data1)
-                    .then(res =>{
-                        setMessage("Your Cart has been updated")
-                        setTotalCartValue(0)
-                        setTotalCartQty(0)
-                        fetchCartDetailByCust(currentUser.id);    
-                        
-                    })
-                    .catch((error) => {
-                        console.log(`error message=${error.response.request.response}`);
-                        //setProgress(0);
-                        setMessage(error.response.request.response.message);
-                    });  
-
-                }
-
-                
-                
-            })
-            .catch((error) => {
-                console.log(`error message=${error.response.request.response}`);
-                //setProgress(0);
-                setMessage(error.response.request.response.message);
-            });
-
-
-
+    const checkout = async () => {
+        setLoading(true);
+        setShowCheckoutConfirm(false);
+        try {
+            const data = { status: "READY FOR DELIVERY" };
+            await cartService.updateCart(cartData[0].id, data);
+            setMessage("Your order has been placed successfully!");
+            setTotalCartQty(0);
+            setTotalCartValue(0);
+            fetchCartDetailByCust(currentUser.id);
+        } catch (error) {
+            setMessage("Checkout failed");
+        } finally {
+            setLoading(false);
         }
+    };
 
-        }
+    const formatPrice = (value) => {
+        return parseFloat(value || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
+    };
 
-        const btnDeleteItem = (item) => {
-          // event.preventDefault();
-            console.log(`cart Delete item is clicked =${item.id}`);
-            
-                //if quantity of the cart id =1 then remove the update the cart as delete
-                // PENDING update the value of the item in the stock
-                //update Cart Detail
-                var data = {
-                    status : "DELETE"    
-                };
-            
-                cartService.updateCartDetail(item.cartid,data)
-                .then(res =>{
-                    setMessage("Your Cart has been updated")
-                    // update the cart as deleted if there is no more items in cart
-                    if (item.quantity === totalCartQty)
-                    {
-                        var data1 = {
-                            status : "DELETED"    
-                        };
-    
-                        cartService.updateCart(item.id,data1)
-                        .then(res =>{
-                            setMessage("Your Cart has been updated")
-                            setTotalCartValue(0)
-                            setTotalCartQty(0)
-                            fetchCartDetailByCust(currentUser.id);    
-                            
-                        })
-                        .catch((error) => {
-                            console.log(`error message=${error.response.request.response}`);
-                            //setProgress(0);
-                            setMessage(error.response.request.response.message);
-                        });  
-    
-
-                    }
-                    else{
-                        fetchCartDetailByCust(currentUser.id);
-                    }
-                    
-                    
-                })
-                .catch((error) => {
-                    console.log(`error message=${error.response.request.response}`);
-                    //setProgress(0);
-                    setMessage(error.response.request.response.message);
-                });
-
-        }
-
-       
+    if (!currentUser) {
         return (
-            <div>
-                <div className="searchFormHeader"><h1>My Cart</h1></div>
-                <div className="searchForm">
-                    
-                    {isFetching ? <div className="alert alert-warning" role="alert">loading....</div> : ''}
-                    {errorMessage ? <div className="alert alert-danger" role="alert">{errorMessage}</div> : ""}
-                    {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-
-                    {cartData ?
-                        //    <BrandList brands={this.props.brandData} masterComp={this.props.masterComp}/>
-                        //console.log(this.props.itemData)
-                        <div>
-                            <div>
-                            <h3>Cart View</h3>
-                            <table border='1'>
-
-                                <thead>
-                                    <tr>
-                                        <th>Item Name</th>
-                                        <th>Quantity</th>
-                                        <th>Price</th>
-                                        <th>Total Price</th>                                      
-                                        <th>Image</th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-
-
-                                    {cartData ?
-                                        cartData.map((item, index) => (
-                                            //   console.log(item);
-
-                                            <tr key={index} >                                             
-                                                <td>{item.name}</td>
-                                                <td width="10%"><button className="btn btn-primary" type="button" onClick={()=>{
-                                                     btnAddQty(item)
-                                                }}>+</button>
-                                                {item.quantity}
-                                                <button className="btn btn-primary" type="button" onClick={()=>{
-                                                     btnRmvQty(item)
-                                                }}>-</button></td>
-                                                <td>{item.onlineprice}</td>
-                                                <td>{item.quantity*item.onlineprice}</td>
-                                                <td><img src={`${import.meta.env.VITE_MIDDLEWARE}/itemsImages/${item.imageUrl}`} alt="no data" width="100" height="100" /></td>
-                                                <button className="btn btn-primary deleteButton" type="button" onClick={()=>{
-                                                    // setCurrentCart(item),
-                                                    btnDeleteItem(item)
-                                                }
-                                                    }></button>
-                                                
-                                            </tr>
-                                        )
-                                        )
-                                        :
-                                        "no data found"
-
-                                    }
-                                </tbody>
-                            </table>
-                            </div>
-                            <div>
-                                Check Out 
-                                <div>Sub Total ({totalCartQty} items ):RS {totalCartValue}</div>
-                                <Button onClick={() => saveCart()}variant="primary" >Check Out</Button>    
-                            </div>    
-                        </div>
-                        :
-                        ""}
-                  
+            <div className="container mt-5 text-center">
+                <div className="alert alert-info">
+                    <h4>Please log in to view your cart</h4>
                 </div>
             </div>
-        )
+        );
     }
 
+    return (
+        <div className="container mt-4">
+            <div className="row">
+                <div className="col-lg-12">
+                    <div className="card shadow">
+                        <div className="card-header bg-primary text-white text-center">
+                            <h2 className="mb-0">My Shopping Cart</h2>
+                        </div>
+                        <div className="card-body">
+                            {message && (
+                                <div className={`alert ${message.includes('success') || message.includes('updated') ? 'alert-success' : 'alert-danger'} alert-dismissible fade show`}>
+                                    {message}
+                                    <button className="btn-close" onClick={() => setMessage("")}></button>
+                                </div>
+                            )}
 
-const mapStateToProps = state => ({
-    cartData: state.cart.carts,
-    isFetching: state.item.isFetching,
-    errorMessage: state.item.errorMessage,
-    currentUser: state.user.user.user
-})
+                            {isFetching && (
+                                <div className="text-center my-4">
+                                    <div className="spinner-border text-primary"></div>
+                                </div>
+                            )}
 
-const mapDispatchToProps = dispatch => ({
+                            {errorMessage && (
+                                <div className="alert alert-danger">{errorMessage}</div>
+                            )}
+
+                            {cartData && cartData.length > 0 ? (
+                                <>
+                                    <div className="table-responsive">
+                                        <table className="table table-hover align-middle">
+                                            <thead className="table-dark">
+                                                <tr>
+                                                    <th>Image</th>
+                                                    <th>Item Name</th>
+                                                    <th>Price</th>
+                                                    <th>Quantity</th>
+                                                    <th>Total</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {cartData.map((item) => (
+                                                    <tr key={item.cartid}>
+                                                        <td>
+                                                            <img
+                                                                src={`${middlewareUrl}/itemsImages/${item.imageUrl}`}
+                                                                alt={item.name}
+                                                                className="img-thumbnail"
+                                                                style={{ width: '80px', height: '80px', objectFit: 'cover' }}
+                                                                onError={(e) => {
+                                                                    e.target.src = '/placeholder-image.jpg'; // fallback
+                                                                }}
+                                                            />
+                                                        </td>
+                                                        <td><strong>{item.name}</strong></td>
+                                                        <td>Rs {formatPrice(item.onlineprice)}</td>
+                                                        <td>
+                                                            <div className="d-flex align-items-center">
+                                                                <button
+                                                                    className="btn btn-sm btn-outline-primary me-2"
+                                                                    onClick={() => updateQuantity(item, -1)}
+                                                                    disabled={loading}
+                                                                >
+                                                                    -
+                                                                </button>
+                                                                <span className="mx-3 fw-bold">{item.quantity}</span>
+                                                                <button
+                                                                    className="btn btn-sm btn-outline-primary"
+                                                                    onClick={() => updateQuantity(item, 1)}
+                                                                    disabled={loading}
+                                                                >
+                                                                    +
+                                                                </button>
+                                                            </div>
+                                                        </td>
+                                                        <td className="fw-bold">
+                                                            Rs {formatPrice(item.quantity * item.onlineprice)}
+                                                        </td>
+                                                        <td>
+                                                            <button
+                                                                className="btn btn-sm btn-danger"
+                                                                onClick={() => confirmDelete(item)}
+                                                                disabled={loading}
+                                                            >
+                                                                Remove
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                                    <div className="card mt-4 bg-light">
+                                        <div className="card-body">
+                                            <div className="row">
+                                                <div className="col-md-8">
+                                                    <h4>Order Summary</h4>
+                                                    <p className="mb-1">Total Items: <strong>{totalCartQty}</strong></p>
+                                                    <h3 className="text-primary">Total Amount: Rs {formatPrice(totalCartValue)}</h3>
+                                                </div>
+                                                <div className="col-md-4 text-end">
+                                                    <button
+                                                        className="btn btn-success btn-lg px-5"
+                                                        onClick={confirmCheckout}
+                                                        disabled={loading}
+                                                    >
+                                                        {loading ? "Processing..." : "Proceed to Checkout"}
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="text-center py-5">
+                                    <h3>Your cart is empty</h3>
+                                    <p className="text-muted">Start shopping to add items to your cart!</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Delete Confirmation Modal */}
+            <Modal show={showDeleteConfirm} onHide={() => setShowDeleteConfirm(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Remove Item</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    Are you sure you want to remove <strong>{deletingItem?.name}</strong> from your cart?
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowDeleteConfirm(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="danger" onClick={deleteItem}>
+                        Remove
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+
+            {/* Checkout Confirmation Modal */}
+            <Modal show={showCheckoutConfirm} onHide={() => setShowCheckoutConfirm(false)} centered>
+                <Modal.Header closeButton>
+                    <Modal.Title>Confirm Checkout</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <p>You're about to place an order for:</p>
+                    <h5>{totalCartQty} items - Rs {formatPrice(totalCartValue)}</h5>
+                    <p>Proceed with checkout?</p>
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="secondary" onClick={() => setShowCheckoutConfirm(false)}>
+                        Cancel
+                    </Button>
+                    <Button variant="success" onClick={checkout}>
+                        Confirm Order
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        </div>
+    );
+};
+
+const mapStateToProps = (state) => ({
+    cartData: state.cart.carts || [],
+    isFetching: state.cart.isFetching || false,
+    errorMessage: state.cart.errorMessage,
+    currentUser: state.user.user
+});
+
+const mapDispatchToProps = (dispatch) => ({
     fetchCartDetailByCust: (id) => dispatch(fetchCartDetailByCust(id))
 });
 

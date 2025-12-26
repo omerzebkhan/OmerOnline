@@ -32,7 +32,12 @@ const brandReducer = (state = INITIAL_STATE,action) =>{
                 ...state,
                 isFetching:false,
                 errorMessage:action.payload
-            }    
+            } 
+         case BrandActionType.CLEAR_CURRENT_BRAND:
+      return {
+        ...state,
+        currentBrand: null,
+      };   
         default:
             return state;
     }

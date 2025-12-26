@@ -1,112 +1,115 @@
-import React, { useState,useLayoutEffect } from 'react';
-import {useSelector } from 'react-redux';
-import 'bootstrap/dist/css/bootstrap.min.css'
+import React, { useState, useLayoutEffect } from 'react';
+import { useSelector } from 'react-redux';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import userService from "../../services/user.service";
-import { checkAdmin,checkAccess } from '../../helper/checkAuthorization';
-
-
+import { checkAccess } from '../../helper/checkAuthorization';
 
 const AddRole = () => {
     const [name, setName] = useState("");
     const [message, setMessage] = useState("");
     const [loading, setLoading] = useState(false);
-    const [errorMsg, setErrorMsg] = useState("");
-    const [access,setAccess] = useState(false);
+    const [access, setAccess] = useState(false);
 
-    const currentUser = useSelector((state) => state.user.user.user);
+    const currentUser = useSelector((state) => state.user.user);
 
+    // Check access on mount
     useLayoutEffect(() => {
-        // checkAdmin().then((r) => { setContent(r); });
-         setAccess(checkAccess("ADD ROLE",currentUser.rights));
-        //console.log(`access value = ${access}`)
-     }
-         , []);
-
-
-    const handleSubmit = async event => {
-        event.preventDefault();
-        //uploading image on firestore image name should be brand name
-        //console.log(role);
-        setLoading(true); 
-        //setMessage("Processing ......");      
-        // add user
-        saveRole();
-            
-    }
-
-    const saveRole = () => {
-
-        var data = {
-                            name   : name,
-        };
-        console.log(`data to be sent ${data}`);
-        userService.createRole(data)
-            .then(response => {
-               
-                setMessage(`Role successfully Added Role id = ${response.data.id}`);
-                console.log(response.data);
-                setLoading(false);
-            setName("");
-            
-            })
-            .catch(e => { setMessage(`catch of Add Role ${e} error from server  ${e.message}`)
-            console.log(`error ::::${e} message::::  ${e.message}`);
-})
-    }
-    
-
-    const handleChange = event => {
-        //console.log(event);
-        if (event.target.id === "Name") {
-            setName(event.target.value);
+        if (currentUser?.rights) {
+            const hasAccess = checkAccess("ADD ROLE", currentUser.rights);
+            setAccess(hasAccess);
         }
-        
+    }, [currentUser?.rights]);
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        if (!name.trim()) {
+            setMessage("Role name is required!");
+            return;
+        }
+
+        setLoading(true);
+        setMessage("");
+
+        const data = { name: name.trim() };
+
+        try {
+            const response = await userService.createRole(data);
+            setMessage(`Role "${response.data.name}" added successfully! (ID: ${response.data.id})`);
+            setName(""); // Clear input
+        } catch (error) {
+            const errMsg = error.response?.data?.message || error.message || "Failed to add role.";
+            setMessage(`Error: ${errMsg}`);
+            console.error("Add Role Error:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Early return if no access
+    if (!access) {
+        return (
+            <div className="container mt-5">
+                <div className="alert alert-danger text-center">
+                    <h4>Access Denied</h4>
+                    <p>You don't have permission to add roles.</p>
+                </div>
+            </div>
+        );
     }
-
-
-
 
     return (
-        <div>
-        {access ?
-        <div className="submit-form">
-            
-            <div className="inputFormHeader"><h1>Add New Role</h1></div>
-            <div className="inputForm">
-            {loading ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
-            {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
-            {errorMsg ? <div className="alert alert-warning" role="alert">{errorMsg}</div> : ""}
-            <form onSubmit={handleSubmit}>
-                <div className="form-group row">
-                    <label className="col-sm-2 col-form-label" htmlFor="Name">Name</label>
-                    <div className="col-sm-10">
-                    <input
-                        type="text"
-                        name="Name"
-                        id="Name"
-                        placeholder="Name"
-                        value={name}
-                        onChange={handleChange} />
-                    </div>    
+        <div className="container mt-5">
+            <div className="card shadow">
+                <div className="card-header bg-primary text-white">
+                    <h3 className="mb-0">Add New Role</h3>
                 </div>
-           
-               
-               
-               
+                <div className="card-body">
+                    {message && (
+                        <div className={`alert ${message.includes('success') ? 'alert-success' : 'alert-danger'}`}>
+                            {message}
+                        </div>
+                    )}
 
-                
-                <div>
-                    <button className="btn btn-primary" type="submit">Add</button>
+                    <form onSubmit={handleSubmit}>
+                        <div className="mb-3 row">
+                            <label htmlFor="name" className="col-sm-2 col-form-label fw-bold">
+                                Role Name
+                            </label>
+                            <div className="col-sm-10">
+                                <input
+                                    type="text"
+                                    className="form-control"
+                                    id="name"
+                                    placeholder="Enter role name (e.g., Manager, Editor)"
+                                    value={name}
+                                    onChange={(e) => setName(e.target.value)}
+                                    required
+                                    disabled={loading}
+                                />
+                            </div>
+                        </div>
 
+                        <div className="text-center">
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-lg px-5"
+                                disabled={loading || !name.trim()}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" />
+                                        Adding...
+                                    </>
+                                ) : (
+                                    "Add Role"
+                                )}
+                            </button>
+                        </div>
+                    </form>
                 </div>
-            </form>
             </div>
         </div>
-         :
-         "Access denied for the screen"}
-         </div>
-  );
-}
-
+    );
+};
 
 export default AddRole;

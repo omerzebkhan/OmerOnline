@@ -21,6 +21,11 @@ class userDataService {
     return http.get("/user/",{ params });
   }
 
+  getAll() {
+    return http.get("/user/");
+  }
+  
+
   get(id) {
     return http.get(`/user/${id}`);
   }

@@ -39,6 +39,7 @@ class itemDataService {
   }
 
   getItemTrend(sDate,eDate) {
+    console.log(`dates are ${sDate} ${eDate}`)
     return http.get(`/itemTrend/${sDate}/${eDate}`);
   }
 

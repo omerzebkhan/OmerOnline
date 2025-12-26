@@ -138,7 +138,7 @@ const ItemCountDailySheet =({currentUser}) => {
   }
 
   const mapStateToProps = state => ({
-    currentUser: state.user.user.user
+    currentUser: state.user.user
 })
 
 export default connect(mapStateToProps)(ItemCountDailySheet);

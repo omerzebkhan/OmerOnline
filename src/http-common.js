@@ -11,6 +11,9 @@ export default axios.create({
   baseURL :import.meta.env.VITE_baseURL,
   //Heruko remote omerwholesale 
   //baseURL :"https://omerwholesale-mv-1d53fab06d42.herokuapp.com/online/",
+  
+  
+  //commenting it due to the conflict with file upload service
   headers: {
       'Accept': 'application/json',
       'Content-Type': 'application/json',

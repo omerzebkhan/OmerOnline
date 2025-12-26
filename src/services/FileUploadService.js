@@ -6,10 +6,15 @@ const upload = (file, onUploadProgress,id,path) => {
   //var newFileName = "newgeneratedid";
  //formData.append("file", file);
  console.log(`parameter filename = ${id}`)
+ console.log(file)
   formData.append("path", path);
   formData.append("filename", id);
   formData.append('file', file);
 
+  console.log(">>> Sending FormData");
+for (let [key, value] of formData.entries()) {
+  console.log(key, value);
+}
   
   if (import.meta.env.VITE_S3 ==="True"){
   //////////////for Amazon S3 upload 12 months free

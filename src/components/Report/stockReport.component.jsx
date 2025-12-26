@@ -1,568 +1,450 @@
-import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
+import React, { useRef, useState, useEffect, useLayoutEffect, useMemo } from 'react';
 import { connect } from 'react-redux';
 import "bootstrap/dist/css/bootstrap.min.css";
-import { Button, Collapse } from 'react-bootstrap'
-
-//import { fetchStockStartAsync } from '../../redux/stock/stock.action';
 import { fetchItemStartAsync } from '../../redux/item/item.action';
-
-import { setMessage } from '../../redux/user/user.action';
 import itemService from "../../services/item.services";
-import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
-
+import { checkAccess } from '../../helper/checkAuthorization';
 import { DownloadTableExcel } from "react-export-table-to-excel";
 
 const StockReport = ({
-    fetchItemStartAsync, itemData,
-    isFetching, currentUser }) => {
-    const [itemInput, setItemInput] = useState("");
-    const [valueInput, setValueInput] = useState("");
-    const [filter, setFilter] = useState("");
-    const [data, setData] = useState("");
-    const [filteredOptionsItem, setFilteredOptionsItem] = useState([]);
-    const [totalQuantity, setTotalQuantity] = useState([0]);
-    const [totalRecord, setTotalRecord] = useState([0]);
-    const [totalInventoryValue, setTotalInventoryValue] = useState([0]);
-    const [itemPurchaseHistory, setItemPurchaseHistory] = useState([])
-    const [totalQtyPurchaseHistory, setTotalQtyPurchaseHistory] = useState([0]);
-    const [totalRecordPurchaseHistory, setTotalRecordPurchaseHistory] = useState([0]);
-    const [isVisibleSPH, setIsVisibleSPH] = useState(false);
-    const [itemSaleHistory, setItemSaleHistory] = useState([]);
-    const [totalQtySaleHistory, setTotalQtySaleHistory] = useState([0]);
-    const [totalRecordSaleHistory, setTotalRecordSaleHistory] = useState([0]);
-    const [isVisibleSSH, setIsVisibleSSH] = useState(false);
-    const [itemReturnHistory, setItemReturnHistory] = useState([]);
-    const [totalQtyReturnHistory, setTotalQtyReturnHistory] = useState([0]);
-    const [totalRecordReturnHistory, setTotalRecordReturnHistory] = useState([0]);
-    const [isVisibleSRH, setIsVisibleSRH] = useState(false);
-
-    const [access, setAccess] = useState(false);
+    fetchItemStartAsync, itemData, isFetching, currentUser
+}) => {
     const tableRef = useRef(null);
+
+    // Access control
+    const [access, setAccess] = useState(false);
     useLayoutEffect(() => {
-        // checkAdmin().then((r) => { setContent(r); });
-        setAccess(checkAccess("STOCK REPORT", currentUser.rights));
-        //console.log(`access value = ${access}`)
-    }
-        , []);
+        setAccess(checkAccess("STOCK REPORT", currentUser?.rights || []));
+    }, [currentUser]);
 
+    // Search & Filter
+    const [nameSearch, setNameSearch] = useState("");
+    const [filterType, setFilterType] = useState("Please Select");
+    const [filterField, setFilterField] = useState("Please Select");
+    const [filterValue, setFilterValue] = useState("");
 
-    const invokeCollapseSPH = () => {
-        return setIsVisibleSPH(!isVisibleSPH)
-    }
-    const invokeCollapseSSH = () => {
-        return setIsVisibleSSH(!isVisibleSSH)
-    }
-    const invokeCollapseSRH = () => {
-        return setIsVisibleSRH(!isVisibleSRH)
-    }
+    // Pagination
+    const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10); // New: items per page selector
 
+    const pageSizeOptions = [10, 25, 50, 100];
 
+    // History states
+    const [purchaseHistory, setPurchaseHistory] = useState([]);
+    const [saleHistory, setSaleHistory] = useState([]);
+    const [returnHistory, setReturnHistory] = useState([]);
+    const [activeHistory, setActiveHistory] = useState(null);
 
     useEffect(() => {
         fetchItemStartAsync();
-    }, [fetchItemStartAsync])
+    }, [fetchItemStartAsync]);
 
+    // Filtered items
+    const filteredItems = useMemo(() => {
+        if (!itemData || !Array.isArray(itemData)) return [];
 
-    useEffect(() => {
+        let result = itemData.slice().sort((a, b) => a.id - b.id);
 
-        function sortById(a, b) {
-            return a.id - b.id;
-        }
-        if (itemData) {
-            const sorted = itemData.sort(sortById);
-            setFilteredOptionsItem(sorted);
-        }
-    }, [itemData])
-
-
-    useEffect(() => {
-        var sumQuantity = 0
-        var sumRecord = 1
-        var sumInventoryValue = 0
-        filteredOptionsItem.map((item, index) => {
-            sumQuantity = sumQuantity + item.quantity
-            setTotalQuantity(sumQuantity)
-            sumRecord = index + 1
-            setTotalRecord(sumRecord)
-            sumInventoryValue = sumInventoryValue + (item.quantity * item.averageprice)
-            setTotalInventoryValue(parseFloat(sumInventoryValue).toFixed(3))
-        })
-    }, [filteredOptionsItem])
-
-    useEffect(() => {
-        var sumQuantity = 0
-        var sumRecord = 1
-        itemPurchaseHistory.map((item, index) => {
-            sumQuantity = sumQuantity + item.quantity
-            setTotalQtyPurchaseHistory(sumQuantity)
-            sumRecord = index + 1
-            setTotalRecordPurchaseHistory(sumRecord)
-
-        })
-    }, [itemPurchaseHistory])
-
-    useEffect(() => {
-        var sumQuantity = 0
-        var sumRecord = 1
-        itemSaleHistory.map((item, index) => {
-            sumQuantity = sumQuantity + item.quantity
-            setTotalQtySaleHistory(sumQuantity)
-            sumRecord = index + 1
-            setTotalRecordSaleHistory(sumRecord)
-
-        })
-    }, [itemSaleHistory])
-
-    useEffect(() => {
-        var sumQuantity = 0
-        var sumRecord = 1
-        itemReturnHistory.map((item, index) => {
-            sumQuantity = sumQuantity + item.quantity
-            setTotalQtyReturnHistory(sumQuantity)
-            sumRecord = index + 1
-            setTotalRecordReturnHistory(sumRecord)
-
-        })
-    }, [itemReturnHistory])
-
-
-    const getPurchaseHistory = (itemId) => {
-        invokeCollapseSPH();
-
-        console.log(`item for the purchase history ${itemId}`)
-        itemService.getItemPurchaseHistory(itemId)
-            .then(response2 => {
-                setItemPurchaseHistory(response2.data)
-            })
-            .catch(e => {
-                console.log(`get Purchase History error ${e}`);
-            })
-    }
-
-    const getSaleHistory = (itemId) => {
-        //console.log(`item for the purchase history ${itemId}`)
-        invokeCollapseSSH();
-        itemService.getItemSaleHistory(itemId)
-            .then(response2 => {
-                //console.log(response2.data)
-                setItemSaleHistory(response2.data)
-            })
-            .catch(e => {
-                console.log(`get Sale History  error ${e}`);
-            })
-        //fetchPurInvPayDetial(invoiceId);
-        // setPInvPayDetail(purInvDetail)
-
-    }
-
-    const getReturnHistory = (itemId) => {
-        //console.log(`item for the purchase history ${itemId}`)
-        invokeCollapseSRH();
-        itemService.getItemReturnHistory(itemId)
-            .then(response2 => {
-                //console.log(response2.data)
-                setItemReturnHistory(response2.data)
-            })
-            .catch(e => {
-                console.log(`get Sale History  error ${e}`);
-            })
-        //fetchPurInvPayDetial(invoiceId);
-        // setPInvPayDetail(purInvDetail)
-
-    }
-
-
-    const searchHandler = event => {
-
-        if (filter === "Please Select") { setMessage("Select Filter") }
-        else if (data === "Please Select") { setMessage("Select Data ") }
-        else if (valueInput === "") { setMessage("Select Data Value ") }
-        else {
-            //Put filter will 
-            var selectedItem = [];
-            if (filter === 'Equal To') {
-                selectedItem = itemData.filter(
-                    (option) => option[data] === parseFloat(valueInput)
-                );
-            }
-            else if (filter === 'Greater Than') {
-                selectedItem = itemData.filter(
-                    (option) => option[data] > parseFloat(valueInput)
-                );
-            }
-            else if (filter === 'Less Than') {
-                selectedItem = itemData.filter(
-                    (option) => option[data] < parseFloat(valueInput)
-                );
-            }
-
-
-
-            setFilteredOptionsItem(selectedItem)
+        if (nameSearch.trim()) {
+            result = result.filter(item =>
+                item.name.toLowerCase().includes(nameSearch.toLowerCase())
+            );
         }
 
-    }
-
-    const handleChange = event => {
-        //console.log(event);
-        if (event.target.id === "Name") {
-            setItemInput(event.target.value);
-            if (event.target.value === "") {
-                //sort item data based on id 
-                function sortByDate(a, b) {
-                    return parseInt(a.id) - parseInt(b.id);
-                }
-                const sorted = itemData.sort(sortByDate);
-                setFilteredOptionsItem(sorted);
-            }
-            else {
-                setFilteredOptionsItem(itemData.filter(
-                    (option) => option.name.toLowerCase().indexOf(itemInput.toLowerCase()) > -1
-                ));
+        if (filterType !== "Please Select" && filterField !== "Please Select" && filterValue) {
+            const val = parseFloat(filterValue);
+            if (!isNaN(val)) {
+                result = result.filter(item => {
+                    const fieldValue = parseFloat(item[filterField]) || 0;
+                    if (filterType === "Equal To") return fieldValue === val;
+                    if (filterType === "Greater Than") return fieldValue > val;
+                    if (filterType === "Less Than") return fieldValue < val;
+                    return true;
+                });
             }
         }
-        else if (event.target.id === "Filter") {
-            setFilter(event.target.value);
-        }
-        else if (event.target.id === "Data") {
-            setData(event.target.value);
-        }
-        else if (event.target.id === "Value") {
-            setValueInput(event.target.value);
-        }
-    }
 
+        return result;
+    }, [itemData, nameSearch, filterType, filterField, filterValue]);
+
+    // Pagination logic
+    const totalItems = filteredItems.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = Math.min(startIndex + itemsPerPage, totalItems);
+    const paginatedItems = filteredItems.slice(startIndex, endIndex);
+
+    const goToPage = (page) => {
+        if (page >= 1 && page <= totalPages) {
+            setCurrentPage(page);
+        }
+    };
+
+    // Reset page when filters or itemsPerPage change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [nameSearch, filterType, filterField, filterValue, itemsPerPage]);
+
+    // Totals (all filtered items)
+    const totals = useMemo(() => {
+        const totalQty = filteredItems.reduce((sum, item) => sum + (item.quantity || 0), 0);
+        const totalValue = filteredItems.reduce((sum, item) => sum + (item.quantity || 0) * (item.averageprice || 0), 0);
+        return {
+            totalQty,
+            totalRecords: filteredItems.length,
+            totalValue: totalValue.toFixed(3)
+        };
+    }, [filteredItems]);
+
+    // History totals
+    const purchaseTotals = useMemo(() => ({
+        qty: purchaseHistory.reduce((s, i) => s + (i.quantity || 0), 0),
+        records: purchaseHistory.length
+    }), [purchaseHistory]);
+
+    const saleTotals = useMemo(() => ({
+        qty: saleHistory.reduce((s, i) => s + (i.quantity || 0), 0),
+        records: saleHistory.length
+    }), [saleHistory]);
+
+    const returnTotals = useMemo(() => ({
+        qty: returnHistory.reduce((s, i) => s + (i.quantity || 0), 0),
+        records: returnHistory.length
+    }), [returnHistory]);
+
+    // History loaders
+    const showPurchaseHistory = async (itemId) => {
+        try {
+            const res = await itemService.getItemPurchaseHistory(itemId);
+            setPurchaseHistory(res.data || []);
+            setActiveHistory("purchase");
+        } catch (e) {
+            console.error("Purchase history error:", e);
+        }
+    };
+
+    const showSaleHistory = async (itemId) => {
+        try {
+            const res = await itemService.getItemSaleHistory(itemId);
+            setSaleHistory(res.data || []);
+            setActiveHistory("sale");
+        } catch (e) {
+            console.error("Sale history error:", e);
+        }
+    };
+
+    const showReturnHistory = async (itemId) => {
+        try {
+            const res = await itemService.getItemReturnHistory(itemId);
+            setReturnHistory(res.data || []);
+            setActiveHistory("return");
+        } catch (e) {
+            console.error("Return history error:", e);
+        }
+    };
+
+    const closeHistory = () => setActiveHistory(null);
+
+    if (!access) {
+        return <div className="container mt-4"><div className="alert alert-danger">Access denied</div></div>;
+    }
 
     return (
-        <div className="submit-form container">
+        <div className="container mt-4">
+            <h1 className="mb-4">Stock Report</h1>
 
-            <h1>Stock Report</h1>
-            <form >
-                <div className="form-group">
-                    <label htmlFor="Name">Name</label>
-                    <input
-                        type="text"
-                        name="Name"
-                        id="Name"
-                        placeholder="Name"
-                        value={itemInput}
-                        onChange={handleChange} />
-                    Filter
-                    <select id="Filter" name="Filter" onChange={handleChange}>
-                        <option selected="Please Select">Please Select</option>
-                        <option value="Equal To">Equal To</option>
-                        <option value="Greater Than">Greater Than</option>
-                        <option value="Less Than">Less Than</option>
-                    </select>
-                    Data
-                    <select id="Data" name="Data" onChange={handleChange}>
-                        <option selected="Please Select">Please Select</option>
-                        <option value="averageprice">Average Cost</option>
-                        <option value="quantity">Quantity</option>
-                        <option value="online">Online Quantity</option>
-                        <option value="showroom">Showroom Quantity</option>
-                        <option value="warehouse">Warehouse Quantity</option>
-                        <option value="onlineprice">Online Price</option>
-                        <option value="showroomprice">Showroom Price</option>
-                        <option value="onlinediscount">Online Discount</option>
-                    </select>
-                    <label htmlFor="Name">Value</label>
-                    <input
-                        type="text"
-                        name="Value"
-                        id="Value"
-                        placeholder="Value"
-                        value={valueInput}
-                        onChange={handleChange} />
-                    <button className="btn btn-primary" type="button" onClick={searchHandler}>Search</button>
-                    <div>
-                       
-                        <DownloadTableExcel
-                            filename="stockView"
-                            sheet="Receivable"
-                           currentTableRef={tableRef.current}
-                        >
-                            <button className="btn btn-success">Download as Excel</button>
-                        </DownloadTableExcel>
+            {isFetching && <div className="alert alert-info mb-4">Loading data...</div>}
+
+            {/* Search & Filter */}
+            <div className="card mb-4">
+                <div className="card-body">
+                    <div className="row g-3 align-items-end">
+                        <div className="col-md-4">
+                            <label className="form-label">Search by Name</label>
+                            <input
+                                type="text"
+                                className="form-control"
+                                placeholder="Type item name..."
+                                value={nameSearch}
+                                onChange={(e) => setNameSearch(e.target.value)}
+                            />
+                        </div>
+                        <div className="col-md-2">
+                            <label className="form-label">Filter</label>
+                            <select className="form-select" value={filterType} onChange={(e) => setFilterType(e.target.value)}>
+                                <option>Please Select</option>
+                                <option>Equal To</option>
+                                <option>Greater Than</option>
+                                <option>Less Than</option>
+                            </select>
+                        </div>
+                        <div className="col-md-3">
+                            <label className="form-label">Field</label>
+                            <select className="form-select" value={filterField} onChange={(e) => setFilterField(e.target.value)}>
+                                <option>Please Select</option>
+                                <option value="averageprice">Average Cost</option>
+                                <option value="quantity">Quantity</option>
+                                <option value="online">Online Qty</option>
+                                <option value="showroom">Showroom Qty</option>
+                                <option value="warehouse">Warehouse Qty</option>
+                                <option value="onlineprice">Online Price</option>
+                                <option value="showroomprice">Showroom Price</option>
+                                <option value="onlinediscount">Online Discount</option>
+                            </select>
+                        </div>
+                        <div className="col-md-2">
+                            <label className="form-label">Value</label>
+                            <input
+                                type="number"
+                                className="form-control"
+                                value={filterValue}
+                                onChange={(e) => setFilterValue(e.target.value)}
+                            />
+                        </div>
                     </div>
-                </div>
-
-            </form>
-            {isFetching ?
-                <div>"Loading data ....."</div> :
-                ""}
-            <div>
-                <div className="inputFormHeader"><h2>Summary</h2></div>
-                <div className="inputForm">
-                    <div>Total Item Quantity = {totalQuantity}</div>
-                    <div>Total Records = {totalRecord}</div>
-                    <div>Inventory Value = {totalInventoryValue}</div>
                 </div>
             </div>
 
-            {filteredOptionsItem ?
-                <div>
-                    <h3>Stock View</h3>
-                    <table border='1' id="stockView" ref={tableRef}>
-
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Item Name</th>
-                                <th>Average Cost</th>
-                                <th>Quantity</th>
-                                <th>Online Qty</th>
-                                <th>Showroom Qty</th>
-                                <th>Warehouse Qty</th>
-                                <th>Online Price</th>
-                                <th>Showroom Price</th>
-                                <th>Online Discount</th>
-                                <th>Invest 1 Stock</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-
-
-                            {
-                                filteredOptionsItem.map((item, index) => (
-                                    //   console.log(item);
-
-                                    <tr key={index}
-                                    //onClick={() => setActiveBrand(item, index)}
-                                    >
-                                        <td>{item.id}</td>
-                                        <td>{item.name}</td>
-                                        <td>{parseFloat(item.averageprice).toFixed(3)}</td>
-                                        <td>{item.quantity}</td>
-                                        <td>{item.online}</td>
-                                        <td>{item.showroom}</td>
-                                        <td>{item.warehouse}</td>
-                                        <td>{item.onlineprice}</td>
-                                        <td>{item.showroomprice}</td>
-                                        <td>{item.onlinediscount}</td>
-                                        <td>{item.investone}</td>
-                                        <td><button type="button" onClick={() => {
-                                            getPurchaseHistory(item.id)
-                                        }}>Purchase History</button></td>
-                                        <td><button type="button" onClick={() => {
-                                            getSaleHistory(item.id)
-                                        }}>Sale History </button></td>
-                                        <td><button type="button" onClick={() => {
-                                            getReturnHistory(item.id)
-                                        }}>Return History </button></td>
-                                    </tr>
-                                )
-                                )
-
-                            }
-                        </tbody>
-                    </table>
-                </div>
-                :
-                ""
-            }
-            {itemPurchaseHistory ?
-                <div>
-                    <div>
-
-                        <Button variant="success" className="mb-4" onClick={invokeCollapseSPH}>
-                            Show Purchase History
-                        </Button>
-                        <Collapse in={isVisibleSPH}>
-                            <div id="collapsePanel">
-                                <div>
-                                    <div>
-                                        <div className="inputFormHeader"><h2>Summary Purchase History</h2></div>
-                                        <div className="inputForm">
-                                            <div>Total Item Quantity = {totalQtyPurchaseHistory}</div>
-                                            <div>Total Records = {totalRecordPurchaseHistory}</div>
-                                        </div>
-                                    </div>
-                                    <h3>Purchase History </h3>
-                                    <table border='1' id="Purchase History">
-
-                                        <thead>
-                                            <tr>
-                                                <th>Invoice Id</th>
-                                                <th>Supllier Name</th>
-                                                <th>Item Name</th>
-                                                <th>Inv. Deatil Id</th>
-                                                <th>Cost</th>
-                                                <th>Quantity</th>
-                                                <th>Creation Date Time</th>
-                                            </tr>
-                                        </thead>
-
-                                        <tbody>
-
-
-                                            {
-                                                itemPurchaseHistory.map((item, index) => (
-                                                    //   console.log(item);
-
-                                                    <tr key={index}
-                                                    //onClick={() => setActiveBrand(item, index)}
-                                                    >
-                                                        <td>{item.id}</td>
-                                                        <td>{item.supplierName}</td>
-                                                        <td>{item.itemName}</td>
-                                                        <td>{item.InvPurId}</td>
-                                                        <td>{item.price}</td>
-                                                        <td>{item.quantity}</td>
-                                                        <td>{item.createdAt}</td>
-                                                    </tr>
-                                                )
-                                                )
-
-                                            }
-                                        </tbody>
-                                    </table>
-
-                                </div>
-                            </div>
-                        </Collapse>
+            {/* Summary + Export */}
+            <div className="row mb-4">
+                <div className="col-md-8">
+                    <div className="card">
+                        <div className="card-body">
+                            <h5 className="card-title">Summary</h5>
+                            <p className="mb-1">Total Quantity: <strong>{totals.totalQty}</strong></p>
+                            <p className="mb-1">Total Records: <strong>{totals.totalRecords}</strong></p>
+                            <p className="mb-0">Inventory Value: <strong>{totals.totalValue}</strong></p>
+                        </div>
                     </div>
                 </div>
-                :
-                ""
-            }
-
-            {itemSaleHistory ?
-                <div>
-                    <Button variant="success" className="mb-4" onClick={invokeCollapseSSH}>
-                        Show Sale History
-                    </Button>
-                    <Collapse in={isVisibleSSH}>
-                        <div id="collapsePanel">
-                            <div>
-                                <div>
-                                    <div className="inputFormHeader"><h2>Summary Sale History</h2></div>
-                                    <div className="inputForm">
-                                        <div>Total Item Quantity = {totalQtySaleHistory}</div>
-                                        <div>Total Records = {totalRecordSaleHistory}</div>
-                                    </div>
-                                </div>
-                                <h3>Sale History </h3>
-                                <table border='1' id="Sale History">
-
-                                    <thead>
-                                        <tr>
-                                            <th>Invoice Id</th>
-                                            <th>Customer Name</th>
-                                            <th>Item Name</th>
-                                            <th>Inv. Deatil Id</th>
-                                            <th>Price</th>
-                                            <th>Quantity</th>
-                                            <th>Creation Date Time</th>
-                                        </tr>
-                                    </thead>
-
-                                    <tbody>
-
-
-                                        {
-                                            itemSaleHistory.map((item, index) => (
-                                                //   console.log(item);
-
-                                                <tr key={index}
-                                                //onClick={() => setActiveBrand(item, index)}
-                                                >
-                                                    <td>{item.id}</td>
-                                                    <td>{item.customerName}</td>
-                                                    <td>{item.itemName}</td>
-                                                    <td>{item.InvPurId}</td>
-                                                    <td>{item.price}</td>
-                                                    <td>{item.quantity}</td>
-                                                    <td>{item.createdAt}</td>
-                                                </tr>
-                                            )
-                                            )
-
-                                        }
-                                    </tbody>
-                                </table>
-
-                            </div>
-                        </div>
-                    </Collapse>
-
+                <div className="col-md-4 text-end align-self-center">
+                    <DownloadTableExcel filename="stock_report" sheet="Stock" currentTableRef={tableRef.current}>
+                        <button className="btn btn-success btn-lg">Export to Excel</button>
+                    </DownloadTableExcel>
                 </div>
-                :
-                ""
-            }
-            {itemReturnHistory ?
-                <div>
-                    <Button variant="success" className="mb-4" onClick={invokeCollapseSRH}>
-                        Show Return History
-                    </Button>
-                    <Collapse in={isVisibleSRH}>
-                        <div id="collapsePanel">
-                            <div>
-                                <div>
-                                    <div className="inputFormHeader"><h2>Summary Return History</h2></div>
-                                    <div className="inputForm">
-                                        <div>Total Item Quantity = {totalQtyReturnHistory}</div>
-                                        <div>Total Records = {totalRecordReturnHistory}</div>
-                                    </div>
-                                </div>
-                                <h3>Return History </h3>
-                                <table border='1' id="Return History">
+            </div>
 
-                                    <thead>
-                                        <tr>
-                                            <th>Sale Invoice Id</th>
-                                            <th>Return Id</th>
-                                            <th>Item Name</th>
-                                            <th>Quantity</th>
-                                            <th>Creation Date Time</th>
-                                        </tr>
-                                    </thead>
+            {/* Main Stock Table with Pagination */}
+            <div className="card mb-4">
+                <div className="card-body">
+                    <h3 className="mb-3">Stock View</h3>
 
-                                    <tbody>
-
-
-                                        {
-                                            itemReturnHistory.map((item, index) => (
-                                                //   console.log(item);
-
-                                                <tr key={index}
-                                                //onClick={() => setActiveBrand(item, index)}
-                                                >
-                                                    <td>{item.saleInvoiceId}</td>
-                                                    <td>{item.id}</td>
-                                                    <td>{item.name}</td>
-                                                    <td>{item.quantity}</td>
-                                                    <td>{item.createdAt}</td>
-                                                </tr>
-                                            )
-                                            )
-
-                                        }
-                                    </tbody>
-                                </table>
-
-                            </div>
+                    {/* Pagination Top Bar */}
+                    <div className="d-flex justify-content-between align-items-center mb-3">
+                        <div className="text-muted">
+                            Showing {totalItems === 0 ? 0 : startIndex + 1} to {endIndex} of {totalItems} items
                         </div>
-                    </Collapse>
+                        <div className="d-flex align-items-center">
+                            <label className="me-2 mb-0">Items per page:</label>
+                            <select
+                                className="form-select w-auto"
+                                value={itemsPerPage}
+                                onChange={(e) => setItemsPerPage(Number(e.target.value))}
+                            >
+                                {pageSizeOptions.map(size => (
+                                    <option key={size} value={size}>{size}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
 
+                    <div className="table-responsive">
+                        <table className="table table-striped table-hover" ref={tableRef}>
+                            <thead className="table-dark">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Avg Cost</th>
+                                    <th>Qty</th>
+                                    <th>Online</th>
+                                    <th>Showroom</th>
+                                    <th>Warehouse</th>
+                                    <th>O. Price</th>
+                                    <th>S. Price</th>
+                                    <th>Discount</th>
+                                    <th>Invest1</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {paginatedItems.length === 0 ? (
+                                    <tr><td colSpan="12" className="text-center py-4">No items found</td></tr>
+                                ) : (
+                                    paginatedItems.map(item => (
+                                        <tr key={item.id}>
+                                            <td>{item.id}</td>
+                                            <td>{item.name}</td>
+                                            <td>{parseFloat(item.averageprice || 0).toFixed(3)}</td>
+                                            <td>{item.quantity || 0}</td>
+                                            <td>{item.online || 0}</td>
+                                            <td>{item.showroom || 0}</td>
+                                            <td>{item.warehouse || 0}</td>
+                                            <td>{item.onlineprice || 0}</td>
+                                            <td>{item.showroomprice || 0}</td>
+                                            <td>{item.onlinediscount || 0}</td>
+                                            <td>{item.investone || 0}</td>
+                                            <td>
+                                                <button className="btn btn-sm btn-primary me-1" onClick={() => showPurchaseHistory(item.id)}>
+                                                    Purchase
+                                                </button>
+                                                <button className="btn btn-sm btn-success me-1" onClick={() => showSaleHistory(item.id)}>
+                                                    Sale
+                                                </button>
+                                                <button className="btn btn-sm btn-warning" onClick={() => showReturnHistory(item.id)}>
+                                                    Return
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
+
+                    {/* Pagination Controls */}
+                    {totalPages > 1 && (
+                        <nav aria-label="Page navigation" className="mt-4">
+                            <ul className="pagination justify-content-center">
+                                <li className={`page-item ${currentPage === 1 ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => goToPage(currentPage - 1)}>
+                                        Previous
+                                    </button>
+                                </li>
+
+                                {[...Array(totalPages)].map((_, i) => (
+                                    <li key={i + 1} className={`page-item ${currentPage === i + 1 ? 'active' : ''}`}>
+                                        <button className="page-link" onClick={() => goToPage(i + 1)}>
+                                            {i + 1}
+                                        </button>
+                                    </li>
+                                ))}
+
+                                <li className={`page-item ${currentPage === totalPages ? 'disabled' : ''}`}>
+                                    <button className="page-link" onClick={() => goToPage(currentPage + 1)}>
+                                        Next
+                                    </button>
+                                </li>
+                            </ul>
+                        </nav>
+                    )}
                 </div>
-                :
-                ""
-            }
+            </div>
 
+            {/* History Sections (unchanged - only one shows) */}
+            {activeHistory === "purchase" && purchaseHistory.length > 0 && (
+                <div className="card mb-4">
+                    <div className="card-header d-flex justify-content-between align-items-center bg-primary text-white">
+                        <h4 className="mb-0">Purchase History</h4>
+                        <button className="btn btn-light btn-sm" onClick={closeHistory}>✕ Close</button>
+                    </div>
+                    <div className="card-body">
+                        <p className="mb-3">
+                            Total Quantity: <strong>{purchaseTotals.qty}</strong> | 
+                            Records: <strong>{purchaseTotals.records}</strong>
+                        </p>
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead className="table-light">
+                                    <tr><th>Invoice ID</th><th>Supplier</th><th>Item</th><th>Detail ID</th><th>Cost</th><th>Qty</th><th>Date</th></tr>
+                                </thead>
+                                <tbody>
+                                    {purchaseHistory.map((h, i) => (
+                                        <tr key={i}>
+                                            <td>{h.id}</td>
+                                            <td>{h.supplierName || '-'}</td>
+                                            <td>{h.itemName}</td>
+                                            <td>{h.InvPurId}</td>
+                                            <td>{h.price}</td>
+                                            <td>{h.quantity}</td>
+                                            <td>{new Date(h.createdAt).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeHistory === "sale" && saleHistory.length > 0 && (
+                <div className="card mb-4">
+                    <div className="card-header d-flex justify-content-between align-items-center bg-success text-white">
+                        <h4 className="mb-0">Sale History</h4>
+                        <button className="btn btn-light btn-sm" onClick={closeHistory}>✕ Close</button>
+                    </div>
+                    <div className="card-body">
+                        <p className="mb-3">
+                            Total Quantity: <strong>{saleTotals.qty}</strong> | 
+                            Records: <strong>{saleTotals.records}</strong>
+                        </p>
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead className="table-light">
+                                    <tr><th>Invoice ID</th><th>Customer</th><th>Item</th><th>Detail ID</th><th>Price</th><th>Qty</th><th>Date</th></tr>
+                                </thead>
+                                <tbody>
+                                    {saleHistory.map((h, i) => (
+                                        <tr key={i}>
+                                            <td>{h.id}</td>
+                                            <td>{h.customerName || '-'}</td>
+                                            <td>{h.itemName}</td>
+                                            <td>{h.InvPurId}</td>
+                                            <td>{h.price}</td>
+                                            <td>{h.quantity}</td>
+                                            <td>{new Date(h.createdAt).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {activeHistory === "return" && returnHistory.length > 0 && (
+                <div className="card mb-4">
+                    <div className="card-header d-flex justify-content-between align-items-center bg-warning text-dark">
+                        <h4 className="mb-0">Return History</h4>
+                        <button className="btn btn-light btn-sm" onClick={closeHistory}>✕ Close</button>
+                    </div>
+                    <div className="card-body">
+                        <p className="mb-3">
+                            Total Quantity: <strong>{returnTotals.qty}</strong> | 
+                            Records: <strong>{returnTotals.records}</strong>
+                        </p>
+                        <div className="table-responsive">
+                            <table className="table table-striped">
+                                <thead className="table-light">
+                                    <tr><th>Sale Invoice</th><th>Return ID</th><th>Item</th><th>Qty</th><th>Date</th></tr>
+                                </thead>
+                                <tbody>
+                                    {returnHistory.map((h, i) => (
+                                        <tr key={i}>
+                                            <td>{h.saleInvoiceId}</td>
+                                            <td>{h.id}</td>
+                                            <td>{h.name}</td>
+                                            <td>{h.quantity}</td>
+                                            <td>{new Date(h.createdAt).toLocaleString()}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
 
 const mapStateToProps = state => ({
-    currentUser: state.user.user.user,
+    currentUser: state.user.user,
     itemData: state.item.items,
     isFetching: state.item.isFetching
-})
-
-const mapDispatchToProps = dispatch => ({
-    fetchItemStartAsync: () => dispatch(fetchItemStartAsync())
 });
+
+const mapDispatchToProps = {
+    fetchItemStartAsync
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(StockReport);

@@ -1,389 +1,318 @@
-import React, { useState, useEffect, useLayoutEffect } from 'react';
+import React, {
+    useState,
+    useEffect,
+    useLayoutEffect,
+    useMemo,
+    useRef
+} from 'react';
 import { connect } from 'react-redux';
-
-import { fetchPurchaseByDate, fetchPurchaseInvoiceDetailAsync,fetchPurchaseByDateSummary } from '../../redux/purchase/purchase.action';
-import { fetchUserByInputAsync, fetchUserStartAsync } from '../../redux/user/user.action';
-import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
-import "react-datepicker/dist/react-datepicker.css";
 import DatePicker from "react-datepicker";
-import PdfInvoice from "./printPurchaseInvoice";
+import "react-datepicker/dist/react-datepicker.css";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { DownloadTableExcel } from "react-export-table-to-excel";
+
+import {
+    fetchPurchaseByDate,
+    fetchPurchaseInvoiceDetailAsync,
+    fetchPurchaseByDateSummary
+} from '../../redux/purchase/purchase.action';
+
+import { fetchUserStartAsync } from '../../redux/user/user.action';
+import { checkAccess } from '../../helper/checkAuthorization';
+
 import PrintPurchaseSummary from './printPurchaseSummary';
 
-//class PurchaseReport extends React.Component {
 const PurchaseReport = ({
-    fetchUserStartAsync, userData,
-    fetchItemStartAsync, itemData,
-    fetchPurchaseByDate, purchaseData,
-    fetchPurchaseInvoiceDetailAsync, purchaseInvoiceDetailData,
-    fetchUserByInputAsync, user ,currentUser,
-    fetchPurchaseByDateSummary,purchaseSummary
+    fetchPurchaseByDate,
+    fetchPurchaseInvoiceDetailAsync,
+    fetchPurchaseByDateSummary,
+    fetchUserStartAsync,
+    currentUser,
+    purchaseData,
+    purchaseSummary,
+    purchaseInvoiceDetailData,
+    userData
 }) => {
+
+    /* ================= SAFE REDUX DATA ================= */
+    const safePurchaseData = Array.isArray(purchaseData) ? purchaseData : [];
+    const safePurchaseSummary = Array.isArray(purchaseSummary) ? purchaseSummary : [];
+    const safeInvoiceDetails = Array.isArray(purchaseInvoiceDetailData) ? purchaseInvoiceDetailData : [];
+    const safeUsers = Array.isArray(userData?.user) ? userData.user : [];
+
+    const tableRef = useRef(null);
 
     const [startDate, setStartDate] = useState(new Date());
     const [endDate, setEndDate] = useState(new Date());
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [supplier, setSupplier] = useState({});
-
-    const [totalSaleRecord, setTotalSaleRecord] = useState([0]);
-    const [totalSaleItem, setTotalSaleItem] = useState(0);
-    const [totalSaleInvVal, setTotalSaleInvVal] = useState(0);
-    const [totalSaleProfit, setTotalSaleProfit] = useState(0);
-
-    const [cCustomer, setcCustomer] = useState([]);
-    const [customerInput, setCustomerInput] = useState("");
-    const [activeOptionCustomer, setActiveOptionCustomer] = useState("");
-    const [showOptionsCustomer, setShowOptionsCustomer] = useState(false);
-    const [filteredOptionsCustomer, setFilteredOptionsCustomer] = useState([]);
-
-    
-
     const [access, setAccess] = useState(false);
-    useLayoutEffect(() => {
-        // checkAdmin().then((r) => { setContent(r); });
-        setAccess(checkAccess("STOCK REPORT", currentUser.rights));
-        //console.log(`access value = ${access}`)
-    }
-        , []);
 
+    const [hasSearched, setHasSearched] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
+
+    /* ================= ACCESS ================= */
+    useLayoutEffect(() => {
+        setAccess(checkAccess("STOCK REPORT", currentUser?.rights || []));
+    }, [currentUser]);
+
+    /* ================= INIT ================= */
     useEffect(() => {
         fetchUserStartAsync();
-    }, [fetchUserStartAsync])
+        setHasSearched(false);
+        setSelectedInvoice(null);
+    }, [fetchUserStartAsync]);
 
-
-    useEffect(() => {
-        if (purchaseData) {
-            var sumQuantity = 0
-            var sumRecord = 1
-            var sumInvValue = 0
-
-            purchaseData.map((item, index) => {
-                sumQuantity = sumQuantity + parseInt(item.totalitems)
-                setTotalSaleItem(sumQuantity)
-                sumRecord = index + 1
-                setTotalSaleRecord(sumRecord)
-                sumInvValue = sumInvValue + (item.invoicevalue)
-                setTotalSaleInvVal(parseFloat(sumInvValue).toFixed(3))
-
-            })
+    /* ================= SUMMARY ================= */
+    const summary = useMemo(() => {
+        if (!safePurchaseData.length) {
+            return { records: 0, totalItems: 0, totalValue: 0 };
         }
-    }, [purchaseData])
+        return safePurchaseData.reduce((acc, inv) => ({
+            records: acc.records + 1,
+            totalItems: acc.totalItems + Number(inv.totalitems || 0),
+            totalValue: acc.totalValue + Number(inv.invoicevalue || 0)
+        }), { records: 0, totalItems: 0, totalValue: 0 });
+    }, [safePurchaseData]);
 
-    
+    /* ================= SEARCH ================= */
+    const handleSubmit = async (e) => {
+        e.preventDefault();
 
-    const handleStartDTPicker = (date) => { setStartDate(date); }
+        setHasSearched(true);
+        setLoading(true);
+        setSelectedInvoice(null);
 
-    const handleEndDTPicker = (date) => { setEndDate(date); }
-
-    const handleSubmit = event => {
-        event.preventDefault();
-
-        event.preventDefault();
-        //console.log(cCustomer.length)
-        if (cCustomer.length > 0) {
-            console.log(cCustomer[0].id)
-            fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), cCustomer[0].id);
-        }
-        else {
-            fetchPurchaseByDate(startDate.toDateString(), endDate.toDateString(), "0");
-        }
-        fetchPurchaseByDateSummary(startDate.toDateString(), endDate.toDateString());
-    }
-
-    const selectInvoice = (item) => {
-        console.log("Select Invoice clicked");
-        console.log(item.id);
-
-        console.log(`customer id = ${item.supplierId}`)
-        setSupplier({
-            name: item.suppliers.name,
-            address: item.suppliers.address
-        })
-        // const { fetchUserByInputAsync } = this.props;
-        //this.props.fetchUserByInputAsync(item.supplierId);
-
-        fetchPurchaseInvoiceDetailAsync(item.id);
-    }
-
-
-    const handleChange = event => {
-        //console.log(event);
-        if (event.target.id === "customerSearch") {
-            console.log(`customer input=${customerInput} ${event.target.value}`)
-            if (userData.user) {
-                setFilteredOptionsCustomer(userData.user.filter(
-                    // console.log(userData[0].name)
-                    (option) =>
-                        option.name.toLowerCase().indexOf(customerInput.toLowerCase()) > -1 && option.roles.toUpperCase() === "SUPPLIER"
-                    //option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1 && option.roles.toUpperCase() === "CUSTOMER"
-                ));
-                setActiveOptionCustomer(0);
-                setShowOptionsCustomer(true);
-                //setCustomerInput(customerInput);
-                setCustomerInput(event.target.value);
-            }
-            else { setMessage(`No data for customer search...`) }
-        }
-    }
-
-    //////////////////////////////////////////////////////////////////////
-    /////////////////////////// Drop down logic for Customer 
-    const onKeyDownCustomer = (e) => {
-        //console.log("On change is fired")
-        // const { activeOption, filteredOptions } = this.props;
-        if (e.keyCode === 13) {
-            setActiveOptionCustomer(0);
-            setShowOptionsCustomer(false);
-            setCustomerInput(filteredOptionsCustomer[activeOptionCustomer]);
-        } else if (e.keyCode === 38) {
-            if (activeOptionCustomer === 0) {
-                //setcCustomer([]);
-                return;
-            }
-            setActiveOptionCustomer(activeOptionCustomer - 1)
-        } else if (e.keyCode === 40) {
-            if (activeOptionCustomer - 1 === filteredOptionsCustomer.length) {
-                //setcCustomer([]);
-                return;
-            }
-            setActiveOptionCustomer(activeOptionCustomer + 1)
+        try {
+            await Promise.all([
+                fetchPurchaseByDate(
+                    startDate.toDateString(),
+                    endDate.toDateString(),
+                    "0"
+                ),
+                fetchPurchaseByDateSummary(
+                    startDate.toDateString(),
+                    endDate.toDateString()
+                )
+            ]);
+        } finally {
+            setLoading(false);
         }
     };
-    const onClickCustomer = (e) => {
-        setActiveOptionCustomer(0);
-        setFilteredOptionsCustomer([]);
-        setShowOptionsCustomer(false);
 
-        console.log(`selecte customer id = ${e.currentTarget.dataset.id}`);
-        console.log(`user data${userData.user[0].id}`);
-        const selectedCustomer = userData.user.filter(
-            (option) => option.id == e.currentTarget.dataset.id
-        );
+    const handlePrint = () => window.print();
 
-        setCustomerInput(selectedCustomer[0].name);
-        setcCustomer(selectedCustomer);
-
-        // console.log(cItem[0].name)
-    };
-    let optionListCustomer;
-    if (showOptionsCustomer && customerInput) {
-        console.log(filteredOptionsCustomer);
-        console.log(filteredOptionsCustomer.length)
-        if (filteredOptionsCustomer.length) {
-            optionListCustomer = (
-                <ul className="options">
-                    {filteredOptionsCustomer.map((optionName, index) => {
-                        let className;
-                        if (index === activeOptionCustomer) {
-                            className = 'option-active';
-                        }
-                        return (
-                            <li key={optionName.id} className={className} data-id={optionName.id} onClick={onClickCustomer}>
-                                <table border='1' id="dtBasicExample" className="table table-striped table-bordered table-sm" cellSpacing="0" width="100%">
-                                    <thead>
-                                        <tr>
-                                            <th className="th-sm">Name</th>
-                                            <th>Address</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>{optionName.name}</td>
-                                            <td>{optionName.address}</td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-
-                            </li>
-                        );
-                    })}
-                </ul>
-            );
-        } else {
-            optionListCustomer = (
-                <div className="no-options">
-                    <em>No Option!</em>
+    /* ================= ACCESS DENIED ================= */
+    if (!access) {
+        return (
+            <div className="container mt-5">
+                <div className="alert alert-danger text-center">
+                    <h4>Access Denied</h4>
+                    <p>You do not have permission to view Purchase Report</p>
                 </div>
-            );
-        }
+            </div>
+        );
     }
-
-
-    //////////////////////////////////////////////////////////////////////
-
-
-
 
     return (
-        <div className="submit-form container">
+        <div className="container mt-4">
+            <h2 className="text-center fw-bold mb-4">Purchase Report</h2>
 
-            <h1>Purchase Report</h1>
-            <form onSubmit={handleSubmit}>
-
-                <div>
-                    Start Date
-                    {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                    <DatePicker id="datePicker" selected={startDate} onChange={handleStartDTPicker}
-                        name="startDate" dateFormat="MM/dd/yyyy" />
-                </div>
-                <div>
-                    End Date
-                    {/* <DatePicker selected={startDate} onChange={date => setStartDate(date)} /> */}
-                    <DatePicker id="datePicker" selected={endDate} onChange={handleEndDTPicker}
-                        name="startDate" dateFormat="MM/dd/yyyy" />
-                </div>
-                <div className="form-group row">
-
-                    <div className="col-sm-2">
-                        <label className="col-form-label" htmlFor="Item">Customer Name</label>
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="customerSearch"
-                            id="customerSearch"
-                            placeholder="Select Customer"
-                            value={customerInput}
-                            onChange={handleChange}
-                            onKeyDown={onKeyDownCustomer}
-                        />
-
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="Customer"
-                            id="Customer"
-                            placeholder="Customer Id"
-                            value={cCustomer[0] ? cCustomer[0].id : ""}
-                            disabled />
-                    </div>
-                    <div className="col-sm-2">
-                        <input
-                            type="text"
-                            name="Customer Address"
-                            id="customerAddress"
-                            placeholder="Address"
-                            value={cCustomer[0] ? cCustomer[0].address : ""}
-                            disabled />
-                    </div>
-                    {optionListCustomer}
-
-
-                </div>
-                <div >
-                    <button className="btn btn-success" type="submit" >Search</button>
-                </div>
-            </form>
-
-            {purchaseSummary?        
-            <PrintPurchaseSummary data={purchaseSummary} sDate={startDate.toDateString()} eDate={endDate.toDateString()} />
-            :
-            ""
-            }
-
-            {purchaseData ?
-                <div>
-                    <div>
-                        <div className="inputFormHeader"><h2>Summary Purchase Data</h2></div>
-                        <div className="inputForm">
-                            <div>Total Records = {totalSaleRecord}</div>
-                            <div>Total Item = {totalSaleItem}</div>
-                            <div>Total Invoice Value = {totalSaleInvVal}</div>
-
+            {/* ================= SEARCH FORM ================= */}
+            <div className="card shadow mb-4">
+                <div className="card-body">
+                    <form onSubmit={handleSubmit}>
+                        <div className="row g-3">
+                            <div className="col-md-4">
+                                <label className="fw-bold">Start Date</label>
+                                <DatePicker
+                                    selected={startDate}
+                                    onChange={setStartDate}
+                                    className="form-control"
+                                />
+                            </div>
+                            <div className="col-md-4">
+                                <label className="fw-bold">End Date</label>
+                                <DatePicker
+                                    selected={endDate}
+                                    onChange={setEndDate}
+                                    className="form-control"
+                                    minDate={startDate}
+                                />
+                            </div>
+                            <div className="col-md-4 align-self-end">
+                                <button className="btn btn-primary w-100">
+                                    Search
+                                </button>
+                            </div>
                         </div>
-                    </div>
-                    <h3>purchase View</h3>
-                    <table border='1'>
-
-                        <thead>
-                            <tr>
-                                <th>Reff Invoice</th>
-                                <th>Purchase Id</th>
-                                <th>Customer Name</th>
-                                <th>Total Items</th>
-                                <th>Invoice Value</th>
-                                <th>Date Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                purchaseData.map((item, index) => (
-                                    //   console.log(item);
-                                    <tr key={index}
-                                        onClick={() => selectInvoice(item)}
-                                    >
-                                        <td>{item.reffInvoice}</td>
-                                        <td>{item.id}</td>
-                                        <td>{item.suppliers.name}</td>
-                                        <td>{item.totalitems}</td>
-                                        <td>{item.invoicevalue}</td>
-                                        <td>{item.createdAt}</td>
-                                    </tr>
-                                ))
-                            }
-                        </tbody>
-                    </table>
+                    </form>
                 </div>
-                :
-                ""
-            }
-            {purchaseInvoiceDetailData ?
-                <div>
-                    <h3>Purchase Invoice Detail View</h3>
-                    <table id='returnTBL' border='1'>
+            </div>
 
-                        <thead>
-                            <tr>
-                                <th>Id</th>
-                                <th>Date</th>
-                                <th>Purchase Id</th>
-                                <th>Item Name</th>
-                                <th>Price</th>
-                                <th>Quantity</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {purchaseInvoiceDetailData.map((item, index) => (
-                                //   console.log(item);
-                                <tr key={index}
-                                // onClick={() => this.selectInvoice(item)}
+            {/* ================= LOADING ================= */}
+            {hasSearched && loading && (
+                <div className="text-center my-5">
+                    <div className="spinner-border text-primary" />
+                    <p className="mt-3">Loading purchase data...</p>
+                </div>
+            )}
+
+            {/* ================= RESULTS ================= */}
+            {hasSearched && !loading && (
+                <>
+                    {safePurchaseSummary.length > 0 && (
+                        <PrintPurchaseSummary
+                            data={safePurchaseSummary}
+                            sDate={startDate.toLocaleDateString('en-US')}
+                            eDate={endDate.toLocaleDateString('en-US')}
+                        />
+                    )}
+
+                    {safePurchaseData.length === 0 && (
+                        <div className="alert alert-info text-center">
+                            No purchase records found
+                        </div>
+                    )}
+
+                    {safePurchaseData.length > 0 && (
+                        <>
+                            {/* ================= SUMMARY CARDS ================= */}
+                            <div className="card shadow mb-4">
+                                <div className="card-body row text-center">
+                                    <div className="col-md-4">
+                                        <h6>Total Records</h6>
+                                        <h3>{summary.records}</h3>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <h6>Total Items</h6>
+                                        <h3>{summary.totalItems}</h3>
+                                    </div>
+                                    <div className="col-md-4">
+                                        <h6>Total Value</h6>
+                                        <h3>{summary.totalValue.toFixed(3)}</h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* ================= EXPORT ================= */}
+                            <div className="text-end mb-3">
+                                <DownloadTableExcel
+                                    filename="purchase_report"
+                                    sheet="Purchases"
+                                    currentTableRef={tableRef.current}
                                 >
-                                    <td>{item.id}</td>
-                                    <td>{item.createdAt}</td>
-                                    <td>{item.purchaseInvoiceId}</td>
-                                    <td>{item.items.name}</td>
-                                    <td>{parseFloat(item.price).toFixed(3)}</td>
-                                    <td>{item.quantity}</td>
-                                </tr>
-                            ))
-                            }
-                        </tbody>
-                    </table>
-                    <PdfInvoice invoice={purchaseInvoiceDetailData} customer={supplier} />
+                                    <button className="btn btn-success me-2">
+                                        Export Excel
+                                    </button>
+                                </DownloadTableExcel>
+                                <button className="btn btn-secondary" onClick={handlePrint}>
+                                    Print
+                                </button>
+                            </div>
+
+                            {/* ================= PURCHASE TABLE ================= */}
+                            <div className="card shadow">
+                                <div className="card-body p-0">
+                                    <table ref={tableRef} className="table table-bordered mb-0">
+                                        <thead className="table-dark text-center">
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Invoice No</th>
+                                                <th>Date</th>
+                                                <th>Supplier</th>
+                                                <th>Total Items</th>
+                                                <th>Invoice Value</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {safePurchaseData.map((row, index) => (
+                                                <tr key={row.id}>
+                                                    <td className="text-center">{index + 1}</td>
+                                                    <td>{row.id}</td>
+                                                    <td>{row.createdAt}</td>
+                                                    <td>{row.suppliers.name}</td>
+                                                    <td className="text-end">{row.totalitems}</td>
+                                                    <td className="text-end">
+                                                        {Number(row.invoicevalue).toFixed(3)}
+                                                    </td>
+                                                    <td className="text-center">
+                                                        <button
+                                                            className="btn btn-sm btn-outline-primary"
+                                                            onClick={() => {
+                                                                setSelectedInvoice(row);
+                                                                fetchPurchaseInvoiceDetailAsync(row.id);
+                                                            }}
+                                                        >
+                                                            View
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            {/* ================= INVOICE DETAILS ================= */}
+                            {selectedInvoice && safeInvoiceDetails.length > 0 && (
+                                <div className="card shadow mt-4">
+                                    <div className="card-header fw-bold">
+                                        Invoice Details – {selectedInvoice.invoiceno}
+                                    </div>
+                                    <div className="card-body p-0">
+                                        <table className="table table-bordered mb-0">
+                                            <thead className="table-light">
+                                                <tr>
+                                                    <th>Item</th>
+                                                    <th>Qty</th>
+                                                    <th>Rate</th>
+                                                    <th>Amount</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {safeInvoiceDetails.map((item, idx) => (
+                                                    <tr key={idx}>
+                                                        <td>{item.items.name}</td>
+                                                        <td className="text-end">{item.quantity}</td>
+                                                        <td className="text-end">{item.price}</td>
+                                                        <td className="text-end">{item.quantity*item.price}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            )}
+                        </>
+                    )}
+                </>
+            )}
+
+            {!hasSearched && (
+                <div className="text-center text-muted my-5">
+                    Please search to generate purchase report
                 </div>
-
-                :
-                ""
-            }
+            )}
         </div>
-    )
-}
+    );
+};
 
+/* ================= REDUX ================= */
 const mapStateToProps = state => ({
-    currentUser: state.user.user.user,
+    currentUser: state.user.currentUser,
+    userData: state.user,
     purchaseData: state.purchase.purchase,
-    purchaseSummary : state.purchase.purchaseSummary,
-    purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail,
-    userData: state.user.users
-})
-
-const mapDispatchToProps = dispatch => ({
-    fetchPurchaseByDate: (sDate, eDate, id) => dispatch(fetchPurchaseByDate(sDate, eDate, id)),
-    fetchPurchaseByDateSummary :(sDate,eDate) => dispatch(fetchPurchaseByDateSummary(sDate, eDate)),
-    fetchPurchaseInvoiceDetailAsync: (invoiceId) => dispatch(fetchPurchaseInvoiceDetailAsync(invoiceId)),
-    fetchUserByInputAsync: (id) => dispatch(fetchUserByInputAsync(id)),
-    fetchUserStartAsync: () => dispatch(fetchUserStartAsync()),
+    purchaseSummary: state.purchase.purchaseSummary,
+    purchaseInvoiceDetailData: state.purchase.purchaseInvoiceDetail
 });
+
+const mapDispatchToProps = {
+    fetchPurchaseByDate,
+    fetchPurchaseInvoiceDetailAsync,
+    fetchPurchaseByDateSummary,
+    fetchUserStartAsync
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(PurchaseReport);

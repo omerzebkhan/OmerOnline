@@ -20,6 +20,10 @@ export const fetchCategoryFailure = errorMessage => ({
     payload:errorMessage
 })
 
+export const clearCurrentCategory = () => ({
+  type: CategoryActionType.CLEAR_CURRENT_CATEGORY,
+});
+
 export const fetchCategoryStartAsync = () => {
     return dispatch =>{
 

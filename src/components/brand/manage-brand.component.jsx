@@ -31,7 +31,7 @@ const ManageComponent = ({ currentBrand }) => {
 }
     return (
         <div>
-            <h4>Update Tutorial</h4>
+            <h4>Update Brand</h4>
             
             {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
 

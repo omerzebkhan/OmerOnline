@@ -4,14 +4,14 @@ const user = JSON.parse(localStorage.getItem("user"));
 
 
 
-const INITIAL_STATE = 
+const INITIAL_STATE =
 {
     users: null,
-    currentUser: null,
+    currentUser: user || null,
     isFetching: false,
     errorMessage: undefined,
-    message:null,
-    user : user ? { isLoggedIn: true, user }:{ isLoggedIn: false, user: null }
+    message: null,
+    user: user ? { isLoggedIn: true, user } : { isLoggedIn: false, user: null }
 }
 
 const userReducer = (state = INITIAL_STATE, action) => {
@@ -31,23 +31,39 @@ const userReducer = (state = INITIAL_STATE, action) => {
             return {
                 ...state,
                 isFetching: false,
-                users: action.payload
-            }
+                users: action.payload.users || []  // <-- ONLY the array
+            };
         case UserActionType.FETCH_USER_FAILURE:
             return {
                 ...state,
                 errorMessage: action.payload
             }
         case UserActionType.SET_MESSAGE:
-            return { 
+            return {
                 ...state,
-                message: action.payload 
+                message: action.payload
             };
 
         case UserActionType.CLEAR_MESSAGE:
             return {
-                ...state, 
-                message: "" };
+                ...state,
+                message: ""
+            };
+        case UserActionType.LOGOUT:
+            return {
+                ...state,
+                isLoggedIn: false,
+                user: null,   // <-- THIS is what navbar checks
+            };
+        case UserActionType.LOGIN_SUCCESS:
+            return {
+                ...state,
+                isLoggedIn: true,
+                user: action.payload,   // store real user here
+                message: ""
+            };
+
+
         default:
             return state;
     }

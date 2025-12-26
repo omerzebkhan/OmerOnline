@@ -20,6 +20,10 @@ export const setCurrentBrand = brand =>({
     payload:brand
 })
 
+export const clearCurrentBrand = () => ({
+  type: BrandActionType.CLEAR_CURRENT_BRAND,
+});
+
 export const fetchBrandStartAsync = () => {
     return dispatch =>{
 

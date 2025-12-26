@@ -5,13 +5,37 @@ import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 import "../../App.css";
 
-const Navigation = (props) => {
-  const currentUser = useSelector((state) => state.user.user.user);
+const OnlineCustomerNav = () => (
+  <Navbar className="color-nav" variant="dark" expand="sm">
+    <Navbar.Brand as={Link} to="/">Online Store</Navbar.Brand>
+    <Navbar.Toggle aria-controls="basic-navbar-nav" />
+    <Navbar.Collapse id="basic-navbar-nav">
+      <Nav className="mr-auto">
 
-  // Collect permissions in an object
+        <NavDropdown title="Carts Management" id="carts-management-dropdown">
+          <NavDropdown.Item as={Link} to="/cartDetails">View Carts</NavDropdown.Item>
+        </NavDropdown>
+
+      </Nav>
+    </Navbar.Collapse>
+  </Navbar>
+);
+
+const Navigation = () => {
+  const currentUser = useSelector((state) => state.user.user);
   const [permissions, setPermissions] = useState({});
 
+  const isOnlineCustomer =
+    currentUser?.roles?.includes("ROLE_ONLINECUSTOMER");
+
+  // If user is online customer → show simple nav
+  if (isOnlineCustomer) {
+    return <OnlineCustomerNav />;
+  }
+
   useEffect(() => {
+    if (!currentUser || !currentUser.rights) return;
+
     const perms = {};
     currentUser.rights.forEach(role => {
       const [key, value] = role.split(',');
@@ -77,12 +101,12 @@ const Navigation = (props) => {
           <NavDropdown title="Reports" id="reports-dropdown">
             {permissions["STOCK REPORT"] && <NavDropdown.Item as={Link} to="/StockReport">Stock Report</NavDropdown.Item>}
             {permissions["PURCHASE REPORT"] && <NavDropdown.Item as={Link} to="/PurchaseReport">Purchase Report</NavDropdown.Item>}
-            {permissions["PURCHASE EDIT REPORT"] && <NavDropdown.Item as={Link} to="/PurchaseEditReport">Purchase Edit Report</NavDropdown.Item>}
+            {permissions["EDITPURCHASE REPORT"] && <NavDropdown.Item as={Link} to="/PurchaseEditReport">Purchase Edit Report</NavDropdown.Item>}
             {permissions["SALE REPORT"] && <NavDropdown.Item as={Link} to="/SaleReport">Sale Report</NavDropdown.Item>}
             {permissions["SALERETURN REPORT"] && <NavDropdown.Item as={Link} to="/SaleReturnReport">Sale Return Report</NavDropdown.Item>}
-            {permissions["UPDATE SALE REPORT"] && <NavDropdown.Item as={Link} to="/SaleEditReport">Sale Edit Report</NavDropdown.Item>}
-            {permissions["INVENTORY MISMATCH REPORT"] && <NavDropdown.Item as={Link} to="/InvMismatchReport">Inventory Mismatch Report</NavDropdown.Item>}
-            {permissions["SALE DETAIL MISMATCH REPORT"] && <NavDropdown.Item as={Link} to="/SaleSaleDetailMismatchReport">Sale Detail Mismatch Report</NavDropdown.Item>}
+            {permissions["EDITSALE REPORT"] && <NavDropdown.Item as={Link} to="/SaleEditReport">Sale Edit Report</NavDropdown.Item>}
+            {permissions["INVENTORYMISMATCH REPORT"] && <NavDropdown.Item as={Link} to="/InvMismatchReport">Inventory Mismatch Report</NavDropdown.Item>}
+            {permissions["SALEDETAILMISMATCH REPORT"] && <NavDropdown.Item as={Link} to="/SaleSaleDetailMismatchReport">Sale Detail Mismatch Report</NavDropdown.Item>}
             {permissions["BALANCESHEET"] && <NavDropdown.Item as={Link} to="/BalanceSheetReport">Balance Sheet</NavDropdown.Item>}
             {permissions["ITEMLIMIT REPORT"] && <NavDropdown.Item as={Link} to="/ItemLimitReport">Item Limit Report</NavDropdown.Item>}
             {permissions["ITEMTREND REPORT"] && <NavDropdown.Item as={Link} to="/ItemTrendReport">Item Trend Report</NavDropdown.Item>}
@@ -101,6 +125,6 @@ const Navigation = (props) => {
       </Navbar.Collapse>
     </Navbar>
   );
-}
+};
 
 export default Navigation;

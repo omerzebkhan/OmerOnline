@@ -1,1150 +1,546 @@
-import React, { useRef,useState, useEffect, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { connect } from 'react-redux';
+import { DownloadTableExcel } from 'react-export-table-to-excel';
 
-import SearchUser from "../user/searchUser.component";
-//import {fetchStockStartAsync,setCurrentStock} from '../../redux/stock/stock.action';
-
-//import { fetchItemStartAsync, setCurrentItem } from '../../redux/item/item.action';
-
-import { fetchSaleByInputStartAsync, fetchSalInvPayDetial, fetchSaleAR, fetchSalePayHist, fetchSaleInvoiceDetail } from '../../redux/Sale/sale.action';
-import { setCurrentUser } from '../../redux/user/user.action';
-import inventoryService from '../../services/inventory.service';
-import user from '../../services/user.service';
-import { checkAdmin, checkAccess } from '../../helper/checkAuthorization';
-import { DownloadTableExcel } from "react-export-table-to-excel";
-
-const AccountReceivable = ({ fetchSalInvPayDetial, salInvDetail,
+import {
     fetchSaleByInputStartAsync,
-    fetchSaleAR, saleArData,
-    fetchSalePayHist, salePayHist,
-    currentUser,
-    saleInvoice,
-    isFetching, currentUser1 }) => {
-    const [sInvoice, setSInvoice] = useState(saleInvoice);
-    const [sInvPayDetail, setSInvPayDetail] = useState([]);
-    const [payHist, setPayHist] = useState([])
-    const [returnHist, setReturnHist] = useState([])
-    const [currentInvoice, setCurrentInvoice] = useState([]);
-    const [secInvoice, setSecInvoice] = useState([]);
-    const [cashPayment, setCashPayment] = useState(0);
-    const [bankPayment, setBankPayment] = useState(0);
-    const [message, setMessage] = useState("");
-    const [loading, setLoading] = useState(false);
-    const [access, setAccess] = useState(false);
-    const [totalOutStanding, setTotalOutStanding] = useState(0);
-    const [totalInvoiceOutStanding, setTotalInvoiceOutStanding] = useState(0);
-    const [nameInput, setNameInput] = useState("");
-    const [reffInput, setReffInput] = useState("");
-    const [reffInvoiceInput, setReffInvoiceInput] = useState("");
-    const [agentNameInput, setAgentNameInput] = useState("");
-    const [filteredOptionsName, setFilteredOptionsName] = useState([]);
-    const [filteredOptionsReff, setFilteredOptionsReff] = useState([]);
-    const [openInvoices, setOpenInvoices] = useState([]);
-    const [totalInvoiceValue, setTotalInvoiceValue] = useState([0]);
-    const [filterOutstanding, setFilterOutstanding] = useState([0]);
-    const [totalRecord, setTotalRecord] = useState([0]);
+    fetchSalInvPayDetial,
+    fetchSaleAR,
+    fetchSalePayHist,
+} from '../../redux/Sale/sale.action';
+import inventoryService from '../../services/inventory.service';
+import { checkAccess } from '../../helper/checkAuthorization';
 
-    const [arInvoiceId, setARInvoiceId] = useState();
-    const [addressInput, setAddressInput] = useState("");
-    const [amountInput, setAmountInput] = useState("");
-    const [filter, setFilter] = useState("");
-    const [filterOldestInvoice, setFilterOlderInvoice] = useState("");
-    const [oldestInvoice, setOldestInvoice] = useState("");
+const AccountReceivable = ({
+    userRights,
+    saleAR: rawSaleAR,
+    saleInvoices: rawInvoices,
+    salInvPayDetail: rawPayDetails,
+    salePayHist: rawPayHist,
+    isFetching,
+    fetchSaleByInputStartAsync,
+    fetchSalInvPayDetial,
+    fetchSaleAR,
+    fetchSalePayHist,
+}) => {
     const tableRef = useRef(null);
 
-    useLayoutEffect(() => {
-        // checkAdmin().then((r) => { setContent(r); });
-        setAccess(checkAccess("ACCOUNT RECEIVABLE", currentUser1.rights));
-        console.log(`access value = ${access}`)
-    }
-        , []);
+    const [access] = useState(checkAccess('ACCOUNT RECEIVABLE', userRights));
+    const [loading, setLoading] = useState(false);
+    const [message, setMessage] = useState('');
+
+    // Filters
+    const [nameFilter, setNameFilter] = useState('');
+    const [agentFilter, setAgentFilter] = useState('');
+    const [addressFilter, setAddressFilter] = useState('');
+    const [amountFilter, setAmountFilter] = useState('');
+    const [amountOp, setAmountOp] = useState('Please Select');
+    const [ageFilter, setAgeFilter] = useState('');
+    const [ageOp, setAgeOp] = useState('Please Select');
+    const [invoiceSearch, setInvoiceSearch] = useState('');
+
+    // Selection & Payment
+    const [selectedCustomer, setSelectedCustomer] = useState(null);
+    const [selectedInvoice, setSelectedInvoice] = useState(null);
+    const [adjustAgainstInvoice, setAdjustAgainstInvoice] = useState(null);
+    const [cashPayment, setCashPayment] = useState('');
+    const [bankPayment, setBankPayment] = useState('');
+
+    const [selectedInvoiceForPay, setSelectedInvoiceForPay] = useState(null);
+    const [selectedInvoiceForDetails, setSelectedInvoiceForDetails] = useState(null);
+
+    const [viewMode, setViewMode] = useState('invoices'); // 'invoices', 'history'
 
     useEffect(() => {
         fetchSaleAR();
+    }, []);  // Remove fetchSaleAR from dependencies
+    // Safe arrays
 
-    }, [fetchSaleAR])
 
 
-    useEffect(() => {
-        var sumOutStanding = 0
-        if (saleArData) {
-            saleArData.map((item, index) => {
-                sumOutStanding = sumOutStanding + item.salesOutstanding
-                setTotalOutStanding(sumOutStanding)
-                setFilteredOptionsName(saleArData)
-            })
-        }
-    }, [saleArData])
+
+    const saleAR = useMemo(() => Array.isArray(rawSaleAR) ? rawSaleAR : [], [rawSaleAR]);
+    const invoices = useMemo(() => Array.isArray(rawInvoices) ? rawInvoices : [], [rawInvoices]);
+    const payDetails = useMemo(() => Array.isArray(rawPayDetails) ? rawPayDetails : [], [rawPayDetails]);
+    const payHist = useMemo(() => Array.isArray(rawPayHist) ? rawPayHist : [], [rawPayHist]);
 
     useEffect(() => {
+        console.log('saleAR reference changed', saleAR.length);
+    }, [saleAR]);
 
-        if (sInvoice) {
-            setFilteredOptionsReff(sInvoice)
-        }
-    }, [sInvoice])
+    // Sorted invoices
+    const sortedInvoices = useMemo(() => {
+        return [...invoices].sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+    }, [invoices]);
 
-    useEffect(() => {
+    // Filtered customers
+    const filteredCustomers = useMemo(() => {
+        return saleAR.filter((c) => {
+            const nameOk = !nameFilter || c.name?.toLowerCase().includes(nameFilter.toLowerCase());
+            const agentOk = !agentFilter || c.agentname?.toLowerCase().includes(agentFilter.toLowerCase());
+            const addrOk = !addressFilter || c.address?.toLowerCase().includes(addressFilter.toLowerCase());
+            const days = c.diff?.days || 0;
 
-        if (filteredOptionsReff === 0) {
-            setFilteredOptionsReff(sInvoice)
-        }
-    }, [filteredOptionsReff])
-
-    useEffect(() => {
-        var sumInvoiceValue = 0
-        var sumOutstanding = 0
-        var sumRecord = 1
-
-        filteredOptionsName.map((item, index) => {
-            sumInvoiceValue = sumInvoiceValue + item.saleInvoiceValue
-            setTotalInvoiceValue(sumInvoiceValue)
-            sumOutstanding = sumOutstanding + item.salesOutstanding
-            setFilterOutstanding(sumOutstanding)
-            sumRecord = index + 1
-            setTotalRecord(sumRecord)
-        })
-    }, [filteredOptionsName])
-
-    useEffect(() => {
-        //order the array and assign it to sInvoice which is Outstaning Invoices when customer id is selected from the list.
-        if (saleInvoice) {
-
-            var arr = saleInvoice;
-
-            function sortByKey(a, b) {
-                //console.log(`sorting array ${a.Outstanding}`)
-                //return parseFloat(a.Outstanding) > parseFloat(b.Outstanding) ? -1 : parseFloat(a.Outstanding) < parseFloat(b.Outstanding) ? 1 : 0;
-                //sort as per created date
-                return Date.parse(a.createdAt) < Date.parse(b.createdAt) ? -1 : Date.parse(a.createdAt) > Date.parse(b.createdAt) ? 1 : 0;
-
-
+            let amountOk = true;
+            if (amountOp !== 'Please Select' && amountFilter) {
+                const val = parseFloat(amountFilter);
+                if (isNaN(val)) return false;
+                const out = parseFloat(c.salesOutstanding) || 0;
+                if (amountOp === 'Equal To') amountOk = out === val;
+                else if (amountOp === 'Greater Than') amountOk = out > val;
+                else if (amountOp === 'Less Than') amountOk = out < val;
             }
 
-            const sorted = arr.sort(sortByKey);
-            //        console.log(sorted);
-            console.log(sorted)
-
-            setSInvoice(sorted);
-        }
-    }, [saleInvoice])
-
-    useEffect(() => {
-        setSInvPayDetail(salInvDetail)
-    }, [salInvDetail])
-
-    useEffect(() => {
-
-        //check if the invoicevalue is -ive then show invoices with outstanding >0
-        if (currentInvoice.id && currentInvoice.Outstanding < 0) {
-            //alert("invoice value is <0 show the outstanding invoices.....")
-
-            setOpenInvoices(sInvoice.filter(
-                option => {
-                    return option.Outstanding > 0
-                }
-            ));
-            console.log(openInvoices)
-        }
-        else {
-            setOpenInvoices([])
-        }
-    }, [currentInvoice])
-
-    useEffect(() => {
-        setPayHist(salePayHist)
-    }, [salePayHist])
-
-
-
-
-
-    const selectSaleInvoice = (item) => {
-        fetchSaleByInputStartAsync(item.customerId);
-        setCurrentUser(item.customerId);
-        setTotalInvoiceOutStanding(item.salesOutstanding);
-    }
-
-    const handleChange = event => {
-
-        if (event.target.id === "cashPayment") {
-            setCashPayment(event.target.value);
-        }
-        else if (event.target.id === "bankPayment") {
-            setBankPayment(event.target.value);
-        }
-        else if (event.target.id === "amount") {
-            if (filter === "" || filter === "Please Select") {
-                alert("Select the filter first");
+            let ageOk = true;
+            if (ageOp !== 'Please Select' && ageFilter) {
+                const val = parseFloat(ageFilter);
+                if (isNaN(val)) return false;
+                if (ageOp === 'Equal To') ageOk = days === val;
+                else if (ageOp === 'Greater Than') ageOk = days > val;
+                else if (ageOp === 'Less Than') ageOk = days < val;
             }
-            else {
-                setAmountInput(event.target.value);
-                //search base on the filter value
-                var selectedItem = [];
-                if (event.target.value === "") {
-                    setFilteredOptionsName(saleArData)
-                }
-                else if (filter === 'Equal To') {
-                    console.log('Equal To filter is called')
 
-                    selectedItem = filteredOptionsName.filter(
-                        (option) => option.salesOutstanding === parseFloat(event.target.value)
-                    );
-                    setFilteredOptionsName(selectedItem)
-                    // setFilteredOptionsName(saleArData.filter(
-                    //     option => {
-                    //         return (option) => option.salesOutstanding == parseInt(event.target.value)
-                    //     }
-                    // ));
+            return nameOk && agentOk && addrOk && amountOk && ageOk;
+        });
+    }, [saleAR, nameFilter, agentFilter, addressFilter, amountFilter, amountOp, ageFilter, ageOp]);
 
-                }
-                else if (filter === 'Greater Than') {
-                    selectedItem = filteredOptionsName.filter(
-                        (option) => option.salesOutstanding > parseFloat(event.target.value)
-                    );
-                    setFilteredOptionsName(selectedItem)
-                }
-                else if (filter === 'Less Than') {
-                    // query is on salesArData which is original because when once the amount value is lower the salesArData the selectedItem will be updated so 
-                    // now we cannot filer already filtered data which is causing issue.
-                    selectedItem = saleArData.filter(
-                        (option) => option.salesOutstanding < parseFloat(event.target.value)
-                    );
-                    setFilteredOptionsName(selectedItem)
+    // Totals
+    const totals = useMemo(() => {
+        const totalOutstanding = saleAR.reduce((sum, c) => sum + (parseFloat(c.salesOutstanding) || 0), 0);
+        const filteredInvoiceValue = filteredCustomers.reduce((sum, c) => sum + (parseFloat(c.saleInvoiceValue) || 0), 0);
+        const filteredOutstanding = filteredCustomers.reduce((sum, c) => sum + (parseFloat(c.salesOutstanding) || 0), 0);
+
+        return {
+            totalOutstanding,
+            filteredCount: filteredCustomers.length,
+            filteredInvoiceValue,
+            filteredOutstanding,
+        };
+    }, [saleAR, filteredCustomers]);
+
+    // Positive invoices for adjustment
+    const positiveInvoicesForAdjustment = useMemo(() => {
+        if (!selectedInvoice || selectedInvoice.Outstanding >= 0) return [];
+        return sortedInvoices.filter(inv => parseFloat(inv.Outstanding) > 0);
+    }, [selectedInvoice, sortedInvoices]);
+
+
+    // const selectCustomer = (customer) => {
+    //     setSelectedCustomer(customer);
+    //     setSelectedInvoiceForPay(null);
+    //     setSelectedInvoiceForDetails(null);
+    //     setAdjustAgainstInvoice(null);
+    //     setCashPayment('');
+    //     setBankPayment('');
+    //     // Add this:
+    //     // Clear any previous global payment history
+    //     // If you have a clear action in Redux, use it. Otherwise, just rely on not calling fetchSalePayHist
+    //     fetchSaleByInputStartAsync(customer.customerId);
+    // };
+
+    const selectCustomer = (customer) => {
+        setSelectedCustomer(customer);
+        setViewMode('invoices'); // default to invoices
+        setSelectedInvoiceForPay(null);
+        setSelectedInvoiceForDetails(null);
+        setCashPayment('');
+        setBankPayment('');
+        fetchSaleByInputStartAsync(customer.customerId);
+    };
+
+
+
+    const searchByInvoice = async () => {
+        if (!invoiceSearch.trim()) return;
+        setLoading(true);
+        try {
+            const res = await inventoryService.getSaleARByInvoiceId(invoiceSearch);
+            const data = res.data?.[0];
+            if (!data) throw new Error('Not found');
+
+            const customerSummary = {
+                customerId: data.customerId,
+                name: data.name,
+                address: data.address,
+                agentname: data.agentname,
+                saleInvoiceValue: data.invoicevalue,
+                salesOutstanding: data.Outstanding,
+                diff: data.diff,
+            };
+            selectCustomer(customerSummary);
+            setMessage('');
+        } catch (err) {
+            setMessage('Invoice not found');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleUpdatePayment = async () => {
+        const cash = parseFloat(cashPayment) || 0;
+        const bank = parseFloat(bankPayment) || 0;
+        const totalPay = cash + bank;
+
+        if (totalPay <= 0) {
+            setMessage('Enter a valid payment amount');
+            return;
+        }
+
+        setLoading(true);
+        setMessage('');
+
+        try {
+            if (selectedInvoice.Outstanding < 0) {
+                if (!adjustAgainstInvoice) {
+                    setMessage('Please select an invoice to adjust against');
+                    setLoading(false);
+                    return;
                 }
 
-                //setFilteredOptionsName(selectedItem)
+                const creditAmount = Math.abs(selectedInvoice.Outstanding);
+                const availableDebit = adjustAgainstInvoice.Outstanding;
+                const adjustAmt = Math.min(creditAmount, availableDebit);
 
-            }
+                const newCurrentOut = selectedInvoice.Outstanding + adjustAmt;
+                const newSecondaryOut = adjustAgainstInvoice.Outstanding - adjustAmt;
 
-        }
-        else if (event.target.id === "Filter") {
-            setFilter(event.target.value);
-            // apply the filter on these values     
-        }
-        else if (event.target.id === "FilterOldestInv") {
-            setFilterOlderInvoice(event.target.value)
-        }
-        else if (event.target.id === "oldestInvoice") {
-            if (filterOldestInvoice === "" || filterOldestInvoice === "Please Select") {
-                alert("Select the filter first");
-            }
-            else {
-                setOldestInvoice(event.target.value);
-                //search base on the filter value
-                var selectedItem = [];
-                if (event.target.value === "") {
-                    setFilteredOptionsName(saleArData)
-                }
-                else if (filterOldestInvoice === 'Equal To') {
-                    console.log('Equal To filter is called')
+                await Promise.all([
+                    inventoryService.createSaleInvPay({
+                        reffInvoice: selectedInvoice.id,
+                        cashPayment: adjustAmt,
+                        bankPayment: 0,
+                        comments: `Adjusted against #${adjustAgainstInvoice.id}`,
+                    }),
+                    inventoryService.createSaleInvPay({
+                        reffInvoice: adjustAgainstInvoice.id,
+                        cashPayment: -adjustAmt,
+                        bankPayment: 0,
+                        comments: `Adjusted from #${selectedInvoice.id}`,
+                    }),
+                    inventoryService.updateSale(selectedInvoice.id, { Outstanding: newCurrentOut }),
+                    inventoryService.updateSale(adjustAgainstInvoice.id, { Outstanding: newSecondaryOut }),
+                ]);
 
-                    selectedItem = filteredOptionsName.filter(
-                        (option) => option.diff.days === parseFloat(event.target.value)
-                    );
-
-                }
-                else if (filterOldestInvoice === 'Greater Than') {
-                    selectedItem = filteredOptionsName.filter(
-                        (option) => option.diff.days > parseFloat(event.target.value)
-                    );
-                }
-                else if (filterOldestInvoice === 'Less Than') {
-                    // query is on saleArData which is original because when once the amount value is lower the saleArData the selectedItem will be updated so 
-                    // now we cannot filer already filtered data which is causing issue.
-                    selectedItem = saleArData.filter(
-                        (option) => option.diff.days < parseFloat(event.target.value)
-                    );
+                setMessage('Credit adjustment successful');
+            } else {
+                if (totalPay > selectedInvoice.Outstanding) {
+                    setMessage('Payment cannot exceed outstanding amount');
+                    setLoading(false);
+                    return;
                 }
 
-                setFilteredOptionsName(selectedItem)
-                console.log(selectedItem)
+                await inventoryService.createSaleInvPay({
+                    reffInvoice: selectedInvoice.id,
+                    cashPayment: cash,
+                    bankPayment: bank,
+                    comments: '',
+                });
 
+                await inventoryService.updateSale(selectedInvoice.id, {
+                    Outstanding: selectedInvoice.Outstanding - totalPay,
+                });
+
+                setMessage('Payment recorded successfully');
             }
 
+            fetchSaleAR();
+            if (selectedCustomer) fetchSaleByInputStartAsync(selectedCustomer.customerId);
+            setSelectedInvoice(null);
+            setAdjustAgainstInvoice(null);
+            setCashPayment('');
+            setBankPayment('');
+        } catch (err) {
+            setMessage('Transaction failed. Please try again.');
+            console.error(err);
+        } finally {
+            setLoading(false);
         }
-        else if (event.target.id === "Name") {
-            setNameInput(event.target.value);
-            if (event.target.value === "" && agentNameInput === "" && addressInput === "") {
-                setFilteredOptionsName(saleArData)
-            }
-            else if (agentNameInput !== "" && addressInput !== "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
-                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (agentNameInput === "" && addressInput !== "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
-                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (agentNameInput !== "" && addressInput === "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (agentNameInput === "" && addressInput === "") {
-                setFilteredOptionsName(saleArData.filter(
-                    (option) => option.name.toLowerCase().indexOf(event.target.value.toLowerCase()) > -1
-                ));
-            }
-        }
-        else if (event.target.id === "agentName") {
-            setAgentNameInput(event.target.value);
-            if (event.target.value === "" && addressInput === "" && nameInput === "") {
-                setFilteredOptionsName(saleArData)
-            }
-            else if (nameInput !== "" && addressInput !== "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
-                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (nameInput === "" && addressInput !== "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                            option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (nameInput !== "" && addressInput === "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (nameInput === "" && addressInput === "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
-                    }
-                ));
-            }
+    };
 
-        }
-        else if (event.target.id === "address") {
-            setAddressInput(event.target.value);
-            if (event.target.value === "") {
-                setFilteredOptionsName(saleArData)
-            }
-            else if (nameInput !== "" && agentNameInput !== "") {
-
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1 &&
-                            option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-            else if (nameInput !== "" && agentNameInput === "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
-                            option.name.toLowerCase().indexOf(nameInput.toLowerCase()) > -1
-
-                    }
-                ));
-            }
-            else if (nameInput === "" && agentNameInput !== "") {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1 &&
-                            option.agentname.toLowerCase().indexOf(agentNameInput.toLowerCase()) > -1
-
-                    }
-                ));
-            }
-            else {
-                setFilteredOptionsName(saleArData.filter(
-                    option => {
-                        return option.address.toLowerCase().indexOf(addressInput.toLowerCase()) > -1
-                    }
-                ));
-            }
-        }
-        else if (event.target.id === "reff") {
-            setReffInput(event.target.value);
-            if (event.target.value === "") {
-                setFilteredOptionsReff(sInvoice)
-            }
-            else if (event.target.value !== "") {
-                setFilteredOptionsReff(sInvoice.filter(
-                    option => {
-                        return option.id == event.target.value
-                    }
-                ));
-            }
-        }
-        else if (event.target.id === "reffInvoice") {
-            setReffInvoiceInput(event.target.value);
-            if (event.target.value === "") {
-                //reset all the values
-                //show all AR
-                setFilteredOptionsName(saleArData)
-                //set customer invoice to blank as in case of refresh
-                setFilteredOptionsReff([]);
-
-            }
-
-
-        }
-    }
-
-    const updateHandler = () => {
-        console.log(`update is clicked.....${currentInvoice.Outstanding}`)
-        console.log(`currrent invoice id .....${currentInvoice.id}`)
-        if (currentInvoice.Outstanding < 0) {
-            // update two invoices.
-            //1- currentInvoice.outstaning = currentInvoince.outstaning + (- secInvoince.InvoiceValue)
-            //2- secInvoice.outstanding = secInvoice.outstanding + currentInvoice.out
-            var cOutStanding = 0
-            var secOutstanding = 0
-            var cpayment = 0
-            var spayment = 0
-            var cComments = `Amount adjusted against =${secInvoice.id}`
-            var secComments = `Amount adjusted against =${currentInvoice.id}`
-            if (secInvoice.Outstanding + (currentInvoice.Outstanding) >= 0) {
-                cOutStanding = 0
-                secOutstanding = secInvoice.Outstanding + (currentInvoice.Outstanding)
-                cpayment = -(secInvoice.Outstanding - (secInvoice.Outstanding + (currentInvoice.Outstanding)))
-                spayment = secInvoice.Outstanding - (secInvoice.Outstanding + (currentInvoice.Outstanding))
-            }
-            else if (secInvoice.Outstanding + (currentInvoice.Outstanding) < 0) {
-                cOutStanding = currentInvoice.Outstanding + secInvoice.Outstanding
-                secOutstanding = 0
-                cpayment = -(secInvoice.Outstanding)
-                spayment = secInvoice.Outstanding
-            }
-
-            console.log(`
-            currentOutstanding = ${cOutStanding}
-            secondOutstanding = ${secOutstanding}
-            currentpayment = ${cpayment}
-            secondPayment = ${spayment} 
-            comments for current invoice = ${cComments}
-            comments for secondary invoice = ${secComments}
-            `)
-            // update currentInvoice
-            var cvSaleInvPay = {
-                reffInvoice: currentInvoice.id,
-                cashPayment: cpayment,
-                bankPayment: 0,
-                comments: cComments
-            }
-
-
-            inventoryService.createSaleInvPay(cvSaleInvPay)
-                .then(res => {
-                    setMessage("Sale Invoice Payment added successfully.....")
-                    console.log("Sale Invoice Payment added successfully.....")
-
-                    ////////////////////////
-                    //2- Update saleInvoice 
-                    ///////////////////////
-                    var cvSaleInv = {
-                        Outstanding: cOutStanding
-                    }
-                    // console.log(`${parseInt(currentInvoice.Outstanding)} -
-                    // ${parseInt(cashPayment)} -
-                    // ${parseInt(bankPayment)}`)
-
-                    inventoryService.updateSale(currentInvoice.id, cvSaleInv)
-                        .then(res => {
-                            setMessage("Update Sale Outstanding completed successfully.....")
-                            console.log("Update Sale Outstanding completed successfully.....")
-
-
-                        })
-                        .catch(e => {
-                            console.log(`catch of Sale Outstanding ${e}
-                                          error from server  ${e.message}`);
-                        })
-                })
-                .catch(e => {
-                    console.log(`catch of Create Sale Invoice Payment ${e}
-                error from server  ${e.message}`);
-                })
-
-            //update Second Invoice
-            var svSaleInvPay = {
-                reffInvoice: secInvoice.id,
-                cashPayment: spayment,
-                bankPayment: 0,
-                comments: secComments
-            }
-
-
-            inventoryService.createSaleInvPay(svSaleInvPay)
-                .then(res => {
-                    setMessage("Sale Invoice Payment added successfully.....")
-                    console.log("Sale Invoice Payment added successfully.....")
-
-                    ////////////////////////
-                    //2- Update saleInvoice 
-                    ///////////////////////
-                    var svSaleInv = {
-                        Outstanding: secOutstanding
-                    }
-                    console.log(`${parseInt(currentInvoice.Outstanding)} -
-                ${parseInt(cashPayment)} -
-                ${parseInt(bankPayment)}`)
-
-                    inventoryService.updateSale(secInvoice.id, svSaleInv)
-                        .then(res => {
-                            setMessage("Update Sale Outstanding completed successfully.....")
-                            console.log("Update Sale Outstanding completed successfully.....")
-
-                            ///refresh the data 
-                            // clear and reload the invoice 
-                            fetchSaleAR();
-                            fetchSaleByInputStartAsync(0);
-                            setSInvPayDetail([])
-                            setCurrentInvoice([]);
-                            setCashPayment(0);
-                            setBankPayment(0);
-
-                        })
-                        .catch(e => {
-                            console.log(`catch of Sale Outstanding ${e}
-                                      error from server  ${e.message}`);
-                        })
-                })
-                .catch(e => {
-                    console.log(`catch of Create Sale Invoice Payment ${e}
-            error from server  ${e.message}`);
-                })
-
-        }
-        else {
-            if (currentInvoice.Outstanding < parseInt(cashPayment) + parseInt(bankPayment)) {
-                alert("values are wrong...");
-            }
-            else {
-
-                // 1-  PurchaseInvoicePayment
-                //2- update the PurchaseInvoice
-
-
-                setLoading(true);
-                // 1- Add New record in the saleInvoicePayment
-                /////////////////////////////////////////////
-                var vSaleInvPay = {
-                    reffInvoice: currentInvoice.id,
-                    cashPayment: cashPayment,
-                    bankPayment: bankPayment,
-                    comments: ''
-                }
-                console.log(vSaleInvPay)
-
-                inventoryService.createSaleInvPay(vSaleInvPay)
-                    .then(res => {
-                        setMessage("Sale Invoice Payment added successfully.....")
-                        console.log("Sale Invoice Payment added successfully.....")
-
-                        ////////////////////////
-                        //2- Update saleInvoice 
-                        ///////////////////////
-                        var vSaleInv = {
-                            Outstanding: parseInt(currentInvoice.Outstanding) -
-                                parseInt(cashPayment) -
-                                parseInt(bankPayment)
-                        }
-                        console.log(`${parseInt(currentInvoice.Outstanding)} -
-                    ${parseInt(cashPayment)} -
-                    ${parseInt(bankPayment)}`)
-
-                        inventoryService.updateSale(currentInvoice.id, vSaleInv)
-                            .then(res => {
-                                setMessage("Update Sale Outstanding completed successfully.....")
-                                console.log("Update Sale Outstanding completed successfully.....")
-
-
-                                // clear and reload the invoice 
-                                fetchSaleAR();
-                                fetchSaleByInputStartAsync(0);
-                                setSInvPayDetail([])
-                                setCurrentInvoice([]);
-                                setCashPayment(0);
-                                setBankPayment(0);
-
-
-                            })
-                            .catch(e => {
-                                console.log(`catch of Sale Outstanding ${e}
-                                          error from server  ${e.message}`);
-                            })
-
-
-
-
-                    })
-                    .catch(e => {
-                        console.log(`catch of Create Sale Invoice Payment ${e}
-                error from server  ${e.message}`);
-                    })
-
-            }
-        }
-        setLoading(false)
-    }
-
-    const searchInvoiceHandler = () => {
-        // search invoice and print the values.
-        inventoryService.getSaleARByInvoiceId(reffInvoiceInput)
-            .then(response2 => {
-                setARInvoiceId(response2.data)
-                console.log(response2.data)
-                console.log(response2.data[0].name)
-
-                ////get sale by customer name of the invoice.
-                // it is giving wrong values
-                // setFilteredOptionsName(saleArData.filter(
-                //     (option) => option.name.toLowerCase().indexOf(response2.data[0].name.toLowerCase()) > -1
-                // ));
-                var arr = [
-                    {
-                        customerId: response2.data[0].customerId,
-                        name: response2.data[0].name,
-                        address: response2.data[0].address,
-                        agentname: response2.data[0].agentname,
-                        saleInvoiceValue: response2.data[0].invoicevalue,
-                        salesOutstanding: response2.data[0].Outstanding,
-                        diff: response2.data[0].diff
-
-                    }
-                ]
-
-                setFilteredOptionsName(arr)
-                //console.log(arr)
-
-
-                //show specific invoice 
-
-                //console.log(sInvoice)
-
-                //
-                setFilteredOptionsReff(sInvoice.filter(
-                    option => {
-                        return option.id == reffInvoiceInput
-                    }
-                ));
-
-                //
-            })
-            .catch(e => {
-                console.log(`get sale ar by invoice Report error ${e}`);
-            })
-
-    }
-
-    const getPaymentDetail = (invoiceId) => {
-        //console.log(`Sale payment Details is called ${invoiceId}`)
-        fetchSalInvPayDetial(invoiceId);
-        // check of the amount is -ive then show the open inovice with the outstanding >0
-
-    }
-
-    const getPayHist = (custId) => {
-        console.log(`payment history is called ${custId}`)
-        fetchSalePayHist(custId);
-    }
-
-
+    if (!access) return <div className="alert alert-danger">Access denied</div>;
 
     return (
-        <div>
-            {access ?
-                <div className="submit-form container">
-                    {loading ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
-                    {isFetching ? <div className="alert alert-warning" role="alert">Processing....</div> : ''}
-                    {message ? <div className="alert alert-warning" role="alert">{message}</div> : ""}
+        <div className="container mt-4">
+            <h1>Accounts Receivable</h1>
 
-                    {/* <SearchUser show="AccRec" /> */}
-                    {/* get all invoices of the current user            */}
+            {(loading || (isFetching && saleAR.length === 0)) && (
+                <div className="alert alert-info">Loading data...</div>
+            )}
+            {message && <div className={`alert ${message.includes('successful') ? 'alert-success' : 'alert-warning'}`}>{message}</div>}
 
-                    {currentUser ?
-                        currentUser.id
-                        // fetchPurchaseByInputStartAsync(currentUser.id)
-
-                        : ""}
-                    <h1>Accounts Receivable</h1>
-                    <div>
-                        <div className="form-group row">
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Customer Name</label>
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="Name"
-                                    id="Name"
-                                    placeholder="Customer Name"
-                                    value={nameInput}
-                                    onChange={handleChange} />
-                            </div>
-                            {/* </div> */}
-                            {/* <div className="form-group row"> */}
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Agent Name</label>
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="agentName"
-                                    id="agentName"
-                                    placeholder="Agent Name"
-                                    value={agentNameInput}
-                                    onChange={handleChange} />
-                            </div>
+            {/* Filters */}
+            <div className="card mb-3">
+                <div className="card-body">
+                    <div className="row g-2 align-items-end">
+                        <div className="col-md-2"><input className="form-control" placeholder="Name" value={nameFilter} onChange={e => setNameFilter(e.target.value)} /></div>
+                        <div className="col-md-2"><input className="form-control" placeholder="Agent" value={agentFilter} onChange={e => setAgentFilter(e.target.value)} /></div>
+                        <div className="col-md-2"><input className="form-control" placeholder="Address" value={addressFilter} onChange={e => setAddressFilter(e.target.value)} /></div>
+                        <div className="col-md-2">
+                            <select className="form-select mb-1" value={amountOp} onChange={e => setAmountOp(e.target.value)}>
+                                <option>Please Select</option>
+                                <option>Equal To</option>
+                                <option>Greater Than</option>
+                                <option>Less Than</option>
+                            </select>
+                            <input className="form-control" type="number" placeholder="Amount" value={amountFilter} onChange={e => setAmountFilter(e.target.value)} disabled={amountOp === 'Please Select'} />
                         </div>
-                        <div className="form-group row">
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Address</label>
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="address"
-                                    id="address"
-                                    placeholder="Address"
-                                    value={addressInput}
-                                    onChange={handleChange} />
-                            </div>
-                            <div className="col-sm-2">
-                                Filter
-                                <select id="Filter" name="Filter" onChange={handleChange}>
-                                    <option selected="Please Select" value="Please Select">Please Select</option>
-                                    <option value="Equal To">Equal To</option>
-                                    <option value="Greater Than">Greater Than</option>
-                                    <option value="Less Than">Less Than</option>
-                                </select>
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="amount"
-                                    id="amount"
-                                    placeholder="Amount"
-                                    value={amountInput}
-                                    onChange={handleChange} />
-                            </div>
-                            <div className="col-sm-2">
-                                Filter Oldest Inv
-                                <select id="FilterOldestInv" name="Filter" onChange={handleChange}>
-                                    <option selected="Please Select" value="Please Select">Please Select</option>
-                                    <option value="Equal To">Equal To</option>
-                                    <option value="Greater Than">Greater Than</option>
-                                    <option value="Less Than">Less Than</option>
-                                </select>
-                            </div>
-                            <div className="col-sm-2">
-                                <input
-                                    type="text"
-                                    name="oldestInvoice"
-                                    id="oldestInvoice"
-                                    placeholder="Oldest Invoice"
-                                    value={oldestInvoice}
-                                    onChange={handleChange} />
-                            </div>
+                        <div className="col-md-2">
+                            <select className="form-select mb-1" value={ageOp} onChange={e => setAgeOp(e.target.value)}>
+                                <option>Please Select</option>
+                                <option>Equal To</option>
+                                <option>Greater Than</option>
+                                <option>Less Than</option>
+                            </select>
+                            <input className="form-control" type="number" placeholder="Days Old" value={ageFilter} onChange={e => setAgeFilter(e.target.value)} disabled={ageOp === 'Please Select'} />
                         </div>
-
-                        <div className="form-group row">
-                            <div className="col-sm-2">
-                                <label className="col-form-label" htmlFor="Item">Reff Invoice</label>
-                            </div>
-                            <div className="col-sm-6">
-                                <input
-                                    type="text"
-                                    name="reffInvoice"
-                                    id="reffInvoice"
-                                    placeholder="Reff Invoice"
-                                    value={reffInvoiceInput}
-                                    onChange={handleChange} />
-                            </div>
-                            <div className="col-sm-6">
-                                <button className="btn btn-success" type="button" onClick={searchInvoiceHandler} >Search Invoice</button>
-                            </div>
+                        <div className="col-md-2">
+                            <input className="form-control mb-1" placeholder="Invoice ID" value={invoiceSearch} onChange={e => setInvoiceSearch(e.target.value)} />
+                            <button className="btn btn-primary w-100" onClick={searchByInvoice}>Search</button>
                         </div>
-
-
-
-                        <div>
-                           
-                            <DownloadTableExcel
-                                filename="account_receivable"
-                                sheet="Receivable"
-                                currentTableRef={tableRef.current}
-                            >
-                                <button className="btn btn-success">Download as Excel</button>
-                            </DownloadTableExcel>
-                        </div>
-
                     </div>
-                    {filteredOptionsName ?
-                        <div>
-                            <div>
-                                <div className="inputFormHeader"><h2>Summary</h2></div>
-                                <div className="inputForm">
-                                    <div>Total Outstanding = {totalOutStanding}</div>
-
-                                </div>
-                            </div>
-
-
-
-                            <h1>Outstanding Customers</h1>
-                            <div>
-                                <div className="inputFormHeader"><h2>Filtered Summary</h2></div>
-                                <div className="inputForm">
-                                    <div>Total Records = {totalRecord}</div>
-                                    <div>Total Invoice Value = {totalInvoiceValue}</div>
-                                    <div>Total Outstanding = {filterOutstanding}</div>
-                                </div>
-                            </div>
-                            <table border="1" id="OutstandingCustomer" ref={tableRef}>
-                                <thead>
-                                    <tr>
-
-                                        <th>Customer id</th>
-                                        <th>Name</th>
-                                        <th>Address</th>
-                                        <th>Agent Name</th>
-                                        <th>Invoice Value</th>
-                                        <th>OutStanding</th>
-                                        <th>Oldest Invoice</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredOptionsName.map((item, index) => {
-                                        //console.log(index)
-                                        return (
-                                            <tr key={index}
-                                            // onClick={() => selectSaleInvoice(item)}
-                                            >
-                                                <td>{item.customerId}</td>
-                                                <td>{item.name}</td>
-                                                <td>{item.address}</td>
-                                                <td>{item.agentname}</td>
-                                                <td>{item.saleInvoiceValue}</td>
-                                                <td>{item.salesOutstanding}</td>
-                                                <td>{(item.diff === null) ? 0 : item.diff.days}</td>
-                                                <td><button type="button" onClick={() => {
-                                                    setSInvPayDetail([]);
-                                                    setPayHist([]);
-                                                    setCurrentInvoice([]);
-                                                    selectSaleInvoice(item)
-                                                }
-                                                }>Show Sale Invoices</button></td>
-                                                <td><button type="button" onClick={() => {
-                                                    setSInvPayDetail([]);
-                                                    setCurrentInvoice([]);
-                                                    // selectSaleInvoice([]);
-                                                    setSInvoice([]);
-                                                    getPayHist(item.customerId)
-                                                }
-                                                }>Payment History</button></td>
-
-                                            </tr>)
-                                    })}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        :
-                        ""
-                    }
-
-
-                    {filteredOptionsReff.length > 0 ?
-                        <div>
-                            <h1>Outstaning Invoices</h1>
-                            <div className="form-group row">
-                                <div className="col-sm-2">
-                                    <label className="col-form-label" htmlFor="Item">Reff Invoice</label>
-                                </div>
-                                <div className="col-sm-6">
-                                    <input
-                                        type="text"
-                                        name="reff"
-                                        id="reff"
-                                        placeholder="Reff Invoice"
-                                        value={reffInput}
-                                        onChange={handleChange} />
-                                </div>
-                            </div>
-                            <table border="1">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Customer id</th>
-                                        <th>Customer Name</th>
-                                        <th>Reff Invoice</th>
-                                        <th>Invoice Value</th>
-                                        <th>OutStanding</th>
-
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredOptionsReff.map((item, index) => {
-                                        //console.log(index)
-                                        //if (item.Outstanding!==0){
-                                        return (
-                                            <tr key={index}>
-                                                <td>{item.createdAt}</td>
-                                                <td>{item.customerId}</td>
-                                                <td>{item.customers.name}</td>
-                                                <td>{item.id}</td>
-                                                <td>{item.invoicevalue}</td>
-                                                <td>{item.Outstanding}</td>
-                                                {/* <td><button type="button" onClick={() => setCurrentInvoice(item)}>Make Payment</button></td> */}
-                                                <td><button type="button" onClick={() => {
-                                                    setSInvPayDetail([]);
-                                                    setPayHist([]);
-                                                    setCurrentInvoice(item)
-                                                    setSecInvoice([]);
-                                                }
-                                                }>Make Payment</button></td>
-                                                <td><button type="button" onClick={() => {
-
-                                                    setPayHist([]);
-                                                    setCurrentInvoice([]);
-                                                    selectSaleInvoice([]);
-                                                    getPaymentDetail(item.id)
-                                                }}>Payment Details</button></td>
-                                            </tr>)
-                                    }
-                                        //}
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        :
-                        ""
-                    }
-
-                    {currentInvoice.id ?
-                        <div>
-                            <div className="form-group row">
-                                <label className="col-sm-2 col-form-label" htmlFor="Name">Invoice Id</label>
-                                <div className="col-sm-10">
-                                    <input
-                                        type="text"
-                                        name="reffInvoice"
-                                        id="reffInvoice"
-                                        placeholder="reffInvoice"
-                                        value={currentInvoice.id}
-                                        disabled />
-                                </div>
-                            </div>
-                            <div className="form-group row">
-                                <label className="col-sm-2 col-form-label" htmlFor="Name">Customer Name</label>
-                                <div className="col-sm-10">
-                                    <input
-                                        type="text"
-                                        name="reffInvoice"
-                                        id="reffInvoice"
-                                        placeholder="reffInvoice"
-                                        value={currentInvoice.customers.name}
-                                        disabled />
-                                </div>
-                            </div>
-                            <div className="form-group row">
-                                <label className="col-sm-2 col-form-label" htmlFor="Name">Invoice Value</label>
-                                <div className="col-sm-10">
-                                    <input
-                                        type="text"
-                                        name="invoiceValue"
-                                        id="invoiceValue"
-                                        placeholder="Invoice Value"
-                                        value={currentInvoice.invoicevalue}
-                                        disabled />
-                                </div>
-                            </div>
-                            <div className="form-group row">
-                                <label className="col-sm-2 col-form-label" htmlFor="Name">OutStanding</label>
-                                <div className="col-sm-10">
-                                    <input
-                                        type="text"
-                                        name="outStanding"
-                                        id="outStanding"
-                                        placeholder="outStanding"
-                                        value={currentInvoice.Outstanding}
-                                        disabled
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-group row">
-                                <label className="col-sm-2 col-form-label" htmlFor="Name">Cash Payment</label>
-                                <div className="col-sm-10">
-                                    <input
-                                        type="text"
-                                        name="Cash Payment"
-                                        id="cashPayment"
-                                        placeholder="Cash Payment"
-                                        value={cashPayment}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="form-group row">
-                                <label className="col-sm-2 col-form-label" htmlFor="Name">Bank Payment</label>
-                                <div className="col-sm-10">
-                                    <input
-                                        type="text"
-                                        name="Bank Payment"
-                                        id="bankPayment"
-                                        placeholder="Bank Payment"
-                                        value={bankPayment}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div >
-                                <button className="btn btn-success" type="button" onClick={updateHandler} >Update</button>
-                            </div>
-                        </div>
-                        :
-                        ""}
-                    {openInvoices.length > 0 ?
-                        <div>
-                            <table border="1">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th>
-                                        <th>Customer id</th>
-                                        <th>Customer Name</th>
-                                        <th>Reff Invoice</th>
-                                        <th>Invoice Value</th>
-                                        <th>OutStanding</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {openInvoices.map((item, index) => {
-                                        //console.log(index)
-                                        //if (item.Outstanding!==0){
-                                        return (
-                                            <tr key={index}>
-                                                <td>{item.createdAt}</td>
-                                                <td>{item.customerId}</td>
-                                                <td>{item.customers.name}</td>
-                                                <td>{item.id}</td>
-                                                <td>{item.invoicevalue}</td>
-                                                <td>{item.Outstanding}</td>
-                                                {/* <td><button type="button" onClick={() => setCurrentInvoice(item)}>Make Payment</button></td> */}
-                                                <td><button type="button" onClick={() => {
-                                                    setSInvPayDetail([]);
-                                                    setPayHist([]);
-                                                    setSecInvoice(item)
-                                                    setCashPayment(item.Outstanding)
-                                                }
-                                                }>Select Invoice</button></td>
-                                            </tr>)
-                                    }
-                                        //}
-                                    )}
-                                </tbody>
-                            </table>
-                        </div>
-                        :
-                        ""
-                    }
-                    {payHist && payHist.length > 0 ?
-                        <div>
-                            <table border="1">
-                                <thead>
-                                    <tr>
-                                        <th>Customer Id</th>
-                                        <th>Customer Name</th>
-                                        <th>Sale Id</th>
-                                        <th>Sale Payment Id</th>
-                                        <th>Payment Time</th>
-                                        <th>Cash Payment</th>
-                                        <th>Bank Payment</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {payHist.map((item, index) => {
-                                        //console.log(index)
-                                        return (<tr key={index}>
-                                            <td>{item.userid}</td>
-                                            <td>{item.name}</td>
-                                            <td>{item.sid}</td>
-                                            <td>{item.sipid}</td>
-                                            <td>{item.createdAt}</td>
-                                            <td>{item.cashPayment}</td>
-                                            <td>{item.bankPayment}</td>
-                                        </tr>)
-                                    })}
-                                </tbody>
-                            </table>
-                        </div> :
-                        ""
-                    }
-                    {sInvPayDetail && sInvPayDetail.length > 0 ?
-                        <div>
-                            <table border="1">
-                                <thead>
-                                    <tr>
-                                        <th>Date</th><th>Reff Inv.</th>
-                                        <th>Cash Payment</th><th>Bank Payment</th>
-                                        <th>Comments</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {sInvPayDetail.map((item, index) => {
-                                        //console.log(index)
-                                        return (<tr key={index}>
-                                            <td>{item.createdAt}</td>
-                                            <td>{item.reffInvoice}</td>
-                                            <td>{item.cashPayment}</td>
-                                            <td>{item.bankPayment}</td>
-                                            <td>{item.comments}</td>
-                                        </tr>)
-                                    })}
-                                </tbody>
-                            </table>
-                        </div> :
-                        ""}
                 </div>
-                :
-                "Access denied for the screen"}
-        </div>
-    )
-}
+            </div>
 
+            {/* Summary */}
+            <div className="row mb-3">
+                <div className="col">
+                    <div className="card"><div className="card-body"><strong>Total Outstanding:</strong> {totals.totalOutstanding.toFixed(2)}</div></div>
+                </div>
+                <div className="col">
+                    <div className="card"><div className="card-body">
+                        <strong>Filtered ({totals.filteredCount} customers):</strong><br />
+                        Invoice Value: {totals.filteredInvoiceValue.toFixed(2)}<br />
+                        Outstanding: {totals.filteredOutstanding.toFixed(2)}
+                    </div></div>
+                </div>
+                <div className="col-auto">
+                    <DownloadTableExcel filename="accounts_receivable" sheet="AR" currentTableRef={tableRef.current}>
+                        <button className="btn btn-success">Export Excel</button>
+                    </DownloadTableExcel>
+                </div>
+            </div>
+
+            {/* Customers Table */}
+            <table className="table table-bordered table-hover" ref={tableRef}>
+                <thead className="table-light">
+                    <tr>
+                        <th>ID</th><th>Name</th><th>Address</th><th>Agent</th><th>Inv Value</th><th>Outstanding</th><th>Oldest (days)</th><th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredCustomers.length === 0 ? (
+                        <tr><td colSpan="8" className="text-center">No customers found</td></tr>
+                    ) : (
+                        filteredCustomers.map((c, index) => (
+                            <tr key={`customer-${c.customerId}-${c.agentname}`}>
+                                <td>{c.customerId}</td>
+                                <td>{c.name}</td>
+                                <td>{c.address}</td>
+                                <td>{c.agentname}</td>
+                                <td>{c.saleInvoiceValue}</td>
+                                <td>{c.salesOutstanding}</td>
+                                <td>{c.diff?.days || 0}</td>
+                                <td>
+                                    <button className="btn btn-sm btn-primary me-1" onClick={() => {
+                                        setViewMode('invoices');
+                                        selectCustomer(c)                                        
+                                    }}>Invoices</button>
+                                    <button className="btn btn-sm btn-info" onClick={() => {
+                                        setViewMode('history');
+                                        fetchSalePayHist(c.customerId);
+                                    }}>History</button>
+                                </td>
+                            </tr>
+                        ))
+                    )}
+                </tbody>
+            </table>
+
+            {/* Invoices Table */}
+            {invoices.length > 0 && viewMode === 'invoices' && selectedCustomer && (
+                <>
+                    <h4 className="mt-5">Outstanding Invoices - {selectedCustomer.name}</h4>
+                    <table className="table table-bordered mb-4">
+                        <thead className="table-light">
+                            <tr><th>Date</th><th>ID</th><th>Value</th><th>Outstanding</th><th>Actions</th></tr>
+                        </thead>
+                        <tbody>
+                            {sortedInvoices.map((inv, index) => (
+                                <tr key={`invoice-${inv.id ?? index}`}>
+                                    <td>{new Date(inv.createdAt).toLocaleDateString()}</td>
+                                    <td>{inv.id}</td>
+                                    <td>{inv.invoicevalue}</td>
+                                    <td>{inv.Outstanding}</td>
+                                    <td>
+                                        {/* Pay button */}
+                                        <button
+                                            className="btn btn-sm btn-success me-1"
+                                            onClick={() => {
+                                                setSelectedInvoice(inv);
+                                                setSelectedInvoiceForPay(inv);
+                                                setSelectedInvoiceForDetails(null); // hide history
+                                                setCashPayment('');
+                                                setBankPayment('');
+                                            }}
+                                        >
+                                            Pay
+                                        </button>
+
+                                        {/* Details button */}
+                                        <button
+                                            className="btn btn-sm btn-secondary"
+                                            onClick={async () => {
+                                                setSelectedInvoiceForPay(null); // hide payment form
+                                                setSelectedInvoiceForDetails(inv); // show history
+                                                await fetchSalInvPayDetial(inv.id);
+                                            }}
+                                        >
+                                            Details
+                                        </button>
+
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </>
+            )}
+
+            {/* Payment Form */}
+            {selectedInvoiceForPay && (
+                <div className="card mb-4">
+                    <div className="card-body">
+                        <h5>Record Payment - Invoice #{selectedInvoiceForPay.id}</h5>
+                        <p><strong>Customer:</strong> {selectedInvoiceForPay.customers?.name || 'N/A'}</p>
+                        <p><strong>Outstanding:</strong> {selectedInvoiceForPay.Outstanding}</p>
+
+                        <div className="row mb-3">
+                            <div className="col-md-4">
+                                <label className="form-label">Cash Payment</label>
+                                <input type="number" className="form-control" value={cashPayment} onChange={e => setCashPayment(e.target.value)} />
+                            </div>
+                            <div className="col-md-4">
+                                <label className="form-label">Bank Payment</label>
+                                <input type="number" className="form-control" value={bankPayment} onChange={e => setBankPayment(e.target.value)} />
+                            </div>
+                        </div>
+
+                        <button className="btn btn-lg btn-success" onClick={async () => {
+                            await handleUpdatePayment(); // record payment
+
+                            // Refresh history automatically
+                            if (selectedInvoiceForPay) {
+                                await fetchSalInvPayDetial(selectedInvoiceForPay.id);
+                                setSelectedInvoiceForDetails(selectedInvoiceForPay); // show updated history
+                            }
+
+                            setSelectedInvoiceForPay(null); // hide form
+                            setCashPayment('');
+                            setBankPayment('');
+                        }}>
+                            Record Payment
+                        </button>
+                    </div>
+                </div>
+            )}
+
+
+            {/* Adjustment Selection */}
+            {positiveInvoicesForAdjustment.length > 0 && (
+                <div className="card mb-4">
+                    <div className="card-body">
+                        <h5>Select Invoice to Adjust Credit Against</h5>
+                        <table className="table table-bordered">
+                            <thead><tr><th>ID</th><th>Date</th><th>Outstanding</th><th>Action</th></tr></thead>
+                            <tbody>
+                                {positiveInvoicesForAdjustment.map((inv, index) => (
+                                    <tr key={`adjust-${inv.id ?? index}`}>
+                                        <td>{inv.id}</td>
+                                        <td>{new Date(inv.createdAt).toLocaleDateString()}</td>
+                                        <td>{inv.Outstanding}</td>
+                                        <td>
+                                            <button className="btn btn-sm btn-warning" onClick={() => {
+                                                setAdjustAgainstInvoice(inv);
+                                                setCashPayment(Math.abs(selectedInvoice.Outstanding).toString());
+                                            }}>
+                                                Select This Invoice
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                        {adjustAgainstInvoice && (
+                            <div className="alert alert-success">
+                                Adjusting against Invoice #{adjustAgainstInvoice.id} (Outstanding: {adjustAgainstInvoice.Outstanding})
+                            </div>
+                        )}
+                    </div>
+                </div>
+            )}
+
+            {/* Only show customer-wide payment history if requested and no invoice-specific action is open */}
+            {payHist.length > 0 && viewMode === 'history' && selectedCustomer && (
+                <div className="mt-5">
+                    <h4>Payment History</h4>
+                    <table className="table table-bordered">
+                        <thead className="table-light">
+                            <tr><th>Date</th><th>Customer</th><th>Invoice</th><th>Cash</th><th>Bank</th></tr>
+                        </thead>
+                        <tbody>
+                            {payHist.map((p, index) => (
+                                <tr key={`payhist-${p.sipid ?? p.id ?? p.sid ?? index}`}>
+                                    <td>{new Date(p.createdAt).toLocaleDateString()}</td>
+                                    <td>{p.name}</td>
+                                    <td>{p.sid}</td>
+                                    <td>{p.cashPayment}</td>
+                                    <td>{p.bankPayment}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+
+            {/* Invoice Payment Details */}
+            {selectedInvoiceForDetails && payDetails.length > 0 && (
+                <div className="mt-5">
+                    <h4>Payment Details for Invoice #{selectedInvoiceForDetails.id}</h4>
+                    <table className="table table-bordered">
+                        <thead className="table-light">
+                            <tr><th>Date</th><th>Cash</th><th>Bank</th><th>Comments</th></tr>
+                        </thead>
+                        <tbody>
+                            {payDetails.map((d, index) => (
+                                <tr key={`paydetail-${d.id ?? index}`}>
+                                    <td>{new Date(d.createdAt).toLocaleDateString()}</td>
+                                    <td>{d.cashPayment}</td>
+                                    <td>{d.bankPayment}</td>
+                                    <td>{d.comments || '-'}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            )}
+        </div>
+    );
+};
 
 const mapStateToProps = state => ({
-    currentUser: state.user.currentUser,
-    currentUser1: state.user.user.user,
-    saleInvoice: state.sale.sale,
-    salInvDetail: state.sale.salInvPayDetail,
-    saleArData: state.sale.saleAR,
+    userRights: state.user.user?.rights || [],
+    saleAR: state.sale.saleAR,
+    saleInvoices: state.sale.sale,
+    salInvPayDetail: state.sale.salInvPayDetail,
     salePayHist: state.sale.salePayHist,
-
-})
-const mapDispatchToProps = dispatch => ({
-    fetchSaleByInputStartAsync: (userId) => dispatch(fetchSaleByInputStartAsync(userId)),
-    fetchSalInvPayDetial: (invoiceId) => dispatch(fetchSalInvPayDetial(invoiceId)),
-    fetchSalePayHist: (custId) => dispatch(fetchSalePayHist(custId)),
-    fetchSaleAR: () => dispatch(fetchSaleAR())
+    isFetching: state.sale.isFetching,
 });
 
+const mapDispatchToProps = {
+    fetchSaleByInputStartAsync,
+    fetchSalInvPayDetial,
+    fetchSaleAR,
+    fetchSalePayHist,
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(AccountReceivable);

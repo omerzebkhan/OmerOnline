@@ -48,7 +48,7 @@ const ItemDetail = () => {
     // const [content, setContent] = useState("");
     // const [access, setAccess] = useState(false);
 
-    // const currentUser = useSelector((state) => state.user.user.user);
+    // const currentUser = useSelector((state) => state.user.user);
 
 
 
@@ -84,14 +84,14 @@ const ItemDetail = () => {
 
                 <div className="inputFormHeader"><h1>Product Details</h1></div>
                 <div>
-                    <div class="row">
-                        <div class="col-sm-3">
+                    <div className="row">
+                        <div className="col-sm-3">
                             <img src={import.meta.env.VITE_S3 === "True" ?
                                 `${selectedItem.imageUrl}`
                                 :
                                 `${import.meta.env.VITE_MIDDLEWARE}/itemsImages/${selectedItem.imageUrl}`} alt="item" style={{ width: '100%', }} />
                         </div>
-                        <div class="col-sm-9">
+                        <div className="col-sm-9">
 
                             <div className="inputForm">
 
